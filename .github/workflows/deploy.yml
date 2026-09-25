@@ -1,0 +1,84 @@
+# 自动把博客构建并发布到 GitHub Pages
+#
+# 触发条件：推送到 main 分支，或在仓库 Actions 页面手动点 "Run workflow"
+#
+# 前置条件：仓库 Settings → Pages → Source 必须选 "GitHub Actions"。
+#           没选的话，下面的 deploy 步骤会报错。
+#
+# 流程：装依赖 → 构建 → 上传 dist/ → 发布
+#       注意 pnpm build 里已经包含 pagefind，它会扫描 dist/ 生成搜索索引，
+#       所以搜索功能不需要单独配置。
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # 允许手动触发：改完 Pages 设置后不用空提交一次也能重跑
+  workflow_dispatch:
+
+# GITHUB_TOKEN 需要这些权限：
+#   contents: read  —— 拉取代码
+#   pages: write    —— 发布到 Pages
+#   id-token: write —— 用 OIDC 向 Pages 证明这次部署确实来自本仓库
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只跑一个发布任务，防止连着推两次导致互相覆盖。
+# cancel-in-progress: false —— 宁可排队也不打断进行中的发布，
+# 因为发布中途被掐断可能留下不完整的站点。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 不写 version，让它自动读取 package.json 里的 packageManager 字段，
+      # 避免这里和 package.json 的 pnpm 版本对不上
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # --frozen-lockfile：lockfile 和 package.json 不一致就直接失败退出，
+      # 保证 CI 装的依赖版本跟你本地完全一致
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          # Pages 尚未开启时尝试自动开启。
+          # 如果这一步报权限错误，去 Settings → Pages 手动把 Source 改成
+          # "GitHub Actions" 再重跑即可。
+          enablement: true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

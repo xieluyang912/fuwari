@@ -145,7 +145,9 @@ const bannerOffset =
 
 		<slot name="head"></slot>
 
-		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
+		<!-- 用 url() 拼出带 base 的路径，再补成绝对地址。
+		     直接写 `${Astro.site}rss.xml` 会漏掉 base，部署在子路径下时这里会指向 404 -->
+		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={new URL(url("/rss.xml"), Astro.site).href}/>
 
 	</head>
 	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}

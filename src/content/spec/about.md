@@ -1,7 +1,8 @@
 # About
-This is the demo site for [Fuwari](https://github.com/saicaca/fuwari).
+This is the site for [Xieluyang](https://github.com/xieluyang912).
 
 ::github{repo="saicaca/fuwari"}
+::github{repo="withastro/astro"}
 
 > ### Sources of images used in this site
 > - [Unsplash](https://unsplash.com/)

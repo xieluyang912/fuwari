@@ -1,0 +1,35 @@
+/**
+ * Cloudflare Workers 部署配置（静态资源模式）
+ *
+ * 本站是纯静态站点（所有页面在构建时生成），所以不需要 @astrojs/cloudflare
+ * adapter，也不需要 Worker 脚本。Cloudflare 直接把 dist/ 目录当作静态资源托管。
+ *
+ * name 决定你的访问地址：https://<name>.<你的账号子域>.workers.dev
+ * 想换地址就改 name（只能用 小写字母、数字、连字符），改完重新 deploy 即可。
+ *
+ * 部署命令：pnpm build && npx wrangler deploy
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+
+	// Worker 名称，同时决定 workers.dev 的二级域名前缀
+	"name": "xieluyang-blog",
+
+	// 兼容性日期，决定 Workers 运行时采用哪个版本的默认行为
+	"compatibility_date": "2026-09-25",
+
+	"assets": {
+		// 要托管的静态文件目录，对应 astro build 的输出目录
+		"directory": "./dist",
+
+		// 访问不存在的路径时的处理方式。
+		// 本站目前没有自定义 404 页面（src/pages 下没有 404.astro），
+		// 所以用 "none"：返回 Cloudflare 自带的 404 页面。
+		// 其他可选值：
+		//   "404-page" —— 返回 dist/404.html。想用这个，先创建 src/pages/404.astro，
+		//                 重新构建后再把这里改过来。
+		//   "single-page-application" —— 所有未匹配路径都回退到 index.html，
+		//                 适合纯前端路由的 SPA，本站不需要。
+		"not_found_handling": "none"
+	}
+}

@@ -19,10 +19,17 @@ function stripInvalidXmlChars(str: string): string {
 export async function GET(context: APIContext) {
 	const blog = await getSortedPosts();
 
+	// @astrojs/rss 会拿这个 site 当作频道自身的地址，所以必须把 base 一起带上，
+	// 否则部署在 /fuwari/ 下时频道地址会指向域名根目录
+	const site = new URL(
+		import.meta.env.BASE_URL,
+		context.site ?? "https://fuwari.vercel.app",
+	);
+
 	return rss({
 		title: siteConfig.title,
 		description: siteConfig.subtitle || "No description",
-		site: context.site ?? "https://fuwari.vercel.app",
+		site,
 		items: blog.map((post) => {
 			const content =
 				typeof post.body === "string" ? post.body : String(post.body || "");

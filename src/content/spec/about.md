@@ -7,6 +7,7 @@ This is the site for [Xieluyang](https://github.com/xieluyang912).
 ::github{repo="deepseek-ai/deepseek-harness"}
 ::github{repo="521xueweihan/HelloGitHub"}
 ::github{repo="MeteorNOX/DeepSeek-Balance-Whale-Widget"}
+::note
 
 > ### Sources of images used in this site
 > - [Unsplash](https://unsplash.com/)

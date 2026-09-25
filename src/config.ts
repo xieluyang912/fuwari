@@ -39,7 +39,7 @@ export const siteConfig: SiteConfig = {
 	// 首页顶部的大幅横幅图片
 	banner: {
 		enable: true, // 是否启用横幅图片
-		src: "assets/images/TempDragFile_20260926_002415(1).png", // 相对于 /src 目录。若以 '/' 开头，则相对于 /public 目录
+		src: "/assets/images/TempDragFile_20260926_003226(1).png", // 相对于 /src 目录。若以 '/' 开头，则相对于 /public 目录
 		position: "center", // 等同于 object-position，仅支持 'top'、'center'、'bottom'，默认为 'center'
 		// 图片版权信息：鼠标悬停在横幅右下角时显示，用于标注图片来源
 		credit: {

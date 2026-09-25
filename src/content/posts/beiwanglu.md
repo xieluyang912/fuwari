@@ -2,7 +2,7 @@
 title: 一个备忘录
 published: 2026-09-25
 description: '一个帮助我维护网站的备忘录'
-image: 'src\content\posts\img\TempDragFile_20260926_003024(1).png'
+image: '\img\TempDragFile_20260926_003024(1).png'
 tags: [网站维护]
 category: '网站维护'
 draft: false 

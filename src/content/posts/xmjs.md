@@ -3,8 +3,8 @@ title: 项目介绍
 published: 2026-09-26
 description: '这个项目的一个介绍'
 image: 'img\TempDragFile_20260926_003035(1).png'
-tags: []
-category: ''
+tags: [网站维护]
+category: '网站维护'
 draft: false 
 lang: ''
 ---

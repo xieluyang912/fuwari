@@ -2,7 +2,7 @@
 title: 你好，我是 Xieluyang
 published: 2026-09-25
 description: 自我介绍，以及这个网站是怎么搭起来的
-image: ''
+image: 'img\TempDragFile_20260926_003035(1).png'
 tags: [随笔, 关于]
 category: 随笔
 draft: false

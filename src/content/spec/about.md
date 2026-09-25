@@ -3,6 +3,7 @@ This is the site for [Xieluyang](https://github.com/xieluyang912).
 
 ::github{repo="saicaca/fuwari"}
 ::github{repo="withastro/astro"}
+::github{repo="xieluyang912/fuwari"}
 
 > ### Sources of images used in this site
 > - [Unsplash](https://unsplash.com/)

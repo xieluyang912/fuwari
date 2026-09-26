@@ -39,7 +39,7 @@ export const siteConfig: SiteConfig = {
 	// 首页顶部的大幅横幅图片
 	banner: {
 		enable: true, // 是否启用横幅图片
-		src: "assets/images/TempDragFile_20260926_003226(1).png", // 相对于 /src 目录。若以 '/' 开头，则相对于 /public 目录
+		src: "assets/images/girl_backpack_road_1160862_1280x720.jpg", // 相对于 /src 目录。若以 '/' 开头，则相对于 /public 目录
 		position: "center", // 等同于 object-position，仅支持 'top'、'center'、'bottom'，默认为 'center'
 		// 图片版权信息：鼠标悬停在横幅右下角时显示，用于标注图片来源
 		credit: {
@@ -110,6 +110,13 @@ export const profileConfig: ProfileConfig = {
 			name: "GitHub",
 			icon: "fa6-brands:github",
 			url: "https://github.com/Xieluyang912",
+		},
+		{
+			// 订阅本站的 RSS。以 "/" 开头表示站内链接，
+			// Profile.astro 会自动补上部署用的 base path（这里是 /fuwari/）
+			name: "RSS",
+			icon: "fa6-solid:rss",
+			url: "/rss.xml",
 		},
 	],
 };

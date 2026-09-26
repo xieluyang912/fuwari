@@ -21,10 +21,10 @@ let links: NavBarLink[] = navBarConfig.links.map(
 );
 ---
 <div id="navbar" class="z-50 onload-animation">
-    <div class="absolute h-8 left-0 right-0 -top-8 bg-[var(--card-bg)] transition"></div> <!-- used for onload animation -->
+    <div class="navbar-glass absolute h-8 left-0 right-0 -top-8 transition"></div> <!-- used for onload animation -->
     <div class:list={[
         className,
-        "card-base !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
+        "navbar-glass card-base !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
         <a href={url('/')} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-5 font-bold active:scale-95">
             <div class="flex flex-row text-[var(--primary)] items-center text-md">
                 <Icon name="material-symbols:home-outline-rounded" class="text-[1.75rem] mb-1 mr-2" />
@@ -60,6 +60,17 @@ let links: NavBarLink[] = navBarConfig.links.map(
         <DisplaySettings client:only="svelte"></DisplaySettings>
     </div>
 </div>
+
+<style>
+    /* 毛玻璃效果：card-base 自带不透明的 bg-[var(--card-bg)]，这里用同色但带透明度
+       的背景覆盖掉（作用域选择器的优先级高于工具类），再对背后的内容做模糊。
+       想调整通透程度改百分比，想调整模糊强度改 blur() 的数值。 */
+    .navbar-glass {
+        background-color: color-mix(in oklab, var(--card-bg) 70%, transparent);
+        -webkit-backdrop-filter: blur(12px) saturate(180%);
+        backdrop-filter: blur(12px) saturate(180%);
+    }
+</style>
 
 <script>
 function switchTheme() {

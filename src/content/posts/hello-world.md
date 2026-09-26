@@ -1,5 +1,5 @@
 ---
-title: 你好，我是 Xieluyang
+title: 你好，这是我的个人blog
 published: 2026-09-25
 description: 自我介绍，以及这个网站是怎么搭起来的
 image: 'img\girl_art_anime_1313052_1280x720.jpg'

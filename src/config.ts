@@ -31,7 +31,7 @@ export const siteConfig: SiteConfig = {
 	// 站点标题，显示在浏览器标签页、导航栏和 RSS 中
 	title: "Xieluyang",
 	subtitle: "Demo Site",
-	lang: "zh_CN", // 语言代码，例如 'en'、'zh_CN'、'ja' 等
+	lang: "en", // 语言代码，例如 'en'、'zh_CN'、'ja' 等
 	themeColor: {
 		hue: 250, // 主题色的默认色相，取值 0 到 360。例如：红色 0、蓝绿色 200、青色 250、粉色 345
 		fixed: false, // 对访客隐藏主题色选择器
@@ -79,6 +79,12 @@ export const navBarConfig: NavBarConfig = {
 			// 自定义链接：指向外部的 GitHub 仓库
 			name: "GitHub",
 			url: "https://github.com/Xieluyang912", // 内部链接不要包含 base path，它会被自动添加
+			external: true, // 显示外链图标，并在新标签页中打开
+		},
+		{
+			// 自定义链接：指向外部的 GitHub 仓库
+			name: "bilibili",
+			url: "https://space.bilibili.com/3546912602982411", // 内部链接不要包含 base path，它会被自动添加
 			external: true, // 显示外链图标，并在新标签页中打开
 		},
 	],

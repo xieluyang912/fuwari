@@ -9,6 +9,20 @@ draft: false
 lang: ''
 ---
 
+<div class="badge-row">
+
+![Static Badge](https://img.shields.io/badge/qq-234259867-blue?logo=qq)
+![Static Badge](https://img.shields.io/badge/wechat-xly15283272038-green?logo=wechat)
+![Static Badge](https://img.shields.io/badge/gihub-xieluyang912-orange?logo=github)
+![Static Badge](https://img.shields.io/badge/steam-xxllyy-red?logo=steam)
+![Static Badge](https://img.shields.io/badge/pnpm-%3E%3D9-green?logo=pnpm)
+![Static Badge](https://img.shields.io/badge/nodedotjs-%3E%3D20-red?logo=nodedotjs)
+![Static Badge](https://img.shields.io/badge/deepseek-harness-blue?logo=deepseek)
+![Static Badge](https://img.shields.io/badge/claude-code-orange?logo=claude)
+![Static Badge](https://img.shields.io/badge/%E6%94%AF%E6%8C%81%E5%BA%93-astro-yello?logo=astro)
+
+</div>
+
 从今天起，每篇文章的底部都有了评论区。这一篇记录一下它是怎么接进来的、为什么这么选，以及中途踩到的两个坑。
 
 # 评论存在哪里

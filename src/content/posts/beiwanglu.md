@@ -74,21 +74,37 @@ image: ./img/cover.jpg
 
 ```
 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-<iframe src="https://player.bilibili.com/player.html?bvid=BV1GJ411x7h7&page=1&high_quality=1&danmaku=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+<iframe src="https://player.bilibili.com/player.html?bvid=BV1GJ411x7h7&page=1&high_quality=1&danmaku=0&autoplay=0" loading="lazy" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
 </div>
 ```
 
-实际效果（BV1GJ411x7h7）：
+实际效果（BV1GJ411x7h7，滚到这里才会加载，不会自动播）：
 
 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-<iframe src="https://player.bilibili.com/player.html?bvid=BV1GJ411x7h7&page=1&high_quality=1&danmaku=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+<iframe src="https://player.bilibili.com/player.html?bvid=BV1GJ411x7h7&page=1&high_quality=1&danmaku=0&autoplay=0" loading="lazy" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
 </div>
 
 不想要自适应、固定高度就够了的话，用简写版：
 
 ```
-<iframe width="100%" height="468" src="//player.bilibili.com/player.html?bvid=你的BV号" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+<iframe width="100%" height="468" src="//player.bilibili.com/player.html?bvid=你的BV号&autoplay=0" loading="lazy" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
 ```
+
+## 怎么保证不自动播放
+
+三个手段叠加，基本杜绝：
+
+```html
+<iframe src="https://player.bilibili.com/player.html?bvid=xxx&autoplay=0" loading="lazy" ...>
+```
+
+- **别写 `autoplay=1`** —— B 站播放器默认就是不自动播放的，会自己播通常是因为复制来的模板里带了 `autoplay=1`
+- **`&autoplay=0`** —— 显式关掉。这个参数在部分播放器版本上不太靠谱，所以还要配下面一条
+- **`loading="lazy"`** —— 浏览器原生懒加载：iframe 没滚进视口附近就压根不加载，没加载自然不可能出声。这条是浏览器层面的，比 B 站自己的参数可靠，附带还加快了首屏速度
+
+另外浏览器本身有自动播放策略：**带声音的自动播放会被拦截**，只有静音才允许。所以哪怕参数失效，正常情况下也吵不到人。
+
+真遇到顽固的自动播放，终极方案是「封面图 + 点击再加载」：先放一张封面，用户点一下才把 iframe 插进 DOM。需要的话我可以写成一个组件，在 Markdown 里一行就能用。
 
 ## 方式二：播放 mp4（站内文件或外链）
 

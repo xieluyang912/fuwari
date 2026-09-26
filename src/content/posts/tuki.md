@@ -8,9 +8,9 @@ category: '网站维护'
 draft: false 
 lang: ''
 ---
-![1](.\img\girl_art_anime_1313052_1280x720.jpg)
-![2](.\img\girl_bubbles_pose_1313884_1280x720.jpg)
-![3](.\img\girl_umbrella_anime_151317_1280x720.jpg)
-![4](.\img\TempDragFile_20260926_002415(1).png)
-![5](.\img\TempDragFile_20260926_003024(1).png)
-![6](.\img\TempDragFile_20260926_003226(1).png)
+![1](./img/girl_art_anime_1313052_1280x720.jpg)
+![2](./img/girl_bubbles_pose_1313884_1280x720.jpg)
+![3](./img/girl_umbrella_anime_151317_1280x720.jpg)
+![4](./img/TempDragFile_20260926_002415(1).png)
+![5](./img/TempDragFile_20260926_003024(1).png)
+![6](./img/TempDragFile_20260926_003226(1).png)

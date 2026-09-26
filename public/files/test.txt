@@ -1,0 +1,5 @@
+这是一个用于测试文章内文件下载的示例文件。
+This is a demo file for testing in-article downloads.
+
+如果你在浏览器里看到了这段文字，说明链接生效了。
+删除 public/files/ 下的文件不会影响站点构建，可以放心清理。

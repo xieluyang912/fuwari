@@ -1,6 +1,8 @@
 # About
 This is the site for [Xieluyang](https://github.com/xieluyang912).
 
+<div class="badge-row">
+
 ![Static Badge](https://img.shields.io/badge/qq-234259867-blue?logo=qq)
 ![Static Badge](https://img.shields.io/badge/wechat-xly15283272038-green?logo=wechat)
 ![Static Badge](https://img.shields.io/badge/gihub-xieluyang912-orange?logo=github)
@@ -12,6 +14,8 @@ This is the site for [Xieluyang](https://github.com/xieluyang912).
 ![Static Badge](https://img.shields.io/badge/deepseek-harness-blue?logo=deepseek)
 ![Static Badge](https://img.shields.io/badge/claude-code-orange?logo=claude)
 ![Static Badge](https://img.shields.io/badge/%E6%94%AF%E6%8C%81%E5%BA%93-astro-yello?logo=astro)
+
+</div>
 
 
 ::github{repo="saicaca/fuwari"}

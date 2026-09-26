@@ -193,6 +193,22 @@ const bannerOffset =
 	.navbar-hidden {
 		@apply opacity-0 -translate-y-16
 	}
+
+	/* Markdown 里用 <div class="badge-row"> 包住的一排徽章：排成一行，放不下就自动折行。
+	   prose 默认给 img 上下各 2em 外边距，会让同一行的徽章撑出怪异的大间隙，
+	   所以这里清零，改用 gap 统一控制行内和行间的间距。 */
+	.badge-row > p {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.375rem;
+		margin: 0;
+	}
+
+	.badge-row > p img {
+		flex: 0 0 auto;
+		margin: 0;
+	}
 }
 </style>
 

@@ -2,7 +2,7 @@
 title: 项目介绍
 published: 2026-09-26
 description: '这个项目的一个介绍'
-image: 'img\TempDragFile_20260926_003035(1).png'
+image: 'img\girl_bubbles_pose_1313884_1280x720.jpg'
 tags: [网站维护]
 category: '网站维护'
 draft: false 

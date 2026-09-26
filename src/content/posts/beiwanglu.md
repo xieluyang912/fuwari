@@ -2,7 +2,7 @@
 title: 一个备忘录
 published: 2026-09-25
 description: '一个帮助我维护网站的备忘录'
-image: 'img\TempDragFile_20260926_003024(1).png'
+image: 'img\girl_umbrella_anime_151317_1280x720.jpg'
 tags: [网站维护]
 category: '网站维护'
 draft: false 

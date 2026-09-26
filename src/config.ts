@@ -14,6 +14,7 @@
  */
 
 import type {
+	CommentConfig,
 	ExpressiveCodeConfig,
 	LicenseConfig,
 	NavBarConfig,
@@ -112,6 +113,12 @@ export const profileConfig: ProfileConfig = {
 			url: "https://github.com/Xieluyang912",
 		},
 		{
+			// B 站主页，与顶部导航栏用的是同一个 UID
+			name: "Bilibili",
+			icon: "fa6-brands:bilibili",
+			url: "https://space.bilibili.com/3546912602982411",
+		},
+		{
 			// 订阅本站的 RSS。以 "/" 开头表示站内链接，
 			// Profile.astro 会自动补上部署用的 base path（这里是 /fuwari/）
 			name: "RSS",
@@ -130,6 +137,50 @@ export const licenseConfig: LicenseConfig = {
 	enable: true,
 	name: "CC BY-NC-SA 4.0",
 	url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+};
+
+/**
+ * 文章底部的评论区，由 Comments.astro 组件渲染。
+ *
+ * 用的是 giscus：评论内容存放在 GitHub Discussions 里，页面只嵌一个 iframe，
+ * 不需要任何服务器或数据库。访客用 GitHub 账号登录后即可评论。
+ *
+ * ⚠️ 首次启用需要先在 GitHub 上做准备，否则评论区会显示报错：
+ *   1. 仓库必须是公开的（giscus 读不到私有仓库的 Discussions）
+ *   2. 仓库 Settings → General → Features 里勾选 Discussions
+ *   3. 到 https://github.com/apps/giscus 安装 giscus App，并授权访问该仓库
+ *   4. 在仓库的 Discussions 里建一个分类（推荐用 Announcements 类型，
+ *      这样只有 giscus 机器人能发起 discussion，访客无法自己开新帖）
+ *   5. 打开 https://giscus.app，填入仓库名和分类，页面会直接给出下面
+ *      需要的 repoId 和 categoryId，复制过来即可
+ *
+ * 若暂时不想显示评论区，把 enable 改为 false 就行。
+ */
+export const commentConfig: CommentConfig = {
+	enable: true,
+	giscus: {
+		repo: "xieluyang912/fuwari",
+		repoId: "R_kgDOUrLLdQ", // 由 https://giscus.app 生成，仓库的节点 ID，不是仓库名
+		category: "Announcements",
+		categoryId: "DIC_kwDOUrLLdc4DGbiA", // 由 https://giscus.app 生成，Announcements 分类的节点 ID
+
+		// 按页面路径匹配 discussion。本站路径形如 /fuwari/posts/hello-world/，
+		// 一篇文章对应一个 discussion。注意：日后若改动 astro.config.mjs 里的
+		// base 或域名，路径会变，已有评论就对不上新页面了。
+		// 想避免这个问题可以改用 "og:title"（按文章标题匹配）。
+		mapping: "pathname",
+		strict: false, // 是否严格匹配标题，仅在 mapping 为 title / og:title 时有意义
+		reactionsEnabled: true, // 在每条评论上显示 emoji 回应
+		emitMetadata: false, // 同步 discussion 元数据到 iframe，一般用不到
+		inputPosition: "bottom", // 评论输入框在列表的下方
+		lang: "zh-CN", // giscus 界面语言。留空则跟随 siteConfig.lang 自动选择
+		loading: "lazy", // 滚动到评论区附近才加载，对首屏性能更友好
+
+		// 跟随本站的明暗模式切换。giscus 的主题名可参考 https://giscus.app，
+		// 例如去掉边框的 "noborder_light" / "noborder_dark"
+		lightTheme: "light",
+		darkTheme: "dark",
+	},
 };
 
 /**

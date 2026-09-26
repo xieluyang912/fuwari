@@ -1,0 +1,46 @@
+---
+/**
+ * 文章底部的评论区（giscus）。
+ *
+ * 这个组件只负责「占位」和外观：渲染一个标题和一个空的 #giscus-container。
+ * 真正的 iframe 由 Layout.astro 里的脚本注入 —— 之所以不写在这里，是因为
+ * 本站在用 Swup 做无刷新跳转，它只替换 <main> 和 #toc 两个容器：
+ *  - 脚本写在 <main> 里，会被 Swup 反复重新执行，可能重复加载评论区；
+ *  - 而且访客从首页进来时根本不会渲染文章页，脚本就没机会注册。
+ * 放在 Layout.astro 里则整站只注册一次，再由 Swup 的 page:view 事件触发加载。
+ */
+
+import { Icon } from "astro-icon/components";
+import { commentConfig } from "../../config";
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+
+// 构建时就能发现的配置疏漏，直接在终端提醒，免得部署上去才发现评论区是空的
+if (
+	commentConfig.enable &&
+	(!commentConfig.giscus.repoId || !commentConfig.giscus.categoryId)
+) {
+	console.warn(
+		"[Comments] commentConfig 已启用，但 giscus 的 repoId / categoryId 还是空的，" +
+			"评论区无法加载。请到 https://giscus.app 生成后填入 src/config.ts。",
+	);
+}
+---
+
+{commentConfig.enable && (
+	<div class:list={["card-base px-6 md:px-9 py-6", className]}>
+		<div class="flex flex-row items-center gap-2 mb-4 transition font-bold text-black/75 dark:text-white/75">
+			<Icon name="fa6-solid:comment" class="text-[1.25rem] text-[var(--primary)]"></Icon>
+			{i18n(I18nKey.comments)}
+		</div>
+		<!-- 评论区由 Layout.astro 里的脚本注入，见该文件末尾的 giscus 部分 -->
+		<div id="giscus-container" class="transition"></div>
+	</div>
+)}
+

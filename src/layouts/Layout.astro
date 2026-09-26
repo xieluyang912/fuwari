@@ -583,3 +583,110 @@ if (window.swup) {
 	document.addEventListener("swup:enable", setup)
 }
 </script>
+
+<script>
+import { commentConfig, siteConfig } from "../config";
+
+/*
+ * giscus 评论区的加载与主题同步。
+ *
+ * 这里只负责把 https://giscus.app/client.js 动态插进 #giscus-container
+ * （容器由 Comments.astro 渲染，只有文章页才有），不做任何网络请求逻辑，
+ * 评论本身存放在 GitHub Discussions 里。
+ *
+ * 为什么整个流程写在本文件而不是 Comments.astro：
+ * 1. Swup 只替换 <main> 和 #toc，写在那两个容器里的脚本每次跳转都会被
+ *    重新执行，会重复插入评论区；
+ * 2. 访客若从首页进入再跳到文章页，文章页的脚本压根没在首次加载时执行过，
+ *    也就无从注册 Swup 的钩子。
+ * 放在 Layout 里则整站只执行一次，再由 page:view 事件按需加载。
+ */
+
+const GISCUS_ORIGIN = "https://giscus.app";
+
+// siteConfig.lang 用的是 "zh_CN" 这类下划线写法，giscus 要的是 "zh-CN"
+const giscusLangMap: Record<string, string> = {
+	zh_cn: "zh-CN",
+	zh_tw: "zh-TW",
+	en: "en",
+	ja: "ja",
+	ko: "ko",
+	es: "es",
+	th: "th",
+	vi: "vi",
+	tr: "tr",
+	id: "id",
+};
+
+// 当前该用哪套配色。本站的明暗模式是通过 <html> 上的 dark 类控制的
+function giscusTheme(): string {
+	return document.documentElement.classList.contains("dark")
+		? commentConfig.giscus.darkTheme
+		: commentConfig.giscus.lightTheme;
+}
+
+// 已经加载好的 iframe 用 postMessage 换肤，避免整块评论区重新加载
+function syncGiscusTheme() {
+	const iframe = document.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
+	iframe?.contentWindow?.postMessage(
+		{ giscus: { setConfig: { theme: giscusTheme() } } },
+		GISCUS_ORIGIN,
+	);
+}
+
+function loadGiscus() {
+	const container = document.getElementById("giscus-container");
+	// 非文章页没有这个容器，直接跳过
+	if (!container) return;
+	// 同一个容器只加载一次：首次进入和 Swup 的 page:view 都可能调到这
+	if (container.dataset.giscusLoaded === "true") return;
+	container.dataset.giscusLoaded = "true";
+
+	const attributes: Record<string, string> = {
+		src: `${GISCUS_ORIGIN}/client.js`,
+		"data-repo": commentConfig.giscus.repo,
+		"data-repo-id": commentConfig.giscus.repoId,
+		"data-category": commentConfig.giscus.category,
+		"data-category-id": commentConfig.giscus.categoryId,
+		"data-mapping": commentConfig.giscus.mapping,
+		"data-strict": commentConfig.giscus.strict ? "1" : "0",
+		"data-reactions-enabled": commentConfig.giscus.reactionsEnabled ? "1" : "0",
+		"data-emit-metadata": commentConfig.giscus.emitMetadata ? "1" : "0",
+		"data-input-position": commentConfig.giscus.inputPosition,
+		"data-theme": giscusTheme(),
+		"data-lang":
+			commentConfig.giscus.lang ||
+			giscusLangMap[siteConfig.lang.toLowerCase()] ||
+			"en",
+		"data-loading": commentConfig.giscus.loading,
+		crossorigin: "anonymous",
+		async: "true",
+	};
+
+	const script = document.createElement("script");
+	for (const [key, value] of Object.entries(attributes)) {
+		script.setAttribute(key, value);
+	}
+	// giscus 会把 iframe 插在自己这个 <script> 的前面，所以必须放进容器里，
+	// 而不是 document.body，否则 iframe 会跑到页面底部去
+	container.appendChild(script);
+}
+
+// 访客切换明暗模式（或系统主题变化）时同步评论区配色
+new MutationObserver(syncGiscusTheme).observe(document.documentElement, {
+	attributes: true,
+	attributeFilter: ["class"],
+});
+
+const setup = () => {
+	loadGiscus();
+	// 无刷新跳转后，新文章页的容器是全新的，需要重新注入
+	window.swup.hooks.on("page:view", loadGiscus);
+};
+
+if (window?.swup?.hooks) {
+	setup();
+} else {
+	document.addEventListener("swup:enable", setup);
+}
+</script>

@@ -79,7 +79,7 @@ fuwari/
     │   ├── *.astro         # 导航栏、页脚、文章卡片、正文渲染等
     │   ├── control/        # 分页、返回顶部、按钮等小控件
     │   ├── widget/         # 侧边栏：个人资料、分类、标签、目录、显示设置
-    │   └── misc/           # 图片包装、版权声明、Markdown 容器
+    │   └── misc/           # 图片包装、版权声明、Markdown 容器、giscus 评论区
     ├── plugins/            # 自定义 remark / rehype / Expressive Code 插件
     ├── i18n/               # 11 种语言的界面文案
     ├── styles/             # 全局样式、Markdown 样式、代码块与滚动条样式
@@ -104,12 +104,14 @@ fuwari/
 - **阅读体验细节** —— 自动估算阅读时长、标题锚点链接、自定义滚动条、返回顶部按钮
 - **响应式布局** —— 侧边栏在移动端折叠为抽屉式面板
 - **RSS 与 SEO** —— 输出 `rss.xml`、`sitemap-index.xml`、`robots.txt`，页面带 OG 标签
+- **评论区** —— 用 giscus 嵌入 GitHub Discussions，评论数据存在仓库里，
+  不需要服务器或数据库；评论区配色跟随站点明暗模式，无刷新跳转后也能正常加载
 
 ---
 
 ## 五、配置方式
 
-**日常维护只需要改 `src/config.ts` 一个文件**，它导出五个配置对象：
+**日常维护只需要改 `src/config.ts` 一个文件**，它导出六个配置对象：
 
 | 导出常量 | 控制内容 |
 |:---|:---|
@@ -117,10 +119,23 @@ fuwari/
 | `navBarConfig` | 顶部导航链接（内置首页 / 归档 / 关于，可加外链） |
 | `profileConfig` | 侧边栏头像、昵称、签名、社交链接 |
 | `licenseConfig` | 文章底部版权声明（当前为 CC BY-NC-SA 4.0） |
+| `commentConfig` | 文章底部评论区（giscus，评论存放在 GitHub Discussions） |
 | `expressiveCodeConfig` | 代码高亮主题 |
 
 > 所有配置在**构建时**被读取并写进静态页面，因此修改后需重新构建才会生效。
 > 各项字段的类型定义见 `src/types/config.ts`，编辑器会给出提示与报错。
+
+**启用评论区**需要先在 GitHub 上做准备，`commentConfig` 只是前端这一半：
+
+1. 仓库必须是**公开**的 —— giscus 读不到私有仓库的 Discussions
+2. 仓库 `Settings → General → Features` 里勾选 **Discussions**
+3. 到 <https://github.com/apps/giscus> 安装 giscus App，并授权访问该仓库
+4. 在 Discussions 里建一个分类，推荐用 **Announcements** 类型 —— 这样只有
+   giscus 机器人能发起 discussion，访客无法自己开新帖
+5. 打开 <https://giscus.app> 填入仓库名和分类，页面会给出 `repoId` 与
+   `categoryId`，复制回 `commentConfig.giscus` 即可
+
+`repoId` / `categoryId` 留空时，`pnpm build` 会在终端打印提醒，不会静默失败。
 
 **部署相关**的配置在 `astro.config.mjs`：`site` 与 `base` 必须与最终访问地址一致，
 否则 sitemap、RSS 里的绝对链接和静态资源路径都会出错。当前配置对应
@@ -208,6 +223,10 @@ pnpm build && npx wrangler deploy
 3. **部署地址适配** —— `site` / `base` 调整为 GitHub Pages 项目仓库形式，
    并新增 GitHub Pages 自动部署工作流。
 4. **内容填充** —— 新增自我介绍、大创项目资料、网站维护备忘录等文章与配套配图。
+5. **新增评论区** —— 用 giscus 接入 GitHub Discussions，配置项收在 `commentConfig`。
+   组件是 `src/components/misc/Comments.astro`，但 iframe 的加载逻辑写在
+   `src/layouts/Layout.astro`：本站用 Swup 做无刷新跳转且只替换 `<main>`，逻辑放在
+   组件里会被重复执行、且从首页跳到文章页时不会注册，放 Layout 才整站只注册一次。
 
 ---
 

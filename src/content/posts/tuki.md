@@ -1,7 +1,7 @@
 ---
 title: 网页图库
 published: 2026-09-26
-description: ''
+description: '文章里面所有的图片汇总'
 image: 'img\girl_backpack_road_1160862_1280x720.jpg'
 tags: [网站维护]
 category: '网站维护'

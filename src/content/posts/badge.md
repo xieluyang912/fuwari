@@ -1,7 +1,7 @@
 ---
-title: 文章顶部的徽章标签怎么用
+title: 博客更新日志：文章顶部的徽章标签怎么用
 published: 2026-09-27
-description: 'badge-row + shields.io 静态徽章：地址怎么拼、中文怎么转义、颜色怎么选，以及几个踩过的坑'
+description: 'badge-row + shields.io 静态徽章：地址怎么拼、中文怎么转义、颜色怎么选'
 image: 'img\TempDragFile_20260926_003024(1).png'
 tags: [网站维护, Markdown]
 category: '网站维护'

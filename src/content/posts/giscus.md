@@ -19,7 +19,7 @@ lang: ''
 ![Static Badge](https://img.shields.io/badge/nodedotjs-%3E%3D20-red?logo=nodedotjs)
 ![Static Badge](https://img.shields.io/badge/deepseek-harness-blue?logo=deepseek)
 ![Static Badge](https://img.shields.io/badge/claude-code-orange?logo=claude)
-![Static Badge](https://img.shields.io/badge/%E6%94%AF%E6%8C%81%E5%BA%93-astro-yello?logo=astro)
+![Static Badge](https://img.shields.io/badge/%E6%94%AF%E6%8C%81%E5%BA%93-astro-yellow?logo=astro)
 
 </div>
 

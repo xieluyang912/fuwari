@@ -9,6 +9,16 @@ draft: false
 lang: ''
 ---
 
+<div class="badge-row">
+
+![Static Badge](https://img.shields.io/badge/%E6%AD%8C%E6%89%8B-%E9%BB%84%E9%9C%84%E9%9B%B2-red)
+![Static Badge](https://img.shields.io/badge/%E5%B7%A1%E6%BC%94-%E5%AE%87%E5%AE%99%E6%97%A0%E6%95%8C%E5%8F%B7-blue)
+![Static Badge](https://img.shields.io/badge/%E5%9C%BA%E6%AC%A1-2026.09.26%20%E8%8B%8F%E5%B7%9E-orange)
+![Static Badge](https://img.shields.io/badge/%E6%9B%B2%E7%9B%AE-33%20%E9%A6%96-green)
+![Static Badge](https://img.shields.io/badge/applemusic-%E7%8E%B0%E5%9C%BA%E6%AD%8C%E5%8D%95-red?logo=applemusic)
+
+</div>
+
 > 现场曲目记录，按演出顺序整理，共 33 首。
 
 ## 开场 / Part 1

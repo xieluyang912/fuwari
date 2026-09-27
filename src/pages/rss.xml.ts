@@ -19,8 +19,8 @@ function stripInvalidXmlChars(str: string): string {
 export async function GET(context: APIContext) {
 	const blog = await getSortedPosts();
 
-	// @astrojs/rss 会拿这个 site 当作频道自身的地址，所以必须把 base 一起带上，
-	// 否则部署在 /fuwari/ 下时频道地址会指向域名根目录
+	// @astrojs/rss 会拿这个 site 当作频道自身的地址，所以要把 base 一起带上。
+	// 本站 base 是 "/"，等价于直接用域名根；日后若改回子路径，这里不用动
 	const site = new URL(
 		import.meta.env.BASE_URL,
 		context.site ?? "https://fuwari.vercel.app",

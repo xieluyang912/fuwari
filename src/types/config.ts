@@ -141,7 +141,7 @@ export type CommentConfig = {
 		categoryId: string;
 		/**
 		 * 一个页面如何对应一个 discussion：
-		 * - pathname：按路径匹配（默认）。本站路径形如 /fuwari/posts/hello/，简洁直观，
+		 * - pathname：按路径匹配（默认）。本站路径形如 /posts/hello/，简洁直观，
 		 *   但日后若改动 base 或域名，已有评论会「对不上号」
 		 * - og:title：按文章标题匹配。换域名不影响，但标题重复或改名会串评论
 		 */

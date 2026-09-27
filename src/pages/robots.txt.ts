@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 
-// 部署在子路径下时，robots.txt 里的路径也必须带上 base（形如 /fuwari/），
-// 否则 /_astro/ 匹配不到实际目录，Sitemap 也会指向不存在的地址
+// robots.txt 里的路径也要带上 base。本站 base 是 "/"，写死也是同一个结果，
+// 但保留这层处理，日后若部署到 /fuwari/ 这类子路径就不会指向不存在的地址
 const base = import.meta.env.BASE_URL;
 
 const robotsTxt = `

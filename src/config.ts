@@ -172,7 +172,7 @@ export const profileConfig: ProfileConfig = {
 		},
 		{
 			// 订阅本站的 RSS。以 "/" 开头表示站内链接，
-			// Profile.astro 会自动补上部署用的 base path（这里是 /fuwari/）
+			// Profile.astro 会自动补上部署用的 base path（本站是 "/"）
 			name: "RSS",
 			icon: "fa6-solid:rss",
 			url: "/rss.xml",
@@ -236,10 +236,12 @@ export const commentConfig: CommentConfig = {
 		category: "Announcements",
 		categoryId: "DIC_kwDOUrLLdc4DGbiA", // 由 https://giscus.app 生成，Announcements 分类的节点 ID
 
-		// 按页面路径匹配 discussion。本站路径形如 /fuwari/posts/hello-world/，
-		// 一篇文章对应一个 discussion。注意：日后若改动 astro.config.mjs 里的
-		// base 或域名，路径会变，已有评论就对不上新页面了。
-		// 想避免这个问题可以改用 "og:title"（按文章标题匹配）。
+		// 按页面路径匹配 discussion。本站路径形如 /posts/hello-world/，
+		// 一篇文章对应一个 discussion。
+		// ⚠️ 2026-09 绑定自定义域名 007912.xyz 后，base 从 /fuwari/ 变成了 /，
+		// 页面路径整体变短，换域名之前留下的评论会对不上新页面（在 GitHub
+		// Discussions 里还在，只是不再显示）。想根治可以改用 "og:title"，
+		// 按文章标题匹配，以后再换域名也不会丢。
 		mapping: "pathname",
 		strict: false, // 是否严格匹配标题，仅在 mapping 为 title / og:title 时有意义
 		reactionsEnabled: true, // 在每条评论上显示 emoji 回应
@@ -333,7 +335,7 @@ export const projectsConfig: ProjectsConfig = {
 			description:
 				"你正在看的这个站点。基于 Astro + Svelte + Tailwind 构建，移植了 Mizuki 主题的看板娘、日历、右侧栏和一组特色页面，用 Swup 做无刷新跳转，Pagefind 做站内搜索，评论走 giscus。",
 			icon: "material-symbols:globe",
-			url: "https://xieluyang912.github.io/fuwari/",
+			url: "https://007912.xyz/",
 			repo: "https://github.com/Xieluyang912/fuwari",
 			tags: ["Astro", "Svelte", "Tailwind", "TypeScript"],
 			featured: true, // 置顶显示，卡片会高亮

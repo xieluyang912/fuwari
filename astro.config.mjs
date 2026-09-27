@@ -40,13 +40,14 @@ import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 export default defineConfig({
   // 站点的完整部署地址。部署前必须改成你自己的域名，
   // 它会被用于生成 sitemap、RSS 里的绝对链接和社交分享的 OG 标签。
-  // GitHub Pages 的项目仓库（github.com/xieluyang912/fuwari）地址形如
-  // https://<用户名>.github.io/<仓库名>/，注意这里不带末尾的仓库名。
-  site: "https://xieluyang912.github.io",
+  // 本站已绑定自定义域名 007912.xyz（见 public/CNAME），
+  // 域名解析到 GitHub Pages 后站点直接位于根路径，所以这里不带任何子路径。
+  site: "https://007912.xyz",
 
-  // 部署到子路径时才需要改。仓库名是 fuwari，所以这里是 "/fuwari/"；
-  // 若日后把仓库改名为 xieluyang912.github.io 换成根域名，则改回 "/"。
-  base: "/fuwari/",
+  // 部署到子路径时才需要改。绑定自定义域名后站点位于根路径，所以是 "/"。
+  // 若日后改回用默认的 https://xieluyang912.github.io/fuwari/ 访问，
+  // 这里要改回 "/fuwari/"，同时删掉 public/CNAME。
+  base: "/",
 
   // 所有链接末尾都带斜杠，即 /posts/foo/ 而不是 /posts/foo。
   // 改动它会导致现有链接失效，一般不要动。

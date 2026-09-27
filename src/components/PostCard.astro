@@ -4,7 +4,7 @@ import path from "node:path";
 import { Icon } from "astro-icon/components";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
-import { getDir } from "../utils/url-utils";
+import { getDir, getTagUrl } from "../utils/url-utils";
 import ImageWrapper from "./misc/ImageWrapper.astro";
 import PostMetadata from "./PostMeta.astro";
 
@@ -56,23 +56,45 @@ const { remarkPluginFrontmatter } = await entry.render();
             <Icon class="text-[var(--primary)] text-[2rem] transition hidden md:inline absolute translate-y-0.5 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0" name="material-symbols:chevron-right-rounded"></Icon>
         </a>
 
-        <!-- metadata -->
-        <PostMetadata published={published} updated={updated} tags={tags} category={category} hideTagsForMobile={true} hideUpdateDate={true} class="mb-4"></PostMetadata>
+        <!-- metadata：日期 / 分类 / 字数，都是「图标小块 + 文字」的样式 -->
+        <PostMetadata
+            published={published}
+            updated={updated}
+            tags={tags}
+            category={category}
+            hideTagsForMobile={true}
+            hideUpdateDate={true}
+            words={remarkPluginFrontmatter.words}
+            showWordCount={true}
+            showOnlyBasicMeta={true}
+            class="mb-4"
+        ></PostMetadata>
 
         <!-- description -->
         <div class:list={["transition text-75 mb-3.5 pr-4", {"line-clamp-2 md:line-clamp-1": !description}]}>
             { description || remarkPluginFrontmatter.excerpt }
         </div>
 
-        <!-- word count and read time  -->
-        <div class="text-sm text-black/30 dark:text-white/30 flex gap-4 transition">
-            <div>
-                {remarkPluginFrontmatter.words} {" " + i18n(remarkPluginFrontmatter.words === 1 ? I18nKey.wordCount : I18nKey.wordsCount)}
-            </div>
-            <div>|</div>
-            <div>
-                {remarkPluginFrontmatter.minutes} {" " + i18n(remarkPluginFrontmatter.minutes === 1 ? I18nKey.minuteCount : I18nKey.minutesCount)}
-            </div>
+        <!--
+            标签 chip 行（对齐参考站，fuwari 原本没有这一行）。
+            样式用 btn-regular：浅底 + 主题色文字，圆角 small，比纯文字更容易点。
+        -->
+        <div class="flex flex-wrap gap-2 mt-2">
+            {tags && tags.length > 0 ? (
+                tags.map((tag) => (
+                    <a
+                        href={getTagUrl(tag)}
+                        aria-label={`View all posts with the ${tag.trim()} tag`}
+                        class="btn-regular h-6 text-xs px-2 rounded-lg active:scale-95 group/tag whitespace-nowrap"
+                    >
+                        <span class="transition-transform group-hover/tag:translate-x-0.5">
+                            # {tag.trim()}
+                        </span>
+                    </a>
+                ))
+            ) : (
+                <span class="text-xs text-50">{i18n(I18nKey.noTags)}</span>
+            )}
         </div>
 
     </div>

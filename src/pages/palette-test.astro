@@ -1,0 +1,62 @@
+---
+// 临时页面：诊断调色盘在「滚动后 / 深色模式」下的表现，验证完会删掉
+---
+
+<html>
+<head><meta charset="utf-8" /><title>palette test 2</title></head>
+<body style="margin:0;background:#111;color:#eee;font:13px/1.6 monospace">
+<pre id="out" style="padding:12px;white-space:pre-wrap">跑测试中…</pre>
+<iframe id="f" src="/fuwari/" style="width:1600px;height:520px;border:0"></iframe>
+<script>
+    const out = document.getElementById("out");
+    const f = document.getElementById("f");
+    const lines = [];
+
+    const rect = (el) => {
+        if (!el) return "n/a";
+        const r = el.getBoundingClientRect();
+        return `x=${Math.round(r.left)} y=${Math.round(r.top)} w=${Math.round(r.width)} h=${Math.round(r.height)}`;
+    };
+
+    function probe(label) {
+        const d = f.contentDocument;
+        const w = f.contentWindow;
+        const nav = d.getElementById("navbar");
+        const bar = nav?.querySelector(".navbar-bar");
+        const btn = d.getElementById("display-settings-switch");
+        const panel = d.getElementById("display-setting");
+        const bcs = btn ? w.getComputedStyle(btn) : null;
+        const ics = btn ? w.getComputedStyle(btn.querySelector("svg") || btn) : null;
+        const r = btn?.getBoundingClientRect();
+        const hit = r ? d.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2) : null;
+        lines.push(
+            label,
+            `  scrollY               = ${w.scrollY}`,
+            `  #navbar.class         = "${nav?.className}"`,
+            `  按钮 rect             = ${rect(btn)}`,
+            `  按钮 pointer-events   = ${bcs?.pointerEvents}`,
+            `  按钮 color            = ${bcs?.color}`,
+            `  图标 color            = ${ics?.color}`,
+            `  命中元素在按钮内      = ${hit && btn?.contains(hit) ? "✅ 是" : "❌ 否"}`,
+            `  面板 rect             = ${rect(panel)}`,
+            `  面板 z-index          = ${panel ? w.getComputedStyle(panel).zIndex : "n/a"}`,
+            `  .navbar-bar z-index   = ${bar ? w.getComputedStyle(bar).zIndex : "n/a"}`,
+            `  .navbar-bar 有 blur   = ${bar ? w.getComputedStyle(bar).backdropFilter : "n/a"}`,
+            "",
+        );
+        out.textContent = lines.join("\n");
+    }
+
+    f.addEventListener("load", () => {
+        setTimeout(() => {
+            probe("① 顶部 · 浅色");
+            f.contentWindow.scrollTo(0, 200);
+            setTimeout(() => {
+                probe("② 滚动 200px · 浅色");
+                out.textContent = lines.join("\n");
+            }, 900);
+        }, 2500);
+    });
+</script>
+</body>
+</html>

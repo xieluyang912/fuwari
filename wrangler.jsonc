@@ -13,7 +13,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 
 	// Worker 名称，同时决定 workers.dev 的二级域名前缀
-	"name": "xieluyang-blog",
+	"name": "xieluyang",
 
 	// 兼容性日期，决定 Workers 运行时采用哪个版本的默认行为
 	"compatibility_date": "2026-09-25",

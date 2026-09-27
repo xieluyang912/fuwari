@@ -5,8 +5,10 @@ import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
 import { getPostUrlBySlug } from "../utils/url-utils";
 
-export let tags: string[];
-export let categories: string[];
+// 这两个给上默认值：真正的值是从地址栏参数里读的（见下面两行），
+// 调用方（archive.astro）根本不传，不给默认值就是「必填 props」，类型检查会报错
+export let tags: string[] = [];
+export let categories: string[] = [];
 export let sortedPosts: Post[] = [];
 
 const params = new URLSearchParams(window.location.search);
@@ -19,7 +21,9 @@ interface Post {
 	data: {
 		title: string;
 		tags: string[];
-		category?: string;
+		// 内容集合里 category 的定义是 z.string().nullable().default("")，
+		// 取出来可能是 null（未分类），要写成 | null 才能和 PostForList 对上
+		category?: string | null;
 		published: Date;
 	};
 }

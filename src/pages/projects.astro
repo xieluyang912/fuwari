@@ -1,0 +1,124 @@
+---
+/**
+ * 「Others → 项目」页面（/projects/）。
+ *
+ * 内容全部来自 src/config.ts 里的 projectsConfig，
+ * 加项目只需要往 items 里加一条，不用改这个文件。
+ */
+import { Icon } from "astro-icon/components";
+import PageHeader from "../components/misc/PageHeader.astro";
+import { projectsConfig } from "../config";
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+
+const { items } = projectsConfig;
+
+// 置顶的项目排前面，其余保持配置里的顺序
+const sortedItems = [
+	...items.filter((item) => item.featured),
+	...items.filter((item) => !item.featured),
+];
+---
+
+<MainGridLayout
+    title={i18n(I18nKey.projects)}
+    description={projectsConfig.description || i18n(I18nKey.projectsDesc)}
+>
+    <PageHeader
+        title={i18n(I18nKey.projects)}
+        icon="material-symbols:work-outline"
+        description={projectsConfig.description || i18n(I18nKey.projectsDesc)}
+    />
+
+    {sortedItems.length === 0 ? (
+        <div class="card-base px-6 py-10 text-center text-neutral-400">
+            {i18n(I18nKey.noContent)}
+        </div>
+    ) : (
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {sortedItems.map((project) => (
+                <div
+                    class:list={[
+                        "card-base p-5 flex flex-col gap-3 transition group",
+                        // 置顶项目加一圈主题色描边，视觉上更突出
+                        { "ring-1 ring-[var(--primary)]/40": project.featured },
+                    ]}
+                >
+                    {/* 封面图（可选） */}
+                    {project.image && (
+                        <div class="w-full h-36 rounded-lg overflow-hidden bg-[var(--btn-regular-bg)]">
+                            <img
+                                src={project.image}
+                                alt={project.title}
+                                loading="lazy"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                        </div>
+                    )}
+
+                    <div class="flex items-center gap-2.5">
+                        {project.icon && (
+                            <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-[var(--btn-regular-bg)] shrink-0 transition">
+                                <Icon name={project.icon} class="text-[var(--primary)] text-[1.15rem]" />
+                            </div>
+                        )}
+                        <h2 class="text-lg font-bold text-neutral-900 dark:text-neutral-100 transition m-0 truncate">
+                            {project.title}
+                        </h2>
+                        {project.featured && (
+                            <span class="ml-auto shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full
+                                         bg-[var(--primary)]/10 text-[var(--primary)]">
+                                TOP
+                            </span>
+                        )}
+                    </div>
+
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed m-0 flex-1 transition">
+                        {project.description}
+                    </p>
+
+                    {/* 技术栈标签 */}
+                    {project.tags && project.tags.length > 0 && (
+                        <div class="flex flex-wrap gap-1.5">
+                            {project.tags.map((tag) => (
+                                <span class="text-[11px] px-2 py-1 rounded-md bg-[var(--btn-regular-bg)]
+                                             text-neutral-600 dark:text-neutral-300 transition">
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* 底部链接 */}
+                    {(project.url || project.repo) && (
+                        <div class="flex gap-2 pt-2 border-t border-black/5 dark:border-white/10">
+                            {project.url && (
+                                <a
+                                    href={project.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="btn-regular rounded-lg h-9 px-3 gap-1.5 text-xs font-bold active:scale-95"
+                                >
+                                    <Icon name="material-symbols:open-in-new-rounded" class="text-base" />
+                                    {i18n(I18nKey.viewProject)}
+                                </a>
+                            )}
+                            {project.repo && (
+                                <a
+                                    href={project.repo}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="btn-regular rounded-lg h-9 px-3 gap-1.5 text-xs font-bold active:scale-95"
+                                >
+                                    <Icon name="fa6-brands:github" class="text-base" />
+                                    {i18n(I18nKey.viewSource)}
+                                </a>
+                            )}
+                        </div>
+                    )}
+                </div>
+            ))}
+        </div>
+    )}
+</MainGridLayout>

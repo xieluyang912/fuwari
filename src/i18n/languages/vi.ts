@@ -1,7 +1,7 @@
-import Key from "../i18nKey";
-import type { Translation } from "../translation";
+﻿import Key from "../i18nKey";
+import type { PartialTranslation } from "../translation";
 
-export const vi: Translation = {
+export const vi: PartialTranslation = {
 	[Key.home]: "Trang chủ",
 	[Key.about]: "Giới thiệu",
 	[Key.archive]: "Kho bài",
@@ -35,4 +35,31 @@ export const vi: Translation = {
 	[Key.author]: "Tác giả",
 	[Key.publishedAt]: "Đăng vào lúc",
 	[Key.license]: "Giấy phép bản quyền",
+
+	/* ---- 日历 ---- */
+	[Key.calendar]: "Lịch",
+	[Key.calendarJan]: "Thg 1",
+	[Key.calendarFeb]: "Thg 2",
+	[Key.calendarMar]: "Thg 3",
+	[Key.calendarApr]: "Thg 4",
+	[Key.calendarMay]: "Thg 5",
+	[Key.calendarJun]: "Thg 6",
+	[Key.calendarJul]: "Thg 7",
+	[Key.calendarAug]: "Thg 8",
+	[Key.calendarSep]: "Thg 9",
+	[Key.calendarOct]: "Thg 10",
+	[Key.calendarNov]: "Thg 11",
+	[Key.calendarDec]: "Thg 12",
+	[Key.calendarMon]: "T2",
+	[Key.calendarTue]: "T3",
+	[Key.calendarWed]: "T4",
+	[Key.calendarThu]: "T5",
+	[Key.calendarFri]: "T6",
+	[Key.calendarSat]: "T7",
+	[Key.calendarSun]: "CN",
+	[Key.calendarNoPost]: "Tháng này chưa có bài viết",
+	[Key.calendarBackToToday]: "Về hôm nay",
+	[Key.calendarSelectMonthYear]: "Chọn tháng hoặc năm",
+	[Key.calendarPrevMonth]: "Tháng trước",
+	[Key.calendarNextMonth]: "Tháng sau",
 };

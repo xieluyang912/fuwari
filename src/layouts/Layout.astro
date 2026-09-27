@@ -5,6 +5,28 @@ import "@fontsource/roboto/700.css";
 
 import ConfigCarrier from "@components/ConfigCarrier.astro";
 import { profileConfig, siteConfig } from "@/config";
+
+/*
+ * 全局样式。
+ *
+ * ⚠️ 这几行不能删，顺序也不能乱：
+ *   1. variables.styl  定义 --primary / --card-bg 等所有 CSS 变量
+ *   2. main.css        定义 .card-base / .link 等公共类（在 @layer components 里）
+ *   3. 其余样式文件     会 @apply 上面定义好的类（例如 markdown.css 里 @apply link）
+ * 顺序反了 Tailwind 会报 "The `xxx` class does not exist" 并中断构建。
+ *
+ * 以前这些文件是靠 ImageWrapper.astro 里一个 "../../**" 的 glob 被
+ * 顺带加载的，顺序随机、偶发构建失败，现在改成显式引入。
+ */
+import "../styles/variables.styl";
+import "../styles/main.css";
+import "../styles/markdown.css";
+import "../styles/markdown-extend.styl";
+import "../styles/scrollbar.css";
+import "../styles/transition.css";
+import "../styles/photoswipe.css";
+import "../styles/expressive-code.css";
+
 import {
 	AUTO_MODE,
 	BANNER_HEIGHT,
@@ -150,7 +172,7 @@ const bannerOffset =
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={new URL(url("/rss.xml"), Astro.site).href}/>
 
 	</head>
-	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
+	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner, "enable-card-border": true}]}
 		  data-overlayscrollbars-initialize
 	>
 		<ConfigCarrier></ConfigCarrier>
@@ -189,6 +211,21 @@ const bannerOffset =
 	}
 	.enable-banner.is-home #sidebar-sticky {
 		@apply top-[calc(1rem_-_var(--banner-height-extend))]
+	}
+	/*
+	 * 右侧栏同理，必须和左栏一起补偿。
+	 *
+	 * 首页的 #main-grid 被 translate-y 往下推了 banner-height-extend（约 30vh），
+	 * sticky 元素的视觉位置也跟着下移，所以 top 要反过来减掉这一段，
+	 * 它才会像左栏一样贴在视口顶部 1rem 处。
+	 * 少了这条，首页往下滚时右栏会卡在离顶 ~284px 的地方：
+	 * 比左栏整整低一大截，继续滚还会被容器底边顶着往上跑，
+	 * 顶部的卡片直接滑出屏幕（实测 top 从 284 一路变到 -441）。
+	 *
+	 * 右栏只在 xl 才 sticky（见 RightSideBar.astro），所以这里也带 xl: 前缀。
+	 */
+	.enable-banner.is-home #right-sidebar-sticky {
+		@apply xl:top-[calc(1rem_-_var(--banner-height-extend))]
 	}
 	.navbar-hidden {
 		@apply opacity-0 -translate-y-16

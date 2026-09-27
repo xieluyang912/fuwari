@@ -29,9 +29,23 @@ const isPublic = src.startsWith("/");
 // biome-ignore lint/suspicious/noImplicitAnyLet: <check later>
 let img;
 if (isLocal) {
-	const files = import.meta.glob<ImageMetadata>("../../**", {
-		import: "default",
-	});
+	/*
+	 * 注意这里必须限定成图片后缀。
+	 *
+	 * 原来写的是 "../../**"，等于把 src/ 下所有文件（.ts/.css/.styl…）
+	 * 都塞进 Vite 的依赖图里。副作用是 src/styles/*.css 会被「顺手」
+	 * 当成模块加载 —— 全局样式确实因此生效了，但加载顺序不可控，
+	 * Tailwind 处理 @apply 时偶尔会报 "The `link` class does not exist"，
+	 * 构建就随机会失败。
+	 * 现在全局样式改为在 Layout.astro 里显式 import（见那里的注释），
+	 * 这里只负责图片。
+	 */
+	const files = import.meta.glob<ImageMetadata>(
+		"../../**/*.{png,jpg,jpeg,webp,avif,gif,svg}",
+		{
+			import: "default",
+		},
+	);
 	let normalizedPath = path
 		.normalize(path.join("../../", basePath, src))
 		.replace(/\\/g, "/");

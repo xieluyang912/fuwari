@@ -61,10 +61,11 @@ fuwari/
 ├── astro.config.mjs        # 构建配置：集成、Markdown 管线、部署地址
 ├── wrangler.jsonc          # Cloudflare Workers 静态托管配置
 ├── biome.json              # 代码风格规则
-├── pagefind.yml            # 搜索索引生成配置
+├── pagefind.yml             # 搜索索引生成配置
 ├── scripts/new-post.js     # 新建文章的脚手架脚本
 ├── docs/                   # 官方多语言 README（11 种语言）
 ├── public/favicon/         # 不经构建直接复制的静态资源
+├── public/pio/             # 看板娘资源：oh-my-live2d 控件 + NOIR 模型 + 宿主页
 ├── .github/workflows/      # CI：biome.yml / build.yml / deploy.yml
 └── src/
     ├── config.ts           # ★ 站点总配置文件，日常只改这一个
@@ -75,11 +76,22 @@ fuwari/
     │   └── spec/about.md   # 「关于」页正文
     ├── layouts/            # Layout.astro（页面骨架）、MainGridLayout.astro（栅格布局）
     ├── pages/              # 路由：首页分页、归档、文章详情、about、rss.xml、robots.txt
+    │   ├── projects.astro  # Others → 项目展示
+    │   ├── skills.astro    # Others → 技能
+    │   ├── ai-tools.astro  # Others → AI 工具导航
+    │   ├── timeline.astro  # Others → 时间线
+    │   └── api/calendar-data.json.ts  # 日历用的文章数据接口（构建成静态 JSON）
     ├── components/
     │   ├── *.astro         # 导航栏、页脚、文章卡片、正文渲染等
     │   ├── control/        # 分页、返回顶部、按钮等小控件
     │   ├── widget/         # 侧边栏：个人资料、分类、标签、目录、显示设置
-    │   └── misc/           # 图片包装、版权声明、Markdown 容器、giscus 评论区
+    │   │   ├── RightSideBar.astro     # 右侧栏容器（统计/日历/分类）
+    │   │   ├── SiteStats.astro        # 站点统计
+    │   │   ├── Calendar.astro         # 日历（交互逻辑在 calendar/ 下的 Svelte 组件）
+    │   │   ├── Pio.astro              # 左下角 Live2D 看板娘
+    │   │   ├── DropdownMenu.astro     # 顶栏下拉菜单（Others 按钮）
+    │   │   └── NavMenuPanel.astro     # 移动端汉堡菜单
+    │   └── misc/           # 图片包装、版权声明、Markdown 容器、giscus 评论区、页面标题
     ├── plugins/            # 自定义 remark / rehype / Expressive Code 插件
     ├── i18n/               # 11 种语言的界面文案
     ├── styles/             # 全局样式、Markdown 样式、代码块与滚动条样式
@@ -92,7 +104,22 @@ fuwari/
 ## 四、功能特性
 
 - **明暗主题 + 自定义主题色** —— 访客可实时调节色相，配色通过 CSS 变量全局联动
-- **文章目录（TOC）** —— 基于 `remark-sectionize` 按标题层级切分，右侧浮动导航，随滚动高亮
+- **整体版式对齐 Mizuki 参考站**（<https://mizuki.mysqil.com/>）：
+  - **页面栅格** —— 整页宽 90rem，单侧栏 17.5rem。手机上单栏（正文 → 左栏 → 右栏 → 页脚），
+    768px 起变成「左栏 | 正文」两栏，1280px 起变成「左栏 | 正文 | 右栏」三栏
+  - **波浪横幅** —— 首页横幅 65vh，正中是站点大标题 + 副标题（靠文字阴影保证可读性，
+    不给整幅图加遮罩）。底部一条 4 层 SVG 波浪：同一条路径叠 4 次，靠不同的
+    y 偏移 / 不透明度 / 动画时长做出水波错位的视差，填充色就是页面底色，
+    所以换主题色、切深浅模式时波浪会自动跟着变
+  - **透明悬浮导航栏** —— 顶部完全透明让横幅透出来，往下滚 50px 后变成毛玻璃卡片
+    （浅色白 55% / 深色黑 55% + 20px 模糊）
+  - **首页分类筛选条** —— 一条独立的卡片，横向排出「🏠 | 归档 N | 各分类 N」，
+    可横向滚动、两侧有渐隐提示、当前分类会高亮
+  - **文章卡片** —— 标题前的主题色竖线、图标小块式的元信息（日期 / 分类 / 字数）、
+    摘要、`# 标签` chip 行，右侧封面或箭头按钮；卡片之间有极淡的描边和投影
+  - **左侧栏** —— 个人资料 → 公告 → 标签 →（文章页）目录
+- **文章目录（TOC）** —— 基于 `remark-sectionize` 按标题层级切分，跟随滚动高亮；
+  在三栏布局下放进左侧栏的卡片里（参考站的做法），不再占用第四条浮动栏
 - **站内全文搜索** —— 构建后由 Pagefind 扫描 `dist/` 生成索引，纯前端检索，无需服务端
 - **代码块增强** —— 行号、`--collapse` 折叠、语言角标、自定义复制按钮、diff 与高亮标记
 - **Markdown 扩展语法**
@@ -102,28 +129,61 @@ fuwari/
   - 数学公式：行内 `$...$` 与独立 `$$...$$`
 - **图片放大** —— 集成 PhotoSwipe，点开文章配图可全屏查看
 - **阅读体验细节** —— 自动估算阅读时长、标题锚点链接、自定义滚动条、返回顶部按钮
-- **响应式布局** —— 侧边栏在移动端折叠为抽屉式面板
+- **响应式布局** —— 小屏幕下左右侧栏都折到正文下方，功能一个都不少
+- **公告卡片** —— 左栏顶部可放一条公告，访客点 × 关掉后记在 localStorage 里不再打扰
 - **RSS 与 SEO** —— 输出 `rss.xml`、`sitemap-index.xml`、`robots.txt`，页面带 OG 标签
 - **评论区** —— 用 giscus 嵌入 GitHub Discussions，评论数据存在仓库里，
   不需要服务器或数据库；评论区配色跟随站点明暗模式，无刷新跳转后也能正常加载
+- **左下角 Live2D 看板娘** —— 用透明 iframe 隔离 [oh-my-live2d](https://github.com/hacxy/oh-my-live2d)
+  渲染模型，可鼠标拖动、会说话、支持点击互动；手机端自动隐藏。
+  放在 Swup 替换容器之外，跳页时模型不会重新加载
+- **右侧栏** —— 1280px 及以上是「左栏 | 正文 | 右栏」三栏，小屏幕时右栏内容
+  折到正文下方，功能不丢失：
+  - **站点统计** —— 文章数 / 分类数 / 标签数 / 总字数 / 运行天数 / 最近更新，
+    其中后两项由浏览器实时计算（构建时算的值会过期）
+  - **日历** —— 有文章的日子标点，点某天筛出当天文章；点标题可逐层切到
+    月份 / 年份视图；正在阅读的文章会自动定位到对应月份
+  - **分类** —— 带文章数徽标
+- **顶栏 Others 下拉菜单** —— 支持任意层级的下拉菜单配置（`navLink.children`），
+  键盘可达（↑↓ 移动、Esc 关闭、Enter 展开），移动端自动变成可折叠分组。当前挂了 4 个特色页面：
+  - **`/projects/` 项目展示** —— 卡片列表，支持置顶、封面图、标签、项目主页与源码链接
+  - **`/skills/` 技能** —— 按分组展示，填了 `level` 会画熟练度进度条
+  - **`/ai-tools/` AI 工具导航** —— 按 `category` 自动分组
+  - **`/timeline/` 时间线** —— 按日期自动倒序，不同类型节点配色不同
+  这 4 个页面的内容全部由 `src/config.ts` 里的配置数组驱动，改配置即可增删
 
 ---
 
 ## 五、配置方式
 
-**日常维护只需要改 `src/config.ts` 一个文件**，它导出六个配置对象：
+**日常维护只需要改 `src/config.ts` 一个文件**，它导出以下配置对象：
 
 | 导出常量 | 控制内容 |
 |:---|:---|
-| `siteConfig` | 标题、副标题、语言、主题色相、首页横幅、favicon |
-| `navBarConfig` | 顶部导航链接（内置首页 / 归档 / 关于，可加外链） |
+| `siteConfig` | 标题、副标题、语言、主题色相、首页横幅（含正中的大标题/副标题）、favicon、建站日期 |
+| `navBarConfig` | 顶部导航链接（内置首页 / 归档 / 关于 / 4 个特色页，支持 `children` 下拉） |
 | `profileConfig` | 侧边栏头像、昵称、签名、社交链接 |
+| `announcementConfig` | 左侧栏的公告卡片（内容、按钮、开关） |
 | `licenseConfig` | 文章底部版权声明（当前为 CC BY-NC-SA 4.0） |
 | `commentConfig` | 文章底部评论区（giscus，评论存放在 GitHub Discussions） |
 | `expressiveCodeConfig` | 代码高亮主题 |
+| `pioConfig` | 左下角 Live2D 看板娘：开关、模型、位置、尺寸、台词 |
+| `sidebarConfig` | 右侧栏开关，以及 3 个小部件的显示与排序 |
+| `projectsConfig` | `/projects/` 页面的项目列表 |
+| `skillsConfig` | `/skills/` 页面的技能分组 |
+| `aiToolsConfig` | `/ai-tools/` 页面的工具列表 |
+| `timelineConfig` | `/timeline/` 页面的事件列表 |
 
 > 所有配置在**构建时**被读取并写进静态页面，因此修改后需重新构建才会生效。
 > 各项字段的类型定义见 `src/types/config.ts`，编辑器会给出提示与报错。
+
+**几个容易踩的点：**
+
+- `siteConfig.siteStartDate` 决定「运行天数」从哪天算起，格式 `YYYY-MM-DD`。
+- 看板娘的模型文件放在 `public/pio/models/` 下，配置里写 `/pio/models/xxx/xxx.model3.json`。
+  换模型时把整个模型文件夹拷进来即可，注意 `.model3.json` 里引用贴图用的是相对路径。
+- 不想用右侧栏就把 `sidebarConfig.enable` 改成 `false`，布局会自动退回原来的
+  「左栏 + 正文」两栏，同时分类会回到左侧栏，不会丢功能。
 
 **启用评论区**需要先在 GitHub 上做准备，`commentConfig` 只是前端这一半：
 
@@ -227,12 +287,42 @@ pnpm build && npx wrangler deploy
    组件是 `src/components/misc/Comments.astro`，但 iframe 的加载逻辑写在
    `src/layouts/Layout.astro`：本站用 Swup 做无刷新跳转且只替换 `<main>`，逻辑放在
    组件里会被重复执行、且从首页跳到文章页时不会注册，放 Layout 才整站只注册一次。
+6. **移植 [Mizuki](https://github.com/LyraVoid/Mizuki) 的一组功能** ——
+   看板娘、右侧栏（站点统计 / 日历 / 分类）、顶栏 Others 下拉菜单
+   及其 4 个特色页面。移植时做了这些适配：
+   - 所有内部链接一律走 `utils/url-utils.ts` 的 `url()`，保证部署在 `/fuwari/`
+     子路径下不会 404（看板娘的 iframe 地址、模型路径、日历数据接口都做了处理）
+   - i18n 改成「**英文兜底**」：语言文件只写自己有的键，缺的自动回退英文，
+     这样以后加文案键不必再改 10 个语言文件
+   - Mizuki 用的是 Tailwind v4，本站是 v3，相关组件的样式都改写成了 v3 写法
+   - 看板娘用 iframe 隔离，并且放在 Swup 替换容器之外，跳页不会重新加载模型
+   - 两个播放器 UI（悬浮 / 侧栏）通过 `.svelte.ts` 里的共享 store 保持同步
+7. **整体版式按 [mizuki.mysqil.com](https://mizuki.mysqil.com/) 重排** ——
+   页面宽度、栅格断点、横幅波浪、透明导航、首页分类筛选条、文章卡片、侧栏卡片
+   逐项对照参考站调整。几个值得记下来的点：
+   - **Tailwind 断点不一样**：Mizuki 用 v4 且改写了断点（`lg` = 1280px、`xl` = 1920px），
+     而 v3 默认 `lg` = 1024px、`xl` = 1280px。所以移植时要把 Mizuki 的 `lg:` 写成
+     `xl:`、`xl:` 写成 `2xl:`，不能照抄
+   - **Tailwind 扫不到拼出来的类名**：栅格列定义必须写成完整字面量。
+     写成 `md:grid-cols-[${w}_minmax(0,1fr)]` 这种运行时拼接，Tailwind 扫描阶段
+     根本看不到，规则不会生成，三栏宽度会静默失效（退化成按内容自适应）
+   - **Astro 不转义组件 prop 里的换行**：给组件传多行字符串会报
+     `Unterminated string literal`，所以 `class` 这类 prop 必须写成一行
+     （普通 HTML 元素上的多行 class 没这个问题）
+   - 目录从「右侧浮动栏」改成「左侧栏卡片」：90rem 三栏之后两边已经塞不下
+     第四条栏；`#toc` 仍是 Swup 的替换容器，只是搬进了卡片内部
+   - 顺手修掉了两个原有的隐性问题：`ImageWrapper.astro` 里
+     `import.meta.glob("../../**")` 会把 `src/styles/*.css` 也吸进依赖图导致
+     构建偶发失败（改成显式 import + 限制 glob 只匹配图片）；
+     以及小屏下 grid 的 `auto` 轨道被内容撑宽导致右侧被裁
 
 ---
 
 ## 十、参考
 
 - Fuwari 主题：<https://github.com/saicaca/fuwari>
+- Mizuki 主题（看板娘 / 右侧栏 / Others 菜单的移植来源）：<https://github.com/LyraVoid/Mizuki>
+- oh-my-live2d（看板娘渲染库）：<https://github.com/hacxy/oh-my-live2d>
 - Astro 文档：<https://docs.astro.build>
 - Expressive Code 文档：<https://expressive-code.com>
 - Pagefind 文档：<https://pagefind.app>

@@ -1,0 +1,112 @@
+---
+/**
+ * 左侧栏的「公告」卡片（对齐 Mizuki 参考站）。
+ *
+ * 内容来自 src/config.ts 的 announcementConfig。
+ * 访客点右上角的 × 关闭后，选择会记在 localStorage 里，
+ * 之后刷新和跳页都不再显示（想让它重新出现就清一下浏览器存储）。
+ */
+import { Icon } from "astro-icon/components";
+import { announcementConfig } from "../../config";
+import { url } from "../../utils/url-utils";
+import WidgetLayout from "./WidgetLayout.astro";
+
+interface Props {
+	class?: string;
+	style?: string;
+}
+
+const { class: className, style } = Astro.props;
+const config = announcementConfig;
+
+// 以 "/" 开头的当作站内链接，交给 url() 补 base path
+const linkHref = config.link
+	? config.link.external
+		? config.link.url
+		: config.link.url.startsWith("/")
+			? url(config.link.url)
+			: config.link.url
+	: "";
+---
+
+{
+	config.enable && (
+		<WidgetLayout
+			name={config.title}
+			id="announcement"
+			class={className}
+			style={style}
+		>
+			<div data-announcement-body>
+				<div class="text-neutral-600 dark:text-neutral-300 leading-relaxed mb-3 transition">
+					{config.content}
+				</div>
+				<div class="flex items-center justify-between gap-3">
+					<div>
+						{config.link && (
+							<a
+								href={linkHref}
+								target={config.link.external ? "_blank" : "_self"}
+								rel={config.link.external ? "noopener noreferrer" : null}
+								class="btn-regular rounded-lg px-3 py-1.5 text-sm font-medium active:scale-95 transition-transform"
+							>
+								{config.link.text}
+							</a>
+						)}
+					</div>
+					<button
+						type="button"
+						class="btn-regular rounded-lg h-8 w-8 text-sm active:scale-90 transition-transform"
+						data-announcement-close
+						aria-label="Close announcement"
+					>
+						<Icon name="fa6-solid:xmark" class="text-sm" />
+					</button>
+				</div>
+			</div>
+		</WidgetLayout>
+	)
+}
+
+<script>
+	/*
+	 * 公告的关闭逻辑。
+	 * 因为侧栏不在 Swup 的替换容器里，这段脚本整站只会跑一次，
+	 * 不需要挂页面切换的钩子。
+	 */
+	const STORAGE_KEY = "announcementClosed";
+
+	function initAnnouncement() {
+		document
+			.querySelectorAll<HTMLElement>(
+				'widget-layout[data-id="announcement"]:not([data-bound])',
+			)
+			.forEach((widget) => {
+				widget.setAttribute("data-bound", "true");
+
+				// 之前关过就直接不显示
+				try {
+					if (localStorage.getItem(STORAGE_KEY) === "true") {
+						widget.style.display = "none";
+						return;
+					}
+				} catch {
+					// 隐私模式下 localStorage 可能不可用，照常显示即可
+				}
+
+				widget
+					.querySelector("[data-announcement-close]")
+					?.addEventListener("click", () => {
+						widget.style.display = "none";
+						try {
+							localStorage.setItem(STORAGE_KEY, "true");
+						} catch {
+							// 存不了就算了，至少本次会话已经关掉了
+						}
+					});
+			});
+	}
+
+	initAnnouncement();
+	document.addEventListener("swup:enable", initAnnouncement);
+</script>

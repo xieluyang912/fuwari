@@ -200,6 +200,36 @@ export default defineConfig({
 
   // Vite 打包配置
   vite: {
+      /*
+       * 把「运行时才会被发现的依赖」提前预打包。
+       *
+       * 背景：@swup/astro 的客户端模块（Swup / SwupA11yPlugin / ... ）是在
+       * Layout 里动态注入的，Layout.astro 里还有一句懒加载 import("photoswipe")。
+       * Vite 启动时的依赖扫描看不到它们，于是会在「第一次打开页面」时才
+       * ✨ new dependencies optimized 并重新预打包：hash 一变，旧 chunk 立刻被删，
+       * 而这一轮页面已经拿到的还是旧 URL，结果是
+       *   Failed to fetch dynamically imported module: .../deps/@astrojs_svelte_client__js.js?v=<旧hash>
+       * 所有 Svelte 组件（含右上角主题色选择器、深浅色开关、搜索）首屏注水失败。
+       *
+       * 更麻烦的是：如果 dev server 一直开着不重启，它内存里的模块图就永远停在
+       * 旧 hash 上，页面会持续 504 (Outdated Optimize Dep)，功能一直是坏的
+       * —— 只能靠重启 dev server 解决。在这里显式列出来，启动时就一起打包，
+       * 就不会跑到一半重建了。
+       */
+      optimizeDeps: {
+          include: [
+              "photoswipe",
+              "photoswipe/lightbox",
+              "@swup/astro/client/Swup",
+              "@swup/astro/client/SwupA11yPlugin",
+              "@swup/astro/client/SwupPreloadPlugin",
+              "@swup/astro/client/SwupScrollPlugin",
+              "@swup/astro/client/SwupHeadPlugin",
+              "@swup/astro/client/SwupScriptsPlugin",
+              "@swup/astro/serialise",
+              "@swup/astro/idle",
+          ],
+      },
       build: {
           rollupOptions: {
               onwarn(warning, warn) {

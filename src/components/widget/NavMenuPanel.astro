@@ -1,6 +1,16 @@
 ---
+/**
+ * 手机端汉堡菜单面板（顶栏右侧那个 ☰ 按钮弹出的东西）。
+ *
+ * 和桌面端下拉菜单的区别：
+ * - 这里把 children 渲染成「可折叠的分组」，因为触屏上没有 hover
+ * - 顶层链接前面也会带图标，和桌面端观感保持一致
+ */
 import { Icon } from "astro-icon/components";
-import { type NavBarLink } from "../../types/config";
+import { LinkPresets } from "../../constants/link-presets";
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+import { LinkPreset, type NavBarLink } from "../../types/config";
 import { url } from "../../utils/url-utils";
 
 interface Props {
@@ -8,25 +18,143 @@ interface Props {
 }
 
 const links = Astro.props.links;
+
+/** 和 DropdownMenu 保持一致的中文名映射 */
+const navTitleMap: Record<string, I18nKey> = {
+	Links: I18nKey.navLinks,
+	My: I18nKey.navMy,
+	About: I18nKey.navAbout,
+	Others: I18nKey.navOthers,
+	Projects: I18nKey.projects,
+	Skills: I18nKey.skills,
+	Timeline: I18nKey.timeline,
+	"AI Tools": I18nKey.aiTools,
+};
+
+function getLocalizedName(name: string): string {
+	return name in navTitleMap ? i18n(navTitleMap[name]) : name;
+}
+
+/** 展开 LinkPreset 枚举，得到统一的链接对象数组 */
+function expandChildren(children?: (NavBarLink | LinkPreset)[]): NavBarLink[] {
+	return (
+		children?.map((c) =>
+			typeof c === "number" ? LinkPresets[c as LinkPreset] : c,
+		) ?? []
+	);
+}
 ---
-<div id="nav-menu-panel" class:list={["float-panel float-panel-closed absolute transition-all fixed right-4 px-2 py-2"]}>
-    {links.map((link) => (
-        <a href={link.external ? link.url : url(link.url)} class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-8
-            hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition
-        "
-           target={link.external ? "_blank" : null}
-        >
-            <div class="transition text-black/75 dark:text-white/75 font-bold group-hover:text-[var(--primary)] group-active:text-[var(--primary)]">
-                {link.name}
+
+<div id="nav-menu-panel" class:list={["float-panel float-panel-closed absolute transition-all fixed right-4 px-2 py-2 max-h-[70vh] overflow-y-auto hide-scrollbar w-[15rem]"]}>
+    {links.map((link) => {
+        const children = expandChildren(link.children);
+        return children.length > 0 ? (
+            /* ---- 有子菜单：渲染成可折叠分组 ---- */
+            <div class="nav-group">
+                <button
+                    type="button"
+                    class="nav-group-trigger group w-full flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-2
+                           hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition"
+                    aria-expanded="false"
+                >
+                    <div class="flex items-center min-w-0 transition text-black/75 dark:text-white/75 font-bold group-hover:text-[var(--primary)]">
+                        {link.icon && <Icon name={link.icon} class="text-[1.15rem] mr-2 shrink-0" />}
+                        <span class="truncate">{getLocalizedName(link.name)}</span>
+                    </div>
+                    <Icon
+                        name="material-symbols:keyboard-arrow-down-rounded"
+                        class="nav-group-arrow text-[1.25rem] text-[var(--primary)] transition-transform shrink-0"
+                    />
+                </button>
+                <div class="nav-group-list hidden pl-3">
+                    {children.map((child) => (
+                        <a
+                            href={child.external ? child.url : url(child.url)}
+                            class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-2
+                                   hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition"
+                            target={child.external ? "_blank" : null}
+                            rel={child.external ? "noopener noreferrer" : null}
+                        >
+                            <div class="flex items-center min-w-0 transition text-black/75 dark:text-white/75
+                                        group-hover:text-[var(--primary)] group-active:text-[var(--primary)]">
+                                {child.icon && <Icon name={child.icon} class="text-[1rem] mr-2 shrink-0" />}
+                                <span class="truncate text-sm">{getLocalizedName(child.name)}</span>
+                            </div>
+                            {child.external && (
+                                <Icon
+                                    name="fa6-solid:arrow-up-right-from-square"
+                                    class="transition text-[0.75rem] text-black/25 dark:text-white/25 -translate-x-1 shrink-0"
+                                />
+                            )}
+                        </a>
+                    ))}
+                </div>
             </div>
-            {!link.external && <Icon name="material-symbols:chevron-right-rounded"
-                  class="transition text-[1.25rem] text-[var(--primary)]"
+        ) : (
+            /* ---- 普通链接 ---- */
+            <a
+                href={link.external ? link.url : url(link.url)}
+                class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-2
+                       hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition"
+                target={link.external ? "_blank" : null}
+                rel={link.external ? "noopener noreferrer" : null}
             >
-            </Icon>}
-            {link.external && <Icon name="fa6-solid:arrow-up-right-from-square"
-                  class="transition text-[0.75rem] text-black/25 dark:text-white/25 -translate-x-1"
-            >
-            </Icon>}
-        </a>
-    ))}
+                <div class="flex items-center min-w-0 transition text-black/75 dark:text-white/75 font-bold
+                            group-hover:text-[var(--primary)] group-active:text-[var(--primary)]">
+                    {link.icon && <Icon name={link.icon} class="text-[1.15rem] mr-2 shrink-0" />}
+                    <span class="truncate">{getLocalizedName(link.name)}</span>
+                </div>
+                {!link.external && (
+                    <Icon name="material-symbols:chevron-right-rounded" class="transition text-[1.25rem] text-[var(--primary)] shrink-0" />
+                )}
+                {link.external && (
+                    <Icon
+                        name="fa6-solid:arrow-up-right-from-square"
+                        class="transition text-[0.75rem] text-black/25 dark:text-white/25 -translate-x-1 shrink-0"
+                    />
+                )}
+            </a>
+        );
+    })}
 </div>
+
+<style>
+    /* 分组展开后箭头翻转，和桌面端下拉的观感一致 */
+    .nav-group-trigger[aria-expanded="true"] .nav-group-arrow {
+        transform: rotate(180deg);
+    }
+    .nav-group-trigger[aria-expanded="true"] {
+        color: var(--primary);
+    }
+    .nav-group-list {
+        /* 展开时让子项左边出现一条竖线，视觉上表示层级 */
+        border-left: 1px solid var(--line-color);
+        margin-left: 0.75rem;
+    }
+</style>
+
+<script>
+    /**
+     * 折叠分组。面板本身会被 Swup 之外的脚本控制显隐，
+     * 但顶栏不参与 Swup 的容器替换，所以绑定一次就够了。
+     */
+    function initNavGroups() {
+        document
+            .querySelectorAll<HTMLElement>(
+                "#nav-menu-panel .nav-group-trigger:not([data-bound])",
+            )
+            .forEach((trigger) => {
+                trigger.setAttribute("data-bound", "true");
+                trigger.addEventListener("click", () => {
+                    const expanded =
+                        trigger.getAttribute("aria-expanded") === "true";
+                    trigger.setAttribute("aria-expanded", String(!expanded));
+                    const list = trigger.nextElementSibling as HTMLElement | null;
+                    list?.classList.toggle("hidden", expanded);
+                });
+            });
+    }
+
+    initNavGroups();
+    document.addEventListener("swup:enable", initNavGroups);
+</script>

@@ -2,17 +2,20 @@
 import BackToTop from "@components/control/BackToTop.astro";
 import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
+import Pio from "@components/widget/Pio.astro";
+import RightSideBar from "@components/widget/RightSideBar.astro";
 import SideBar from "@components/widget/SideBar.astro";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
-import TOC from "../components/widget/TOC.astro";
-import { siteConfig } from "../config";
+import WaveDivider from "../components/misc/WaveDivider.astro";
+import { sidebarConfig, siteConfig } from "../config";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_EXTEND,
 	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
 } from "../constants/constants";
+import { pathsEqual, url } from "../utils/url-utils";
 import Layout from "./Layout.astro";
 
 interface Props {
@@ -39,6 +42,74 @@ const hasBannerLink = !!siteConfig.banner.credit.url;
 const mainPanelTop = siteConfig.banner.enable
 	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
 	: "5.5rem";
+
+// 首页横幅上的大标题/副标题（对齐 Mizuki 首页），只有首页才显示
+const isHome = pathsEqual(Astro.url.pathname, url("/"));
+const homeText = siteConfig.banner.homeText;
+
+/**
+ * 主网格的类名（对齐 Mizuki 参考站的栅格）。
+ *
+ * 列数变化：
+ *   < 768px      单栏：正文 → 左侧栏 → 右侧栏 → 页脚
+ *   ≥ 768px(md)  两栏：左栏 | 正文
+ *   ≥ 1280px(xl) 三栏：左栏 | 正文 | 右栏
+ *
+ * ⚠️ 这里的类名必须写成完整的字面量，不能拼字符串！
+ * Tailwind 是靠「扫描源码文本」来生成 CSS 的，像
+ *   `md:grid-cols-[${sidebarCol}_minmax(0,1fr)]`
+ * 这种在运行时才拼出来的类名，扫描阶段根本不存在，
+ * 结果就是规则压根不生成、三栏宽度全失效（会退化成按内容自适应，
+ * 实测变成 171/845/360，而不是预期的 280/816/280）。
+ * 改侧栏宽度时记得三处一起改（下面的 md / xl / 侧栏 max-w）。
+ *
+ * 另外第二列必须写成 minmax(0, 1fr) 而不是 auto：
+ * auto 轨道的下限是内容的 min-content 宽度，小屏上常常比屏幕还大，
+ * 会把整个网格顶宽导致右侧被裁掉。
+ */
+const mainGridClass = [
+	"transition duration-700 w-full left-0 right-0 grid",
+	"grid-cols-1",
+	"md:grid-cols-[17.5rem_minmax(0,1fr)]",
+	"md:grid-rows-[auto]",
+	"mx-auto gap-4 px-2 md:px-4",
+	sidebarConfig.enable ? "xl:grid-cols-[17.5rem_minmax(0,1fr)_17.5rem]" : "",
+]
+	.filter(Boolean)
+	.join(" ");
+
+/**
+ * 各块在网格里的落位。
+ *
+ * ⚠️ 同上：必须是字面量，且必须写成一行 ——
+ * Astro 会把「组件 prop 的字符串」原样塞进 JS 字符串字面量且不转义换行，
+ * 多行会直接报 Unterminated string literal。
+ */
+const sideBarClass = [
+	"mb-4 min-w-0 col-start-1 row-start-2",
+	"md:col-start-1 md:row-start-1 md:max-w-[17.5rem]",
+	"onload-animation",
+].join(" ");
+
+const mainClass = [
+	"transition-swup-fade col-start-1 row-start-1 overflow-hidden",
+	"md:col-start-2 md:row-start-1",
+].join(" ");
+
+const mobileFooterClass =
+	"footer col-start-1 row-start-4 onload-animation block md:hidden";
+
+const rightSideBarClass = [
+	"col-start-1 row-start-3 mb-4",
+	"md:col-span-2 md:col-start-1 md:row-start-2",
+	"xl:col-span-1 xl:col-start-3 xl:row-start-1",
+]
+	.filter(Boolean)
+	.join(" ");
+
+// 首页横幅文字用，避免模板里写一长串条件
+const showHomeText =
+	siteConfig.banner.enable && isHome && !!homeText?.title?.trim();
 ---
 
 <Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>
@@ -51,25 +122,44 @@ const mainPanelTop = siteConfig.banner.enable
     </div>
 </div>
 
-<!-- Banner -->
+<!-- Banner：图片 + 居中的大标题 + 底部波浪 -->
 {siteConfig.banner.enable && <div id="banner-wrapper" class={`absolute z-10 w-full transition duration-700 overflow-hidden`} style={`top: -${BANNER_HEIGHT_EXTEND}vh`}>
     <ImageWrapper id="banner" alt="Banner image of the blog" class:list={["object-cover h-full transition duration-700 opacity-0 scale-105"]}
                   src={siteConfig.banner.src} position={siteConfig.banner.position}
     >
     </ImageWrapper>
+
+    <!--
+        首页专用：横幅正中间的大标题 + 副标题。
+        参考站没有给整幅图加黑色遮罩（那样会把图压暗），
+        而是靠文字自身的投影保证可读性 —— 背景图再亮也能看清。
+    -->
+    {showHomeText && (
+        <div class="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pointer-events-none">
+            <h1 class="banner-title text-4xl md:text-6xl xl:text-8xl font-bold text-white text-center mb-2 md:mb-4">
+                {homeText!.title}
+            </h1>
+            {homeText!.subtitle?.trim() && (
+                <h2 class="banner-subtitle text-base md:text-xl xl:text-3xl text-white/90 text-center">
+                    {homeText!.subtitle}
+                </h2>
+            )}
+        </div>
+    )}
+
+    <!-- 底部波浪：4 层 SVG 视差，填充色是页面底色 -->
+    <WaveDivider />
 </div>}
 
 <!-- Main content -->
 <div class="absolute w-full z-30 pointer-events-none" style={`top: ${mainPanelTop}`}>
     <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
     <div class="relative max-w-[var(--page-width)] mx-auto pointer-events-auto">
-        <div id="main-grid" class="transition duration-700 w-full left-0 right-0 grid grid-cols-[17.5rem_auto] grid-rows-[auto_1fr_auto] lg:grid-rows-[auto]
-    mx-auto gap-4 px-0 md:px-4"
+        <div id="main-grid" class={mainGridClass}
         >
             <!-- Banner image credit -->
             {hasBannerCredit && <a href={siteConfig.banner.credit.url} id="banner-credit" target="_blank" rel="noopener" aria-label="Visit image source"
-                                   class:list={["group onload-animation transition-all absolute flex justify-center items-center rounded-full " +
-                                   "px-3 right-4 -top-[3.25rem] bg-black/60 hover:bg-black/70 h-9", {"hover:pr-9 active:bg-black/80": hasBannerLink}]}
+                                   class:list={["group onload-animation transition-all absolute flex justify-center items-center rounded-full px-3 right-4 -top-[3.25rem] bg-black/60 hover:bg-black/70 h-9", {"hover:pr-9 active:bg-black/80": hasBannerLink}]}
             >
                 <Icon class="text-white/75 text-[1.25rem] mr-1" name="material-symbols:copyright-outline-rounded" ></Icon>
                 <div class="text-white/75 text-xs">{siteConfig.banner.credit.text}</div>
@@ -79,47 +169,53 @@ const mainPanelTop = siteConfig.banner.enable
                 </Icon>
             </a>}
 
+            <SideBar class={sideBarClass} headings={headings}></SideBar>
 
-            <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings}></SideBar>
-
-            <main id="swup-container" class="transition-swup-fade col-span-2 lg:col-span-1 overflow-hidden">
+            <main id="swup-container" class={mainClass}>
                 <div id="content-wrapper" class="onload-animation">
                     <!-- the overflow-hidden here prevent long text break the layout-->
                     <!-- make id different from windows.swup global property -->
                     <slot></slot>
-                    <div class="footer col-span-2 onload-animation hidden lg:block">
+                    <div class="footer col-span-2 onload-animation hidden md:block">
                         <Footer></Footer>
                     </div>
                 </div>
             </main>
 
-            <div class="footer col-span-2 onload-animation block lg:hidden">
+            <div class={mobileFooterClass}>
                 <Footer></Footer>
             </div>
+
+            {sidebarConfig.enable && <RightSideBar class={rightSideBarClass} />}
         </div>
 
         <BackToTop></BackToTop>
     </div>
 </div>
 
-<!-- The things that should be under the banner, only the TOC for now -->
-<div class="absolute w-full z-0 hidden 2xl:block">
-    <div class="relative max-w-[var(--page-width)] mx-auto">
-        <!-- TOC component -->
-        {siteConfig.toc.enable && <div id="toc-wrapper" class:list={["hidden lg:block transition absolute top-0 -right-[var(--toc-width)] w-[var(--toc-width)] items-center",
-            {"toc-hide": siteConfig.banner.enable}]}
-        >
-            <div id="toc-inner-wrapper" class="fixed top-14 w-[var(--toc-width)] h-[calc(100vh_-_20rem)] overflow-y-scroll overflow-x-hidden hide-scrollbar">
-                <div id="toc" class="w-full h-full transition-swup-fade ">
-                    <div class="h-8 w-full"></div>
-                    <TOC headings={headings}></TOC>
-                    <div class="h-8 w-full"></div>
-                </div>
-            </div>
-        </div>}
+<!--
+    文章目录现在挪到左侧栏的卡片里了（见 components/widget/TOCWidget.astro）。
+    原因：整页宽度 90rem + 左右两个 17.5rem 侧栏之后，两边已经塞不下
+    第四条浮动目录栏；而且参考站本来就是侧栏目录。
+    #toc 依然是 Swup 的替换容器（见 astro.config.mjs 的 containers），
+    只是它现在住在这个卡片内部，跳页时由 Swup 单独替换里面的内容。
+-->
 
-        <!-- #toc needs to exist for Swup to work normally -->
-        {!siteConfig.toc.enable && <div id="toc"></div>}
-    </div>
-</div>
+<!--
+    左下角 Live2D 看板娘。
+    同样必须放在 Swup 容器之外，否则每跳一次页面模型都要重新加载。
+    注意它必须是 <body> 的直接子元素（不能放进有 transform 的祖先里），
+    否则内部的 position: fixed 会失效。
+-->
+<Pio></Pio>
 </Layout>
+
+<style>
+    /* 横幅文字：参考站没有整幅遮罩，靠文字阴影保证可读性 */
+    .banner-title {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    }
+    .banner-subtitle {
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+    }
+</style>

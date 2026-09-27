@@ -1,0 +1,61 @@
+---
+/**
+ * 右侧栏（对应 Mizuki 的 RightSideBar）。
+ *
+ * 这里按 sidebarConfig.widgets 的顺序渲染几个小部件：
+ *   站点统计 / 日历 / 分类
+ *
+ * 响应式行为：
+ * - ≥1280px（xl）：作为第三栏显示在正文右边，内部是 sticky 定位
+ * - <1280px：折到正文下方，变成通栏的两列网格，功能一个都不少
+ *   （Mizuki 在移动端是直接隐藏右栏的，这里改成折行，
+ *     免得手机用户看不到站点统计和分类）
+ */
+import { sidebarConfig } from "../../config";
+import Calendar from "./Calendar.astro";
+import Categories from "./Categories.astro";
+import SiteStats from "./SiteStats.astro";
+
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+
+const enabled = sidebarConfig.enable;
+const widgets = sidebarConfig.widgets;
+
+/** 每个小部件之间的动画延迟，让它们一个接一个淡入 */
+const animationDelay = (index: number) =>
+	`animation-delay: ${150 + index * 50}ms`;
+---
+
+{
+	enabled && (
+		// min-w-0 很关键：这个块在网格里是跨列的，
+		// 不加的话它的「内容最小宽度」会把整个网格顶宽，手机上右侧内容会被裁掉
+		<div id="right-sidebar" class:list={[className, "w-full min-w-0"]}>
+			{/*
+			 * 大屏幕：sticky 跟随滚动；小屏幕：普通的两列网格。
+			 * 用 grid 排是为了窄屏时几个卡片能并排，不至于拉得特别长。
+			 */}
+			<div
+				id="right-sidebar-sticky"
+				class="flex flex-col w-full min-w-0 gap-4 transition-all duration-700
+				       xl:sticky xl:top-4
+				       max-xl:grid max-xl:grid-cols-1 md:max-xl:grid-cols-2 max-xl:items-start"
+			>
+				{widgets.map((widget, index) => {
+					const commonProps = {
+						class: "onload-animation",
+						style: animationDelay(index),
+					};
+					if (widget === "site-stats") return <SiteStats {...commonProps} />;
+					if (widget === "calendar") return <Calendar {...commonProps} />;
+					if (widget === "categories") return <Categories {...commonProps} />;
+					return null;
+				})}
+			</div>
+		</div>
+	)
+}

@@ -1,15 +1,35 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { getPostUrlBySlug } from "@utils/url-utils";
+import CategoryBar from "./CategoryBar.astro";
 import PostCard from "./PostCard.astro";
 
 const { page } = Astro.props;
 
-let delay = 0;
+/*
+ * 每张卡片的入场动画延迟。
+ * 参考站是「基础延迟 + 序号 × 步长」，这里用 CSS 变量 --i / --interval
+ * 传给卡片，具体计算写在下面的 <style> 里，这样卡片组件本身
+ * 不需要知道自己在列表里的位置。
+ */
 const interval = 50;
 ---
-<div class="transition flex flex-col rounded-[var(--radius-large)] bg-[var(--card-bg)] py-1 md:py-0 md:bg-transparent md:gap-4 mb-4">
-    {page.data.map((entry: CollectionEntry<"posts">) => (
+
+<!-- 顶部分类筛选条 -->
+<CategoryBar />
+
+<!--
+  文章列表容器。
+  list-mode 是竖排（默认），脚本会按用户选择切成 grid-mode 双列。
+  容器本身在桌面端是透明的，只有手机上才补一层卡片底色 —— 
+  因为手机上卡片是通栏的，底色交给容器更省事。
+-->
+<div
+    id="post-list-container"
+    class="transition-all duration-500 ease-in-out rounded-[var(--radius-large)] bg-[var(--card-bg)] md:bg-transparent mb-4 list-mode"
+    data-default-layout="list"
+>
+    {page.data.map((entry: CollectionEntry<"posts">, i: number) => (
         <PostCard
                 entry={entry}
                 title={entry.data.title}
@@ -22,7 +42,62 @@ const interval = 50;
                 description={entry.data.description}
                 draft={entry.data.draft}
                 class:list="onload-animation"
-                style={`animation-delay: calc(var(--content-delay) + ${delay++ * interval}ms);`}
+                style={`--i: ${i}; --interval: ${interval}ms;`}
         ></PostCard>
     ))}
 </div>
+
+<style>
+    /* 列表模式：竖排，间距 1rem */
+    #post-list-container.list-mode {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* 网格模式：双列（脚本切 .grid-mode 时生效） */
+    #post-list-container.grid-mode {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    @media (min-width: 768px) {
+        #post-list-container.grid-mode {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+    }
+
+    /*
+     * 卡片入场：每张卡片按 --i 依次淡入上浮。
+     * 用 content-visibility 让屏幕外的卡片跳过渲染，长列表滚动更顺。
+     */
+    #post-list-container > * {
+        content-visibility: auto;
+        contain-intrinsic-size: 200px;
+        opacity: 0;
+        animation: 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards fade-in-slide;
+        animation-delay: calc(var(--i) * var(--interval, 50ms));
+    }
+    @keyframes fade-in-slide {
+        0% {
+            opacity: 0;
+            transform: translate(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translate(0);
+        }
+    }
+
+    /* 手机端：卡片通栏，容器不额外加内边距和底色 */
+    @media (max-width: 767px) {
+        #post-list-container {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+            padding: 0 !important;
+            background: transparent !important;
+        }
+    }
+</style>

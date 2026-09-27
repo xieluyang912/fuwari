@@ -1,0 +1,125 @@
+---
+/**
+ * 「Others → 时间线」页面（/timeline/）。
+ *
+ * 内容来自 src/config.ts 的 timelineConfig。
+ * 不需要自己在配置里排序：这里会按 date 从新到旧自动排好。
+ * type 字段只影响节点圆点的配色：
+ *   education 学习 / work 工作 / project 项目 / award 荣誉 / 其它默认主题色
+ */
+import { Icon } from "astro-icon/components";
+import PageHeader from "../components/misc/PageHeader.astro";
+import { timelineConfig } from "../config";
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+import type { TimelineItem } from "../types/config";
+
+/** 按日期倒序排（新的在上面） */
+const items: TimelineItem[] = [...timelineConfig.items].sort((a, b) =>
+	a.date < b.date ? 1 : a.date > b.date ? -1 : 0,
+);
+
+/** 不同类型给不同颜色，让时间线看起来有层次 */
+const typeColor: Record<string, string> = {
+	education: "#3b82f6", // 蓝
+	work: "#22c55e", // 绿
+	project: "var(--primary)", // 主题色
+	award: "#f59e0b", // 橙
+	default: "var(--primary)",
+};
+
+/** 不同类型给一个默认图标 */
+const typeIcon: Record<string, string> = {
+	education: "material-symbols:school-outline",
+	work: "material-symbols:work-outline",
+	project: "material-symbols:rocket-launch-outline",
+	award: "material-symbols:workspace-premium-outline",
+	default: "material-symbols:circle",
+};
+---
+
+<MainGridLayout
+    title={i18n(I18nKey.timeline)}
+    description={timelineConfig.description || i18n(I18nKey.timelineDesc)}
+>
+    <PageHeader
+        title={i18n(I18nKey.timeline)}
+        icon="material-symbols:timeline"
+        description={timelineConfig.description || i18n(I18nKey.timelineDesc)}
+    />
+
+    {items.length === 0 ? (
+        <div class="card-base px-6 py-10 text-center text-neutral-400">
+            {i18n(I18nKey.noContent)}
+        </div>
+    ) : (
+        <div class="card-base px-5 md:px-8 py-7">
+            {/*
+              时间线的实现：一条竖线用容器左边框画出来，
+              每个节点靠负 margin 把圆点压到那条线上。
+            */}
+            <div class="relative border-l-2 border-dashed border-[var(--line-color)] ml-3 md:ml-4">
+                {items.map((item) => {
+                    const color = typeColor[item.type ?? "default"] ?? typeColor.default;
+                    const icon = item.icon ?? typeIcon[item.type ?? "default"] ?? typeIcon.default;
+                    return (
+                        <div class="relative pl-7 md:pl-9 pb-7 last:pb-0 group">
+                            {/* 节点圆点 */}
+                            <div
+                                class="absolute left-0 top-0 -translate-x-1/2 w-8 h-8 rounded-full
+                                       flex items-center justify-center bg-[var(--card-bg)]
+                                       ring-2 transition group-hover:scale-110"
+                                style={`--tw-ring-color: ${color}`}
+                            >
+                                <Icon name={icon} class="text-[1rem]" style={`color: ${color}`} />
+                            </div>
+
+                            {/* 日期 */}
+                            <div class="text-xs font-bold mb-1 transition" style={`color: ${color}`}>
+                                {item.date}
+                            </div>
+
+                            {/* 标题 */}
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h2 class="text-base md:text-lg font-bold text-neutral-900 dark:text-neutral-100 m-0 transition">
+                                    {item.title}
+                                </h2>
+                                {item.url && (
+                                    <a
+                                        href={item.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="text-[var(--primary)] text-sm hover:underline"
+                                        aria-label={item.title}
+                                    >
+                                        <Icon name="material-symbols:link" />
+                                    </a>
+                                )}
+                            </div>
+
+                            {/* 描述 */}
+                            {item.description && (
+                                <p class="mt-1.5 mb-0 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed transition">
+                                    {item.description}
+                                </p>
+                            )}
+
+                            {/* 标签 */}
+                            {item.tags && item.tags.length > 0 && (
+                                <div class="flex flex-wrap gap-1.5 mt-2">
+                                    {item.tags.map((tag) => (
+                                        <span class="text-[11px] px-2 py-0.5 rounded-md bg-[var(--btn-regular-bg)]
+                                                     text-neutral-600 dark:text-neutral-300 transition">
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    )}
+</MainGridLayout>

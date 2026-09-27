@@ -11,6 +11,15 @@ import {
 import { onMount } from "svelte";
 import type { LIGHT_DARK_MODE } from "@/types/config.ts";
 
+/*
+ * 这个组件不需要任何 props，但还是要写一句 $props()：
+ * Svelte 5 对「完全没有 props」的组件会推导出 Record<string, never>，
+ * 而 Astro 的类型检查会把 client:only 这类指令当成 props 传进来，
+ * 于是 Navbar 里报 ts(2322)「client:only 与索引签名不兼容」。
+ * 空的 $props() 能让推导结果变成普通对象类型，检查就过了。
+ */
+let {} = $props();
+
 const seq: LIGHT_DARK_MODE[] = [LIGHT_MODE, DARK_MODE, AUTO_MODE];
 let mode: LIGHT_DARK_MODE = $state(AUTO_MODE);
 

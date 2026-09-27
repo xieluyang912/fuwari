@@ -1,7 +1,7 @@
-import Key from "../i18nKey";
-import type { Translation } from "../translation";
+﻿import Key from "../i18nKey";
+import type { PartialTranslation } from "../translation";
 
-export const th: Translation = {
+export const th: PartialTranslation = {
 	[Key.home]: "หน้าแรก",
 	[Key.about]: "เกี่ยวกับ",
 	[Key.archive]: "คลัง",
@@ -35,4 +35,31 @@ export const th: Translation = {
 	[Key.author]: "ผู้เขียน",
 	[Key.publishedAt]: "เผยแพร่เมื่อ",
 	[Key.license]: "สัญญาอนุญาต",
+
+	/* ---- 日历 ---- */
+	[Key.calendar]: "ปฏิทิน",
+	[Key.calendarJan]: "ม.ค.",
+	[Key.calendarFeb]: "ก.พ.",
+	[Key.calendarMar]: "มี.ค.",
+	[Key.calendarApr]: "เม.ย.",
+	[Key.calendarMay]: "พ.ค.",
+	[Key.calendarJun]: "มิ.ย.",
+	[Key.calendarJul]: "ก.ค.",
+	[Key.calendarAug]: "ส.ค.",
+	[Key.calendarSep]: "ก.ย.",
+	[Key.calendarOct]: "ต.ค.",
+	[Key.calendarNov]: "พ.ย.",
+	[Key.calendarDec]: "ธ.ค.",
+	[Key.calendarMon]: "จ.",
+	[Key.calendarTue]: "อ.",
+	[Key.calendarWed]: "พ.",
+	[Key.calendarThu]: "พฤ.",
+	[Key.calendarFri]: "ศ.",
+	[Key.calendarSat]: "ส.",
+	[Key.calendarSun]: "อา.",
+	[Key.calendarNoPost]: "เดือนนี้ยังไม่มีบทความ",
+	[Key.calendarBackToToday]: "กลับไปวันนี้",
+	[Key.calendarSelectMonthYear]: "เลือกเดือนหรือปี",
+	[Key.calendarPrevMonth]: "เดือนก่อนหน้า",
+	[Key.calendarNextMonth]: "เดือนถัดไป",
 };

@@ -3,10 +3,11 @@ import { Icon } from "astro-icon/components";
 import { navBarConfig, siteConfig } from "../config";
 import { LinkPresets } from "../constants/link-presets";
 import { LinkPreset, type NavBarLink } from "../types/config";
-import { url } from "../utils/url-utils";
+import { pathsEqual, url } from "../utils/url-utils";
 import LightDarkSwitch from "./LightDarkSwitch.svelte";
 import Search from "./Search.svelte";
 import DisplaySettings from "./widget/DisplaySettings.svelte";
+import DropdownMenu from "./widget/DropdownMenu.astro";
 import NavMenuPanel from "./widget/NavMenuPanel.astro";
 
 const className = Astro.props.class;
@@ -19,29 +20,40 @@ let links: NavBarLink[] = navBarConfig.links.map(
 		return item;
 	},
 );
+
+/*
+ * 透明悬浮导航（对齐 Mizuki 参考站）：
+ * 首页顶部的横幅是通栏大图，导航栏浮在图上时应该「隐身」，
+ * 往下滚过一段距离后再变成毛玻璃卡片，保证压住正文时依然看得清。
+ *
+ * data-transparent-mode = semifull：顶部全透明，滚动后变毛玻璃。
+ * 站点没开横幅时用 none，也就是一直保持不透明卡片。
+ * 具体的背景/模糊/阴影规则写在下面的 <style> 里，靠这几个 data 属性切换。
+ */
+const isHome = pathsEqual(Astro.url.pathname, url("/"));
+const hasBanner = siteConfig.banner.enable;
+const transparentMode = hasBanner ? "semifull" : "none";
 ---
-<div id="navbar" class="z-50 onload-animation">
-    <div class="navbar-glass absolute h-8 left-0 right-0 -top-8 transition"></div> <!-- used for onload animation -->
+<div
+    id="navbar"
+    class="z-50 onload-animation group"
+    data-transparent-mode={transparentMode}
+    data-has-banner={hasBanner ? "true" : "false"}
+    data-is-home={isHome ? "true" : "false"}
+>
     <div class:list={[
         className,
-        "navbar-glass card-base !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
+        "navbar-bar !overflow-visible max-w-[var(--page-width)] h-[4.5rem] mx-auto flex items-center justify-between px-4"]}>
         <a href={url('/')} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-5 font-bold active:scale-95">
             <div class="flex flex-row text-[var(--primary)] items-center text-md">
                 <Icon name="material-symbols:home-outline-rounded" class="text-[1.75rem] mb-1 mr-2" />
                 {siteConfig.title}
             </div>
         </a>
-        <div class="hidden md:flex">
-            {links.map((l) => {
-                return <a aria-label={l.name} href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
-                          class="btn-plain scale-animation rounded-lg h-11 font-bold px-5 active:scale-95"
-                >
-                    <div class="flex items-center">
-                        {l.name}
-                        {l.external && <Icon name="fa6-solid:arrow-up-right-from-square" class="text-[0.875rem] transition -translate-y-[1px] ml-1 text-black/[0.2] dark:text-white/[0.2]"></Icon>}
-                    </div>
-                </a>;
-            })}
+        <div class="hidden md:flex items-center">
+            {links.map((l) => (
+                <DropdownMenu link={l}></DropdownMenu>
+            ))}
         </div>
         <div class="flex">
             <!--<SearchPanel client:load>-->
@@ -62,13 +74,62 @@ let links: NavBarLink[] = navBarConfig.links.map(
 </div>
 
 <style>
-    /* 毛玻璃效果：card-base 自带不透明的 bg-[var(--card-bg)]，这里用同色但带透明度
-       的背景覆盖掉（作用域选择器的优先级高于工具类），再对背后的内容做模糊。
-       想调整通透程度改百分比，想调整模糊强度改 blur() 的数值。 */
-    .navbar-glass {
-        background-color: color-mix(in oklab, var(--card-bg) 70%, transparent);
-        -webkit-backdrop-filter: blur(12px) saturate(180%);
-        backdrop-filter: blur(12px) saturate(180%);
+    /*
+     * 导航栏外框。默认是一张不透明卡片，
+     * 下面两条规则把它变成「顶部透明 / 滚动后毛玻璃」。
+     */
+    #navbar > .navbar-bar {
+        background-color: var(--card-bg);
+        border: 1px solid transparent;
+        border-radius: var(--radius-large);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ① 顶部：完全透明，让横幅图片透出来 */
+    #navbar[data-has-banner="true"][data-transparent-mode="semifull"]:not(.scrolled) > .navbar-bar {
+        background-color: transparent;
+        box-shadow: none;
+        border-color: transparent;
+    }
+
+    /* ② 滚动之后：毛玻璃。
+          这里用固定的 rgba 而不是 color-mix，是为了和参考站一致：
+          浅色是白 55%、深色是黑 55%，再叠 20px 模糊。 */
+    #navbar[data-has-banner="true"][data-transparent-mode="semifull"].scrolled > .navbar-bar {
+        background-color: rgba(255, 255, 255, 0.55);
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+        border-color: rgba(255, 255, 255, 0.55);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    :global(:root.dark) #navbar[data-has-banner="true"][data-transparent-mode="semifull"].scrolled > .navbar-bar {
+        background-color: rgba(0, 0, 0, 0.55);
+        border-color: rgba(0, 0, 0, 0.55);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 手机端导航栏通栏、圆角收小，并且不做模糊（性能和观感都更好） */
+    @media (max-width: 767px) {
+        #navbar > .navbar-bar {
+            max-width: none;
+            width: 100%;
+            margin: 0;
+            border-radius: 0.5rem;
+        }
+        #navbar[data-has-banner="true"][data-transparent-mode="semifull"].scrolled > .navbar-bar {
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+            background-color: var(--card-bg);
+            border-color: transparent;
+            box-shadow: none;
+        }
+    }
+
+    /* 平板区间圆角略大一点 */
+    @media (min-width: 768px) and (max-width: 1279px) {
+        #navbar > .navbar-bar {
+            border-radius: 1rem;
+        }
     }
 </style>
 
@@ -84,6 +145,24 @@ function switchTheme() {
 }
 
 function loadButtonScript() {
+    /*
+     * 滚动到一定距离后给 #navbar 加 .scrolled，导航栏从「透明」变「毛玻璃」。
+     * 阈值取 50px：比首屏一点点滚动就变卡片更耐看，也不会太迟钝。
+     * 顶栏不在 Swup 的替换容器里，所以这段脚本整站只会绑定一次。
+     */
+    const navbarEl = document.getElementById("navbar");
+    if (navbarEl && !navbarEl.dataset.scrollBound) {
+        navbarEl.dataset.scrollBound = "true";
+        const SCROLL_THRESHOLD = 50;
+        const syncScrolled = () => {
+            const top = window.scrollY || document.documentElement.scrollTop || 0;
+            navbarEl.classList.toggle("scrolled", top > SCROLL_THRESHOLD);
+        };
+        window.addEventListener("scroll", syncScrolled, { passive: true });
+        // 首屏可能是带着滚动位置刷新的（比如从文章页返回），先同步一次
+        syncScrolled();
+    }
+
     let switchBtn = document.getElementById("scheme-switch");
     if (switchBtn) {
         switchBtn.onclick = function () {

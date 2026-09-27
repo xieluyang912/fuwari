@@ -1,22 +1,42 @@
 ---
+/**
+ * 左侧栏。
+ *
+ * 结构对齐 Mizuki 参考站，从上到下：
+ *   Profile（跟随页面滚走）→ Announcement → Tags →（可选）Categories
+ * 除 Profile 外都在 sticky 容器里，往下滚时跟着粘住。
+ *
+ * 「分类」默认搬到右侧栏了，避免同一页出现两份分类；
+ * 把 sidebarConfig.enable 关掉（不用右侧栏）时，分类会自动回到这里。
+ */
 import type { MarkdownHeading } from "astro";
+import { sidebarConfig } from "../../config";
+import Announcement from "./Announcement.astro";
 import Categories from "./Categories.astro";
 import Profile from "./Profile.astro";
 import Tag from "./Tags.astro";
+import TOCWidget from "./TOCWidget.astro";
 
 interface Props {
 	class?: string;
 	headings?: MarkdownHeading[];
 }
 
+const { headings = [] } = Astro.props;
 const className = Astro.props.class;
+
+// 右侧栏关掉时，分类留在左边
+const showCategoriesHere = !sidebarConfig.enable;
 ---
 <div id="sidebar" class:list={[className, "w-full"]}>
     <div class="flex flex-col w-full gap-4 mb-4">
         <Profile></Profile>
     </div>
     <div id="sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 top-4 sticky top-4">
-        <Categories class="onload-animation" style="animation-delay: 150ms"></Categories>
-        <Tag class="onload-animation" style="animation-delay: 200ms"></Tag>
+        <Announcement class="onload-animation" style="animation-delay: 100ms"></Announcement>
+        {showCategoriesHere && <Categories class="onload-animation" style="animation-delay: 150ms"></Categories>}
+        <Tag class="onload-animation" style={showCategoriesHere ? "animation-delay: 200ms" : "animation-delay: 150ms"}></Tag>
+        <!-- 目录：只在文章页真正显示（没有标题时由 CSS 隐藏），见 TOCWidget 里的说明 -->
+        <TOCWidget class="onload-animation" style="animation-delay: 250ms" headings={headings}></TOCWidget>
     </div>
 </div>

@@ -15,9 +15,23 @@ export type Translation = {
 	[K in I18nKey]: string;
 };
 
+/**
+ * 语言文件可以只写一部分键，缺的部分由英文兜底。
+ *
+ * 这么设计是因为后面陆续加了看板娘、日历等一堆功能，
+ * 文案键一下子多了几十个。如果强制每个语言文件都写全，
+ * 以后每加一个功能就要改 10 个文件，很容易漏。
+ */
+export type PartialTranslation = Partial<Translation>;
+
 const defaultTranslation = en;
 
-const map: { [key: string]: Translation } = {
+/** 用英文补全某个语言里缺失的键 */
+function withFallback(partial: PartialTranslation): Translation {
+	return { ...defaultTranslation, ...partial };
+}
+
+const map: { [key: string]: PartialTranslation } = {
 	es: es,
 	en: en,
 	en_us: en,
@@ -39,7 +53,8 @@ const map: { [key: string]: Translation } = {
 };
 
 export function getTranslation(lang: string): Translation {
-	return map[lang.toLowerCase()] || defaultTranslation;
+	const partial = map[lang.toLowerCase()];
+	return partial ? withFallback(partial) : defaultTranslation;
 }
 
 export function i18n(key: I18nKey): string {

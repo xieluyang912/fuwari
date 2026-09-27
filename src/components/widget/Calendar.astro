@@ -1,0 +1,83 @@
+---
+/**
+ * 右侧栏「日历」小部件。
+ *
+ * 组件本身是 Svelte 写的（要交互），这里只负责：
+ * 1. 套上统一的 WidgetLayout 外框（标题栏 + 折叠）
+ * 2. 把当前语言下的月份名/星期名翻译好传进去
+ */
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+import { url } from "../../utils/url-utils";
+import CalendarWidget from "./calendar/Calendar.svelte";
+import WidgetLayout from "./WidgetLayout.astro";
+
+interface Props {
+	class?: string;
+	style?: string;
+}
+
+const { class: className, style } = Astro.props;
+
+/** 12 个月份的短名，跟随站点语言 */
+const monthNames = [
+	i18n(I18nKey.calendarJan),
+	i18n(I18nKey.calendarFeb),
+	i18n(I18nKey.calendarMar),
+	i18n(I18nKey.calendarApr),
+	i18n(I18nKey.calendarMay),
+	i18n(I18nKey.calendarJun),
+	i18n(I18nKey.calendarJul),
+	i18n(I18nKey.calendarAug),
+	i18n(I18nKey.calendarSep),
+	i18n(I18nKey.calendarOct),
+	i18n(I18nKey.calendarNov),
+	i18n(I18nKey.calendarDec),
+];
+
+/** 星期表头，从周一开始（和日历网格的排列方式对应） */
+const weekDays = [
+	i18n(I18nKey.calendarMon),
+	i18n(I18nKey.calendarTue),
+	i18n(I18nKey.calendarWed),
+	i18n(I18nKey.calendarThu),
+	i18n(I18nKey.calendarFri),
+	i18n(I18nKey.calendarSat),
+	i18n(I18nKey.calendarSun),
+];
+
+// 年份和月份之间那个连接符跟着语言走：
+// 中文/日文是「2026年9月」，韩文是「2026년 9월」，英文等写成「2026 Sep」。
+// 这里只影响标题栏那一行文字，不影响日历网格本身。
+import { siteConfig } from "../../config";
+
+const lang = siteConfig.lang.toLowerCase();
+const yearSuffix = lang.startsWith("zh") || lang.startsWith("ja")
+	? "年"
+	: lang.startsWith("ko")
+		? "년 "
+		: " ";
+
+// 数据接口带 base path（本站部署在 /fuwari/ 子路径下，不能写死绝对路径）
+const apiUrl = url("/api/calendar-data.json");
+---
+
+<WidgetLayout
+    name={i18n(I18nKey.calendar)}
+    id="calendar"
+    class={className}
+    style={style}
+>
+    <CalendarWidget
+        client:visible
+        {monthNames}
+        {weekDays}
+        {yearSuffix}
+        {apiUrl}
+        noPostText={i18n(I18nKey.calendarNoPost)}
+        backToTodayText={i18n(I18nKey.calendarBackToToday)}
+        selectMonthYearText={i18n(I18nKey.calendarSelectMonthYear)}
+        prevMonthText={i18n(I18nKey.calendarPrevMonth)}
+        nextMonthText={i18n(I18nKey.calendarNextMonth)}
+    />
+</WidgetLayout>

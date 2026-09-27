@@ -1,0 +1,181 @@
+---
+/**
+ * 左下角的 Live2D 看板娘（移植自 Mizuki 的 Pio 组件）。
+ *
+ * ── 为什么要用 iframe ─────────────────────────────────────────
+ * Live2D 模型要靠 oh-my-live2d 这个第三方库渲染，它会在页面里创建
+ * canvas、注入自己的样式和全局变量。直接放进主页面有三个坏处：
+ *   1. 它的 CSS 可能和博客主题互相打架
+ *   2. Swup 无刷新跳转时会把它连带销毁，模型每次跳页都要重新加载
+ *   3. 模型加载失败会拖慢主页面
+ * 所以这里用一个「透明的 iframe」把它隔离出去：iframe 固定贴在左下角，
+ * 内部加载 public/pio/live2d-host.html，由那个页面去创建模型。
+ * 由于 iframe 在 Swup 的替换容器之外，跳页时模型不会被销毁。
+ *
+ * ── 通信方式 ─────────────────────────────────────────────────
+ * 主页面 → iframe：postMessage({ type: "l2d-init", config })
+ * iframe → 主页面：postMessage({ type: "l2d-loaded" }) 告知高度
+ *                  postMessage({ type: "l2d-action" }) 告知点了哪个菜单
+ */
+import { pioConfig } from "../../config";
+import { url } from "../../utils/url-utils";
+
+const config = pioConfig;
+
+// 模型路径要补上 base path（本站部署在 /fuwari/ 子路径下，
+// 直接写 "/pio/..." 会指向站点根目录从而 404）
+const modelPaths = (config.models ?? []).map((path) => url(path));
+
+// 只有一个模型时传对象，多个模型时传数组（oh-my-live2d 的约定）
+const modelConfigs: Record<string, unknown>[] = modelPaths.map((path) => ({
+	path,
+}));
+
+// oh-my-live2d 的 position 只认 "bottom-left" / "bottom-right" 这类值
+const position = config.position === "right" ? "bottom-right" : "bottom-left";
+
+/**
+ * 组装台词。
+ * 优先用配置里的 dialog；oh-my-live2d 要求台词挂在 model 对象上。
+ */
+const tipsData: Record<string, unknown> = {};
+if (config.dialog?.welcome) tipsData.welcomeMessage = [config.dialog.welcome];
+if (config.dialog?.touch?.length) tipsData.messages = config.dialog.touch;
+
+const widgetConfig: Record<string, unknown> = {
+	model: modelConfigs.length === 1 ? modelConfigs[0] : modelConfigs,
+	position,
+	size: config.width ?? 280,
+	transitionDuration: 1500,
+	transitionType: "slide",
+	// 自定义字段：host 页面读到它就会把模型自带的「About」按钮藏起来
+	_hideAbout: config.hideAboutMenu ?? true,
+};
+
+// 把台词挂到 model 上（多个模型时只挂第一个，和 Mizuki 的行为一致）
+if (Object.keys(tipsData).length > 0 && !Array.isArray(widgetConfig.model)) {
+	(widgetConfig.model as Record<string, unknown>).tips = tipsData;
+}
+
+const widgetWidth = config.width ?? 280;
+const hiddenOnMobile = config.hiddenOnMobile ?? true;
+const isRight = config.position === "right";
+
+// iframe 地址同样要补 base path
+const hostUrl = url("/pio/live2d-host.html");
+---
+
+{
+	config.enable && (
+		<iframe
+			id="l2d-iframe"
+			src={hostUrl}
+			title="Live2D 看板娘"
+			allowtransparency="true"
+			style={
+				"position: fixed; z-index: 40; pointer-events: none; border: none; bottom: 0;" +
+				(isRight ? " right: 0;" : " left: 0;") +
+				` width: ${widgetWidth}px;` +
+				" height: 600px;" +
+				// 模型加载完成前先隐藏，避免出现一块空白
+				" opacity: 0;"
+			}
+			data-config={JSON.stringify(widgetConfig)}
+			data-hidden-on-mobile={hiddenOnMobile ? "true" : "false"}
+			data-width={widgetWidth}
+		/>
+	)
+}
+
+<script>
+	/*
+	 * 主页面侧的控制器。
+	 *
+	 * 它做的事很少：等 iframe 加载好 → 把配置 postMessage 过去 →
+	 * 收到 l2d-loaded 后把 iframe 高度调成实际内容高度并淡入。
+	 *
+	 * 因为 iframe 不在 Swup 的替换容器里，页面跳转不会重建它，
+	 * 所以初始化只需要做一次，不用挂 Swup 钩子。
+	 */
+	const MOBILE_BREAKPOINT = 768;
+
+	const iframe = document.getElementById(
+		"l2d-iframe",
+	) as HTMLIFrameElement | null;
+
+	if (iframe) {
+		const config = JSON.parse(iframe.dataset.config || "{}");
+		const hiddenOnMobile = iframe.dataset.hiddenOnMobile === "true";
+		let initialized = false;
+
+		/** 手机屏幕上按配置决定显示还是隐藏 */
+		function applyVisibility() {
+			if (!iframe) return;
+			const shouldHide = hiddenOnMobile && window.innerWidth <= MOBILE_BREAKPOINT;
+			iframe.style.display = shouldHide ? "none" : "";
+		}
+
+		/** 把配置发进 iframe，让里面去创建模型 */
+		function sendInit() {
+			if (!iframe || initialized) return;
+			if (hiddenOnMobile && window.innerWidth <= MOBILE_BREAKPOINT) return;
+			iframe.contentWindow?.postMessage({ type: "l2d-init", config }, "*");
+			initialized = true;
+		}
+
+		/** 等浏览器空闲了再初始化，别和首屏渲染抢资源 */
+		function scheduleInit() {
+			const w = window as Window & {
+				requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+			};
+			if (w.requestIdleCallback) {
+				w.requestIdleCallback(() => window.setTimeout(sendInit, 0), { timeout: 2000 });
+			} else {
+				window.setTimeout(sendInit, 500);
+			}
+		}
+
+		/** 接收 iframe 的消息 */
+		window.addEventListener("message", (event: MessageEvent) => {
+			if (!iframe || event.source !== iframe.contentWindow) return;
+
+			// 模型加载完了：把 iframe 高度撑到实际内容高度并显示出来
+			if (event.data?.type === "l2d-loaded") {
+				const contentHeight = event.data.contentHeight || 500;
+				iframe.style.height = `${contentHeight}px`;
+				iframe.style.opacity = "1";
+				iframe.style.pointerEvents = "auto";
+			}
+
+			// 点了看板娘菜单里的「回首页」
+			if (event.data?.type === "l2d-action" && event.data.action === "home") {
+				// BASE_URL 是构建时注入的，部署到 /fuwari/ 这类子路径下也能正确跳转
+				window.location.href = import.meta.env.BASE_URL;
+			}
+
+			// 点了「回到顶部」
+			if (
+				event.data?.type === "l2d-action" &&
+				event.data.action === "scrollToTop"
+			) {
+				window.scrollTo({ top: 0, behavior: "smooth" });
+			}
+		});
+
+		iframe.addEventListener("load", () => {
+			initialized = false;
+			scheduleInit();
+		});
+
+		window.addEventListener("resize", () => {
+			applyVisibility();
+			// 从窄屏拉宽时可能还没初始化过，补一次
+			scheduleInit();
+		});
+
+		applyVisibility();
+		if (iframe.contentDocument?.readyState === "complete") {
+			scheduleInit();
+		}
+	}
+</script>

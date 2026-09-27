@@ -4,6 +4,17 @@
     .card-base {
         @apply rounded-[var(--radius-large)] overflow-hidden bg-[var(--card-bg)] transition;
     }
+    /*
+     * 卡片细边框（对齐 Mizuki 的 .enable-card-border）。
+     * 深色模式下卡片底色只比页面底色亮一档，光靠底色分层不够明显，
+     * 补一条 8% 的极淡描边 + 几乎看不见的投影，卡片边界就清楚了。
+     * 阴影值 0 1px 2px rgba(0,0,0,0.05) 就是 Tailwind v3 的 shadow-sm。
+     */
+    .enable-card-border .card-base {
+        @apply transition-all duration-300;
+        border: 1px solid var(--line-divider);
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
     h1, h2, h3, h4, h5, h6, p, a, span, li, ul, ol, blockquote, code, pre, table, th, td, strong {
         @apply transition;
     }

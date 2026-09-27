@@ -1,0 +1,237 @@
+---
+/**
+ * 右侧栏「站点统计」小部件（移植自 Mizuki 的 SiteStats）。
+ *
+ * 构建时算好 6 项数据：
+ *   文章数 / 分类数 / 标签数 / 总字数 / 运行天数 / 最近更新
+ *
+ * 其中「运行天数」「最近更新」是随日期变化的动态数据，
+ * 构建时算出来的值过几天就不准了，所以这两项交给浏览器端脚本实时重算。
+ */
+import { Icon } from "astro-icon/components";
+import { siteConfig } from "../../config";
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+import {
+	getCategoryList,
+	getSortedPosts,
+	getTagList,
+} from "../../utils/content-utils";
+import WidgetLayout from "./WidgetLayout.astro";
+
+interface Props {
+	class?: string;
+	style?: string;
+}
+
+const { class: className, style } = Astro.props;
+
+// 建站日期，配置里没写就默认用 2024-01-01
+const siteStartDate = siteConfig.siteStartDate || "2024-01-01";
+
+const posts = await getSortedPosts();
+const categories = await getCategoryList();
+const tags = await getTagList();
+
+/**
+ * 统计全站总字数。
+ *
+ * 注意中英文要分开算：
+ * 英文按「空格分隔的单词数」算，中文没有空格，
+ * 只能按「汉字个数」算，否则一整篇中文会被算成 1 个词。
+ */
+let totalWords = 0;
+for (const post of posts) {
+	// body 是文章的原始 Markdown 文本
+	const rawBody = (post as { body?: string }).body ?? "";
+	if (!rawBody) continue;
+
+	let text = rawBody;
+	text = text.replace(/```[\s\S]*?```/g, ""); // 去掉围栏代码块
+	text = text.replace(/`[^`]+`/g, ""); // 去掉行内代码
+
+	// 中日韩文字的统一范围（含全角标点）
+	const cjkPattern =
+		/[\u4e00-\u9fa5\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af\u3000-\u303f\uff00-\uffef]/g;
+
+	const cjkCount = text.match(cjkPattern)?.length ?? 0;
+
+	// 把 CJK 字符换成空格后，剩下的按空白切分就是英文单词数
+	const nonCjkWords = text
+		.replace(cjkPattern, " ")
+		.split(/\s+/)
+		.filter((word) => word.trim().length > 0).length;
+
+	totalWords += cjkCount + nonCjkWords;
+}
+
+/** 给数字加千位分隔符，例如 12345 → 12,345 */
+function formatNumber(num: number): string {
+	return num.toLocaleString("en-US");
+}
+
+// 找到最新一篇文章的发布日期（用于「最近更新」）
+const latestPost = posts.reduce<(typeof posts)[number] | undefined>(
+	(latest, post) =>
+		!latest || post.data.published > latest.data.published ? post : latest,
+	undefined,
+);
+// 用 YYYY-MM-DD 字符串传给前端，避免时区把日期算偏一天
+const lastPostDate = latestPost
+	? [
+			latestPost.data.published.getFullYear(),
+			String(latestPost.data.published.getMonth() + 1).padStart(2, "0"),
+			String(latestPost.data.published.getDate()).padStart(2, "0"),
+		].join("-")
+	: null;
+
+type StatItem = {
+	icon: string;
+	label: string;
+	value: number;
+	/** 需要千位分隔符 */
+	formatted?: boolean;
+	/** 值由客户端脚本填写 */
+	dynamic?: boolean;
+	/** 单位后缀，例如「天」 */
+	suffix?: string;
+	/** 客户端脚本靠这个属性找到要更新的元素 */
+	id?: string;
+};
+
+const stats: StatItem[] = [
+	{
+		icon: "material-symbols:article-outline",
+		label: i18n(I18nKey.siteStatsPostCount),
+		value: posts.length,
+	},
+	{
+		icon: "material-symbols:folder-outline",
+		label: i18n(I18nKey.siteStatsCategoryCount),
+		value: categories.length,
+	},
+	{
+		icon: "material-symbols:label-outline",
+		label: i18n(I18nKey.siteStatsTagCount),
+		value: tags.length,
+	},
+	{
+		icon: "material-symbols:text-ad-outline-rounded",
+		label: i18n(I18nKey.siteStatsTotalWords),
+		value: totalWords,
+		formatted: true,
+	},
+	{
+		icon: "material-symbols:calendar-clock-outline",
+		label: i18n(I18nKey.siteStatsRunningDays),
+		value: 0, // 由客户端重算
+		suffix: i18n(I18nKey.siteStatsDays).replace("{days}", "").trim(),
+		dynamic: true,
+		id: "running-days",
+	},
+	{
+		icon: "material-symbols:ecg-heart-outline",
+		label: i18n(I18nKey.siteStatsLastUpdate),
+		value: 0, // 由客户端重算
+		suffix: i18n(I18nKey.siteStatsDaysAgo).replace("{days}", "").trim(),
+		dynamic: true,
+		id: "last-update",
+	},
+];
+---
+
+<WidgetLayout
+    name={i18n(I18nKey.siteStats)}
+    id="site-stats"
+    class={className}
+    style={style}
+>
+    {/*
+      把两个日期挂成 data 属性传给客户端脚本。
+      不用 define:vars 是因为它会把脚本变成 is:inline，
+      那样 Astro 的类型检查看不到注入的变量、会报一堆警告。
+    */}
+    <div
+        id="site-stats-data"
+        class="hidden"
+        data-start-date={siteStartDate}
+        data-last-post-date={lastPostDate ?? ""}
+        aria-hidden="true"
+    ></div>
+
+    <div class="flex flex-col gap-1">
+        {stats.map((stat) => (
+            <div class="flex items-center justify-between px-2 py-2 rounded-lg">
+                <div class="flex items-center gap-2.5 flex-1 min-w-0">
+                    <div class="text-[var(--primary)] text-xl shrink-0 transition">
+                        <Icon name={stat.icon} />
+                    </div>
+                    <span class="text-neutral-700 dark:text-neutral-300 font-medium text-sm leading-tight transition">
+                        {stat.label}
+                    </span>
+                </div>
+                <div class="flex items-center ml-3 shrink-0">
+                    <span
+                        class="text-base font-bold text-neutral-900 dark:text-neutral-100 transition"
+                        data-stat-id={stat.id}
+                    >
+                        {stat.formatted ? formatNumber(stat.value) : stat.value}
+                    </span>
+                    {stat.suffix && (
+                        <span class="text-sm text-neutral-500 dark:text-neutral-400 ml-1 transition">
+                            {stat.suffix}
+                        </span>
+                    )}
+                </div>
+            </div>
+        ))}
+    </div>
+</WidgetLayout>
+
+<script>
+    /*
+     * 运行天数 / 最近更新 这两项每天都会变，构建时算的值会过期，
+     * 所以放到浏览器里实时计算。
+     * 两个日期从上面的 #site-stats-data 元素上读。
+     */
+    function updateDynamicStats() {
+        const dataEl = document.getElementById("site-stats-data");
+        if (!dataEl) return;
+        const siteStartDate = dataEl.dataset.startDate || "";
+        const lastPostDate = dataEl.dataset.lastPostDate || "";
+
+        const today = new Date();
+
+        // 「已经运行了多少天」＝ 今天 - 建站日
+        if (siteStartDate) {
+            const startDate = new Date(`${siteStartDate}T00:00:00`);
+            const diffDays = Math.max(
+                1,
+                Math.ceil((today.getTime() - startDate.getTime()) / 86400000),
+            );
+            document
+                .querySelectorAll('[data-stat-id="running-days"]')
+                .forEach((el) => {
+                    el.textContent = diffDays.toString();
+                });
+        }
+
+        // 「最近更新」＝ 今天 - 最后一篇文章的发布日期
+        if (lastPostDate) {
+            const lastPost = new Date(`${lastPostDate}T00:00:00`);
+            const daysSinceLastUpdate = Math.max(
+                0,
+                Math.floor((today.getTime() - lastPost.getTime()) / 86400000),
+            );
+            document
+                .querySelectorAll('[data-stat-id="last-update"]')
+                .forEach((el) => {
+                    el.textContent = daysSinceLastUpdate.toString();
+                });
+        }
+    }
+
+    updateDynamicStats();
+    // 页面开着跨过午夜时也能自动更新，一小时检查一次足够
+    setInterval(updateDynamicStats, 3600 * 1000);
+</script>

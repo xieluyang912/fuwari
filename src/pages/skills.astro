@@ -1,0 +1,101 @@
+---
+/**
+ * 「Others → 技能」页面（/skills/）。
+ *
+ * 内容来自 src/config.ts 的 skillsConfig。
+ * 每个分组渲染成一张卡片，组内的技能：
+ *   - 填了 level（0~100）→ 显示一条进度条
+ *   - 没填 level → 只显示名称和描述
+ */
+import { Icon } from "astro-icon/components";
+import PageHeader from "../components/misc/PageHeader.astro";
+import { skillsConfig } from "../config";
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+
+const { categories } = skillsConfig;
+
+/** 进度条颜色分档：熟练度越高越接近主题色 */
+function levelColor(level: number): string {
+	if (level >= 80) return "var(--primary)";
+	if (level >= 60) return "color-mix(in oklab, var(--primary) 75%, #22c55e)";
+	if (level >= 40) return "color-mix(in oklab, var(--primary) 60%, #f59e0b)";
+	return "color-mix(in oklab, var(--primary) 50%, #ef4444)";
+}
+---
+
+<MainGridLayout
+    title={i18n(I18nKey.skills)}
+    description={skillsConfig.description || i18n(I18nKey.skillsDesc)}
+>
+    <PageHeader
+        title={i18n(I18nKey.skills)}
+        icon="material-symbols:psychology-outline"
+        description={skillsConfig.description || i18n(I18nKey.skillsDesc)}
+    />
+
+    {categories.length === 0 ? (
+        <div class="card-base px-6 py-10 text-center text-neutral-400">
+            {i18n(I18nKey.noContent)}
+        </div>
+    ) : (
+        <div class="flex flex-col gap-4">
+            {categories.map((category) => (
+                <div class="card-base p-5">
+                    {/* 分组标题 */}
+                    <div class="flex items-center gap-2.5 mb-4">
+                        {category.icon && (
+                            <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-[var(--btn-regular-bg)] shrink-0 transition">
+                                <Icon name={category.icon} class="text-[var(--primary)] text-[1.15rem]" />
+                            </div>
+                        )}
+                        <h2 class="text-lg font-bold text-neutral-900 dark:text-neutral-100 transition m-0">
+                            {category.name}
+                        </h2>
+                        <span class="text-xs text-neutral-400 ml-1">
+                            {category.items.length}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {category.items.map((skill) => (
+                            <div class="rounded-xl p-3 bg-[var(--btn-regular-bg)]/40 transition
+                                        hover:bg-[var(--btn-plain-bg-hover)]">
+                                <div class="flex items-center gap-2">
+                                    {skill.icon && (
+                                        <Icon name={skill.icon} class="text-[var(--primary)] text-[1.1rem] shrink-0" />
+                                    )}
+                                    <span class="font-bold text-sm text-neutral-800 dark:text-neutral-200 truncate transition">
+                                        {skill.name}
+                                    </span>
+                                    {typeof skill.level === "number" && (
+                                        <span class="ml-auto text-xs font-bold text-[var(--primary)] shrink-0">
+                                            {skill.level}%
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* 进度条：只有填了 level 才画 */}
+                                {typeof skill.level === "number" && (
+                                    <div class="mt-2 h-1.5 w-full rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
+                                        <div
+                                            class="h-full rounded-full transition-all duration-700"
+                                            style={`width: ${skill.level}%; background-color: ${levelColor(skill.level)}`}
+                                        ></div>
+                                    </div>
+                                )}
+
+                                {skill.description && (
+                                    <p class="mt-2 mb-0 text-xs text-neutral-500 dark:text-neutral-400 transition">
+                                        {skill.description}
+                                    </p>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    )}
+</MainGridLayout>

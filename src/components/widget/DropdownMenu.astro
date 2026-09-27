@@ -1,0 +1,235 @@
+---
+/**
+ * 导航栏下拉菜单（Mizuki 的 Others 按钮就是用它渲染的）。
+ *
+ * 用法：给 navBarConfig 里的某一项加上 children 字段，
+ * Navbar.astro 会自动调用本组件把它渲染成「按钮 + 悬停下拉」。
+ *
+ * 交互说明（和 Mizuki 一致）：
+ * - 鼠标悬停 / 键盘 Tab 聚焦时自动展开
+ * - 触屏或键盘用户按 Enter / 空格 切换展开状态
+ * - 支持 ↑ ↓ 在子项之间移动、Esc 关闭
+ */
+import { Icon } from "astro-icon/components";
+import { LinkPresets } from "../../constants/link-presets";
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+import { LinkPreset, type NavBarLink } from "../../types/config";
+import { url } from "../../utils/url-utils";
+
+interface Props {
+	link: NavBarLink;
+	class?: string;
+}
+
+const { link, class: className } = Astro.props;
+
+/**
+ * 把固定的几个英文菜单名映射到 i18n 键，
+ * 这样配置里写 "Others"，中文站点上就会显示成「其他」。
+ */
+const navTitleMap: Record<string, I18nKey> = {
+	Links: I18nKey.navLinks,
+	My: I18nKey.navMy,
+	About: I18nKey.navAbout,
+	Others: I18nKey.navOthers,
+	Projects: I18nKey.projects,
+	Skills: I18nKey.skills,
+	Timeline: I18nKey.timeline,
+	"AI Tools": I18nKey.aiTools,
+};
+
+function getLocalizedName(name: string): string {
+	return name in navTitleMap ? i18n(navTitleMap[name]) : name;
+}
+
+/** 子项里可能混着 LinkPreset 枚举，这里统一展开成完整的链接对象 */
+const children: NavBarLink[] =
+	link.children?.map((child) =>
+		typeof child === "number" ? LinkPresets[child as LinkPreset] : child,
+	) ?? [];
+
+const hasChildren = children.length > 0;
+
+/** 默认图标：没有 children 的项用链接图标，有的用「更多」图标 */
+const icon =
+	link.icon ?? (hasChildren ? "material-symbols:more-horiz" : undefined);
+---
+
+<div class:list={["dropdown-container group relative", className]} data-dropdown>
+    {hasChildren ? (
+        <>
+            <button
+                type="button"
+                class="btn-plain scale-animation rounded-lg h-11 font-bold w-11 xl:w-auto xl:px-5 active:scale-95
+                       flex items-center justify-center xl:justify-start whitespace-nowrap"
+                aria-expanded="false"
+                aria-haspopup="true"
+                data-dropdown-trigger
+            >
+                {icon && <Icon name={icon} class="text-[1.1rem] xl:mr-2 shrink-0" />}
+                <span class="truncate hidden xl:inline">{getLocalizedName(link.name)}</span>
+                <Icon
+                    name="material-symbols:keyboard-arrow-down-rounded"
+                    class="text-[1.25rem] transition-transform duration-200 dropdown-arrow ml-1 shrink-0 hidden xl:inline"
+                />
+            </button>
+
+            <div class="dropdown-menu" data-dropdown-menu>
+                <div class="dropdown-content">
+                    {children.map((child) => (
+                        <a
+                            href={child.external ? child.url : url(child.url)}
+                            target={child.external ? "_blank" : null}
+                            rel={child.external ? "noopener noreferrer" : null}
+                            class="dropdown-item"
+                            aria-label={child.name}
+                        >
+                            <div class="flex items-center min-w-0">
+                                {child.icon && <Icon name={child.icon} class="text-[1rem] mr-2 shrink-0" />}
+                                <span class="truncate">{getLocalizedName(child.name)}</span>
+                            </div>
+                            {child.external && (
+                                <Icon
+                                    name="fa6-solid:arrow-up-right-from-square"
+                                    class="text-[0.75rem] text-black/25 dark:text-white/25 ml-2 shrink-0"
+                                />
+                            )}
+                        </a>
+                    ))}
+                </div>
+            </div>
+        </>
+    ) : (
+        <a
+            aria-label={link.name}
+            href={link.external ? link.url : url(link.url)}
+            target={link.external ? "_blank" : null}
+            rel={link.external ? "noopener noreferrer" : null}
+            class="btn-plain scale-animation rounded-lg h-11 font-bold w-11 xl:w-auto xl:px-5 active:scale-95
+                   flex items-center justify-center xl:justify-start whitespace-nowrap"
+        >
+            {icon && <Icon name={icon} class="text-[1.1rem] xl:mr-2 shrink-0" />}
+            <span class="truncate hidden xl:inline">{getLocalizedName(link.name)}</span>
+            {link.external && (
+                <Icon
+                    name="fa6-solid:arrow-up-right-from-square"
+                    class="text-[0.875rem] transition -translate-y-[1px] ml-1 text-black/[0.2] dark:text-white/[0.2] shrink-0 hidden xl:inline"
+                />
+            )}
+        </a>
+    )}
+</div>
+
+<style>
+    /* 下拉面板默认隐藏，靠 opacity/visibility 过渡，比 display:none 更顺滑 */
+    .dropdown-menu {
+        @apply absolute top-full left-0 pt-2 opacity-0 invisible pointer-events-none -translate-y-2 transition-all duration-200 ease-out z-50;
+    }
+
+    /* 悬停、聚焦、或按钮被标记为展开时显示 */
+    .dropdown-container:hover .dropdown-menu,
+    .dropdown-container:focus-within .dropdown-menu,
+    .dropdown-trigger[aria-expanded="true"] + .dropdown-menu {
+        @apply opacity-100 visible pointer-events-auto translate-y-0;
+    }
+
+    /* 展开时让小箭头翻个身 */
+    .dropdown-container:hover .dropdown-arrow,
+    .dropdown-container:focus-within .dropdown-arrow,
+    .dropdown-trigger[aria-expanded="true"] .dropdown-arrow {
+        @apply rotate-180;
+    }
+
+    .dropdown-content {
+        @apply bg-[var(--float-panel-bg)] rounded-[var(--radius-large)] shadow-xl dark:shadow-none
+               border border-black/5 dark:border-white/10 p-2 min-w-[12rem];
+    }
+
+    .dropdown-item {
+        @apply flex items-center justify-between px-4 py-2.5 rounded-lg font-medium transition-colors duration-150
+               text-black/75 dark:text-white/75
+               hover:text-[var(--primary)] hover:bg-[var(--btn-plain-bg-hover)];
+    }
+
+    /*
+     * 响应式说明（不要在这里加 display:none 的断点）：
+     * 整个导航条在 Navbar.astro 里已经由 `hidden md:flex` 控制，
+     * <768px 时它整体隐藏、改用汉堡菜单。
+     * 768~1279px 之间：只显示图标（文字用 hidden xl:inline 藏起来），
+     * 避免 6 个导航项把顶栏挤爆。
+     * ≥1280px：图标 + 文字完整显示。
+     */
+</style>
+
+<script>
+    /**
+     * 键盘无障碍支持。
+     * 注意：这段脚本在 Swup 无刷新跳转时不会重新执行（顶栏本身不参与替换），
+     * 所以只需要在首次加载时绑定一次即可。
+     */
+    function initDropdowns() {
+        const dropdowns = document.querySelectorAll(
+            "[data-dropdown]:not([data-dropdown-ready])",
+        );
+
+        dropdowns.forEach((dropdown) => {
+            dropdown.setAttribute("data-dropdown-ready", "true");
+
+            const trigger = dropdown.querySelector(
+                "[data-dropdown-trigger]",
+            ) as HTMLElement | null;
+            const items = dropdown.querySelectorAll(
+                ".dropdown-item",
+            ) as NodeListOf<HTMLElement>;
+
+            if (!trigger) return;
+
+            const closeMenu = () => trigger.setAttribute("aria-expanded", "false");
+
+            const toggleMenu = () => {
+                const isExpanded = trigger.getAttribute("aria-expanded") === "true";
+                trigger.setAttribute("aria-expanded", String(!isExpanded));
+            };
+
+            trigger.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    toggleMenu();
+                } else if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    trigger.setAttribute("aria-expanded", "true");
+                    items[0]?.focus();
+                } else if (e.key === "Escape") {
+                    closeMenu();
+                }
+            });
+
+            // 子项之间用 ↑ ↓ 循环移动焦点
+            items.forEach((item, index) => {
+                item.addEventListener("keydown", (e) => {
+                    if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        items[(index + 1) % items.length].focus();
+                    } else if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        items[(index - 1 + items.length) % items.length].focus();
+                    } else if (e.key === "Escape") {
+                        e.preventDefault();
+                        closeMenu();
+                        trigger.focus();
+                    }
+                });
+            });
+
+            // 点到菜单外面就收起来（触屏设备上没有 hover，只能靠这个）
+            document.addEventListener("click", (e) => {
+                if (!dropdown.contains(e.target as Node)) closeMenu();
+            });
+        });
+    }
+
+    initDropdowns();
+    // 首次加载后 Swup 才接管时再跑一次，避免脚本执行顺序造成的漏绑
+    document.addEventListener("swup:enable", initDropdowns);
+</script>

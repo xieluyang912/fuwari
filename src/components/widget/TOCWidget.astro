@@ -1,0 +1,67 @@
+---
+import type { MarkdownHeading } from "astro";
+import { siteConfig } from "../../config";
+/**
+ * 左侧栏的「目录」卡片（对齐 Mizuki 参考站）。
+ *
+ * 为什么要把目录做成侧栏卡片：
+ * 参考站是「左栏 | 正文 | 右栏」三栏 + 整页 90rem，
+ * 页面两侧已经塞不下第四条浮动目录栏了。
+ *
+ * ⚠️ 两个必须保留的 id：
+ *   #toc-inner-wrapper —— TOC.astro 里算滚动位置要用
+ *   #toc               —— Swup 的替换容器之一（见 astro.config.mjs 的 containers）
+ * 所以这个卡片在**所有页面**都会渲染，只是没有目录时靠 CSS 藏起来。
+ * Swup 跳页时只会替换 #toc 的内容，卡片外框原地不动，
+ * 然后靠 :has() 判断里面有没有 <table-of-contents> 来决定要不要显示。
+ */
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+import TOC from "./TOC.astro";
+
+interface Props {
+	class?: string;
+	/** 入场动画延迟等内联样式，由 SideBar 传入 */
+	style?: string;
+	headings?: MarkdownHeading[];
+}
+
+const { class: className, style, headings = [] } = Astro.props;
+---
+
+<widget-layout
+    data-id="toc-card"
+    data-is-collapsed="false"
+    style={style}
+    class:list={[className, "toc-widget-card pb-4 card-base"]}
+>
+    <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-4 mb-2
+        before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)]
+        before:absolute before:left-[-16px] before:top-[5.5px]">
+        {i18n(I18nKey.toc)}
+    </div>
+
+    <div
+        id="toc-inner-wrapper"
+        class="w-full max-h-[min(60vh,32rem)] overflow-y-auto overflow-x-hidden hide-scrollbar"
+    >
+        <div id="toc" class="w-full transition-swup-fade px-4 pb-2">
+            {siteConfig.toc.enable && <TOC headings={headings}></TOC>}
+        </div>
+    </div>
+</widget-layout>
+
+<style>
+    /*
+     * 默认不显示，只有当 #toc 里真的渲染出了 <table-of-contents>（也就是文章页）
+     * 才显示这张卡片。
+     * 用 :has() 而不是在服务端判断，是因为侧栏不在 Swup 的替换容器里 ——
+     * 服务端渲染时算出来的显示/隐藏状态在跳页后不会更新。
+     */
+    .toc-widget-card {
+        display: none;
+    }
+    .toc-widget-card:has(table-of-contents) {
+        display: block;
+    }
+</style>

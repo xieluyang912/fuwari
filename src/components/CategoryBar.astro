@@ -1,0 +1,244 @@
+---
+/**
+ * 首页顶部的分类筛选条（对齐 Mizuki 参考站）。
+ *
+ * 一条卡片里横向排出：
+ *   [🏠] | [Archive 8] | —————— 可横向滚动的分类列表 ——————
+ *
+ * 交互（脚本在下面）：
+ * - 点某个分类跳到归档页并带上 ?category= 参数
+ * - 当前所在分类会高亮（用 data-active 属性，方便 CSS 控制）
+ * - 鼠标滚轮在条上滚动时转成横向滚动
+ * - 两侧有渐隐遮罩，滚到头/尾会消失，提示"还有更多"
+ */
+import { Icon } from "astro-icon/components";
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
+import { getCategoryList, getSortedPosts } from "../utils/content-utils";
+import { getCategoryUrl, url } from "../utils/url-utils";
+
+const categories = await getCategoryList();
+const posts = await getSortedPosts();
+
+// 「归档」那个 pill 上的数字是全站文章数
+const totalPosts = posts.length;
+---
+
+<div
+    class="card-base category-bar p-3 onload-animation"
+    id="category-bar"
+    data-home-path={url("/")}
+    data-archive-path={url("/archive/")}
+>
+    <div class="category-bar-inner flex gap-2">
+        <!-- 首页按钮：只放一个图标 -->
+        <a
+            href={url("/")}
+            class="category-pill text-sm px-2 py-1 rounded-lg shrink-0 transition-colors duration-200 flex items-center justify-center"
+            data-category-name=""
+            aria-label={i18n(I18nKey.home)}
+        >
+            <Icon name="material-symbols:home" class="text-lg" />
+        </a>
+
+        <!-- 归档：带全站文章数 -->
+        <a
+            href={url("/archive/")}
+            class="category-pill text-sm px-3 py-1 rounded-lg whitespace-nowrap shrink-0 transition-colors duration-200 flex items-center justify-center"
+            data-category-name="__archive__"
+        >
+            {i18n(I18nKey.archive)}
+            <span class="text-xs opacity-60 ml-1">{totalPosts}</span>
+        </a>
+
+        <div class="category-divider shrink-0"></div>
+
+        <!-- 分类列表：超出宽度时可以横向滚动 -->
+        <div class="scroll-area relative">
+            <div class="scroll-fade scroll-fade-left" aria-hidden="true"></div>
+            <div class="category-scroll flex gap-2 overflow-x-auto">
+                {categories.map((c) => (
+                    <a
+                        href={getCategoryUrl(c.name)}
+                        class="category-pill text-sm px-3 py-1 rounded-lg whitespace-nowrap transition-colors duration-200 flex items-center justify-center"
+                        data-category-name={c.name.trim()}
+                    >
+                        {c.name.trim()}
+                        <span class="text-xs opacity-60 ml-1">{c.count}</span>
+                    </a>
+                ))}
+            </div>
+            <div class="scroll-fade scroll-fade-right" aria-hidden="true"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .category-bar {
+        margin-bottom: 1rem;
+    }
+
+    /* 归档与分类之间的竖线 */
+    .category-divider {
+        width: 1px;
+        align-self: stretch;
+        background: var(--line-divider);
+    }
+
+    .scroll-area {
+        flex: 1;
+        min-width: 0;
+        position: relative;
+    }
+
+    /* 左右两侧的渐隐遮罩，靠 data-visible 控制显隐 */
+    .scroll-fade {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 2.5rem;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 300ms ease-in-out;
+        z-index: 1;
+    }
+    .scroll-fade[data-visible] {
+        opacity: 1;
+    }
+    .scroll-fade-left {
+        left: 0;
+        background: linear-gradient(to left, transparent, var(--card-bg));
+    }
+    .scroll-fade-right {
+        right: 0;
+        background: linear-gradient(to right, transparent, var(--card-bg));
+    }
+
+    /* 隐藏原生滚动条，避免把这条窄窄的筛选栏撑高 */
+    .category-scroll {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        scroll-behavior: smooth;
+    }
+    .category-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* pill 的三种状态：默认 / hover / 当前选中 */
+    .category-pill {
+        border: 1.5px solid var(--line-divider);
+        color: var(--btn-content);
+        background: transparent;
+    }
+    .category-pill:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: transparent;
+    }
+    .category-pill[data-active] {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+    .category-pill[data-active]:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        opacity: 0.9;
+    }
+</style>
+
+<script>
+    /**
+     * 分类条的交互逻辑。
+     * 注意要挂到 Astro 的页面加载事件上：本站用 Swup 做无刷新跳转，
+     * 这段脚本只在首次加载时执行一次，之后每次换页都要重新按当前 URL 高亮。
+     */
+    function initCategoryBar() {
+        const bar = document.getElementById("category-bar");
+        if (!bar) return;
+
+        const homePath = (bar.getAttribute("data-home-path") || "/").replace(/\/$/, "");
+        const archivePath = (bar.getAttribute("data-archive-path") || "/archive/").replace(/\/$/, "");
+        const currentPath = window.location.pathname.replace(/\/$/, "");
+        const params = new URLSearchParams(window.location.search);
+
+        // 只在首页（含分页）、归档页显示这条筛选栏
+        const isHome = currentPath === homePath || currentPath === "" || /^\/\d+$/.test(currentPath);
+        const isArchive = currentPath === archivePath;
+        if (!isHome && !isArchive) {
+            bar.style.display = "none";
+            return;
+        }
+        bar.style.display = "";
+
+        const activeCategory = params.get("category") || "";
+        const isUncategorized = params.has("uncategorized");
+
+        // 按当前 URL 高亮对应的 pill
+        const pills = bar.querySelectorAll<HTMLElement>(".category-pill");
+        pills.forEach((pill) => {
+            const name = pill.getAttribute("data-category-name") || "";
+            let active = false;
+            if (isArchive && name === "__archive__") active = true;
+            else if (isHome && name === "") active = true;
+            else if (name && name === activeCategory) active = true;
+            else if (name && isUncategorized && name === decodeURIComponent(activeCategory)) active = true;
+
+            if (active) pill.setAttribute("data-active", "");
+            else pill.removeAttribute("data-active");
+        });
+
+        // 把高亮的那一项滚到可视区中间
+        const activePill = bar.querySelector<HTMLElement>(".category-pill[data-active]");
+        activePill?.scrollIntoView({ block: "nearest", inline: "center" });
+
+        const scrollArea = bar.querySelector<HTMLElement>(".category-scroll");
+        const fadeLeft = bar.querySelector<HTMLElement>(".scroll-fade-left");
+        const fadeRight = bar.querySelector<HTMLElement>(".scroll-fade-right");
+
+        /** 根据滚动位置决定左右渐隐层要不要显示 */
+        const updateScrollHint = () => {
+            if (!scrollArea || !fadeLeft || !fadeRight) return;
+            const scrollable = scrollArea.scrollWidth > scrollArea.clientWidth + 1;
+            const atStart = scrollArea.scrollLeft <= 1;
+            const atEnd = scrollArea.scrollLeft + scrollArea.clientWidth >= scrollArea.scrollWidth - 1;
+            if (scrollable && !atStart) fadeLeft.setAttribute("data-visible", "");
+            else fadeLeft.removeAttribute("data-visible");
+            if (scrollable && !atEnd) fadeRight.setAttribute("data-visible", "");
+            else fadeRight.removeAttribute("data-visible");
+        };
+
+        if (scrollArea && !scrollArea.dataset.bound) {
+            scrollArea.dataset.bound = "true";
+            scrollArea.addEventListener("scroll", updateScrollHint, { passive: true });
+            // 鼠标滚轮 → 横向滚动，这样不用按住 shift 也能翻分类
+            scrollArea.addEventListener(
+                "wheel",
+                (event: WheelEvent) => {
+                    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+                    if (scrollArea.scrollWidth <= scrollArea.clientWidth) return;
+                    event.preventDefault();
+                    scrollArea.scrollLeft += event.deltaY;
+                },
+                { passive: false },
+            );
+            window.addEventListener("resize", updateScrollHint);
+        }
+        updateScrollHint();
+    }
+
+    initCategoryBar();
+
+    /*
+     * 本站用 Swup 做无刷新跳转，换页后 DOM 是新的，
+     * 必须重新按当前 URL 高亮一次。这里同时挂两种事件：
+     * - swup 的 page:view 钩子（首次加载时 swup 可能还没就绪，所以下面还有一次手动的）
+     * - swup:enable，覆盖「脚本比 swup 先执行完」的情况
+     */
+    const rebind = () => initCategoryBar();
+    if (window.swup?.hooks) {
+        window.swup.hooks.on("page:view", rebind);
+    } else {
+        document.addEventListener("swup:enable", rebind);
+    }
+</script>

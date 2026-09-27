@@ -1,0 +1,114 @@
+---
+/**
+ * 「Others → AI 工具」页面（/ai-tools/）。
+ *
+ * 内容来自 src/config.ts 的 aiToolsConfig。
+ * category 相同的条目会自动归到同一组，组名就是 category 的值；
+ * 没写 category 的归到「其它」一组的最后。
+ */
+import { Icon } from "astro-icon/components";
+import PageHeader from "../components/misc/PageHeader.astro";
+import { aiToolsConfig } from "../config";
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+
+const FALLBACK_CATEGORY = "其它";
+
+const { items } = aiToolsConfig;
+
+// 按 category 分组，保持配置里第一次出现的顺序
+const groups: { name: string; tools: typeof items }[] = [];
+for (const tool of items) {
+	const name = tool.category?.trim() || FALLBACK_CATEGORY;
+	let group = groups.find((g) => g.name === name);
+	if (!group) {
+		group = { name, tools: [] };
+		groups.push(group);
+	}
+	group.tools.push(tool);
+}
+
+// 给每个分类挑一个图标（优先用组里第一个工具的图标）
+function groupIcon(group: (typeof groups)[number]): string {
+	return group.tools[0]?.icon ?? "material-symbols:apps";
+}
+---
+
+<MainGridLayout
+    title={i18n(I18nKey.aiTools)}
+    description={aiToolsConfig.description || i18n(I18nKey.aiToolsDesc)}
+>
+    <PageHeader
+        title={i18n(I18nKey.aiTools)}
+        icon="material-symbols:smart-toy-outline"
+        description={aiToolsConfig.description || i18n(I18nKey.aiToolsDesc)}
+    />
+
+    {items.length === 0 ? (
+        <div class="card-base px-6 py-10 text-center text-neutral-400">
+            {i18n(I18nKey.noContent)}
+        </div>
+    ) : (
+        <div class="flex flex-col gap-6">
+            {groups.map((group) => (
+                <div>
+                    {/* 分组小标题 */}
+                    <div class="flex items-center gap-2 mb-3 ml-1">
+                        <Icon name={groupIcon(group)} class="text-[var(--primary)] text-[1.15rem]" />
+                        <span class="font-bold text-neutral-800 dark:text-neutral-200 transition">
+                            {group.name}
+                        </span>
+                        <span class="text-xs text-neutral-400">{group.tools.length}</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {group.tools.map((tool) => (
+                            <a
+                                href={tool.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="card-base p-4 flex gap-3 group hover:ring-1 hover:ring-[var(--primary)]/40 active:scale-[0.99]"
+                            >
+                                <div class="w-11 h-11 rounded-xl flex items-center justify-center bg-[var(--btn-regular-bg)] shrink-0 transition
+                                            group-hover:bg-[var(--primary)]/10">
+                                    <Icon
+                                        name={tool.icon ?? "material-symbols:extension"}
+                                        class="text-[var(--primary)] text-[1.4rem]"
+                                    />
+                                </div>
+
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-neutral-900 dark:text-neutral-100 truncate transition
+                                                     group-hover:text-[var(--primary)]">
+                                            {tool.name}
+                                        </span>
+                                        <Icon
+                                            name="fa6-solid:arrow-up-right-from-square"
+                                            class="text-[0.7rem] text-black/20 dark:text-white/20 shrink-0"
+                                        />
+                                    </div>
+                                    <p class="mt-1 mb-0 text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed transition">
+                                        {tool.description}
+                                    </p>
+
+                                    {tool.tags && tool.tags.length > 0 && (
+                                        <div class="flex flex-wrap gap-1.5 mt-2">
+                                            {tool.tags.map((tag) => (
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--btn-regular-bg)]
+                                                             text-neutral-500 dark:text-neutral-400 transition">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </a>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    )}
+</MainGridLayout>

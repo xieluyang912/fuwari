@@ -148,11 +148,9 @@ export const navBarConfig: NavBarConfig = {
  * 由 Profile.astro 组件渲染。links 里的 icon 使用 Iconify 的图标名。
  */
 export const profileConfig: ProfileConfig = {
-	// 头像图片路径。这里用的是本地图片 src/assets/images/avatar.png，
-	// 想换头像直接替换那个文件即可（保持文件名不变，或同步改这里的路径）。
-	// 本地路径相对于 /src 目录；以 '/' 开头时相对于 /public 目录；
-	// 也可以填 https 开头的网络图片地址（例如 https://github.com/Xieluyang912.png）
-	avatar: "assets/images/avatar.png",
+	// 可以直接填 https 开头的网络图片地址（这里用 GitHub 头像，改头像时无需改配置）；
+	// 若换成本地图片，则相对于 /src 目录，以 '/' 开头时相对于 /public 目录
+	avatar: "https://github.com/Xieluyang912.png",
 	name: "Xieluyang",
 	bio: "Xieluyang love you.",
 	links: [

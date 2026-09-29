@@ -1,7 +1,7 @@
 ---
 title: 博客更新日志：给页脚加上 CC 许可声明
 published: 2026-09-27
-description: '页脚多了一行 CC BY-NC 4.0 声明 —— 协议怎么选、代码写在哪、以及暗色模式下图标看不见的两个坑'
+description: '页脚多了一行 CC BY-NC-SA 4.0 声明 —— 协议怎么选、代码写在哪、以及暗色模式下图标看不见的两个坑'
 image: 'img\girl_art_anime_1313052_1280x720.jpg'
 tags: [网站维护, 版权]
 category: '网站维护'
@@ -16,11 +16,11 @@ lang: ''
 ![Static Badge](https://img.shields.io/badge/pnpm-%3E%3D9-green?logo=pnpm)
 ![Static Badge](https://img.shields.io/badge/nodedotjs-%3E%3D20-red?logo=nodedotjs)
 ![Static Badge](https://img.shields.io/badge/%E6%94%AF%E6%8C%81%E5%BA%93-astro-yellow?logo=astro)
-![Static Badge](https://img.shields.io/badge/%E8%AE%B8%E5%8F%AF%E8%AF%81-CC%20BY--NC%204.0-lightgrey)
+![Static Badge](https://img.shields.io/badge/%E8%AE%B8%E5%8F%AF%E8%AF%81-CC%20BY--NC--SA%204.0-lightgrey)
 
 </div>
 
-页脚现在多了一行版权声明：本站内容采用 **CC BY-NC 4.0** 协议授权，后面跟着三个官方图标。
+页脚现在多了一行版权声明：本站内容采用 **CC BY-NC-SA 4.0** 协议授权，后面跟着四个官方图标。
 
 这篇文章记录三件事：为什么选这个协议、代码写在哪个文件、以及实现时踩到的两个坑。
 
@@ -28,7 +28,7 @@ lang: ''
 
 页脚最下面那行就是，结构是标准的 CC 署名格式：
 
-> **xieluyang' blog** © 2026 by **xieluayng** is licensed under **Creative Commons Attribution-NonCommercial 4.0 International** [cc] [by] [nc]
+> **xieluyang' blog** © 2026 by **xieluayng** is licensed under **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International** [cc] [by] [nc] [sa]
 
 这是 Creative Commons 官方推荐的排版方式，由五段组成：
 
@@ -37,28 +37,39 @@ lang: ''
 | 作品名 | xieluyang' blog | 哪件作品被授权 |
 | 年份 | 2026 | 版权起始年份 |
 | 作者 | xieluayng | 版权归谁 |
-| 协议名 | CC BY-NC 4.0 | 用哪个协议 |
-| 协议图标 | cc / by / nc | 协议条款的可视化缩写 |
+| 协议名 | CC BY-NC-SA 4.0 | 用哪个协议 |
+| 协议图标 | cc / by / nc / sa | 协议条款的可视化缩写 |
 
-# 为什么是 CC BY-NC 4.0
+# 为什么是 CC BY-NC-SA 4.0
 
-Creative Commons 的协议是「模块拼装」出来的，四个模块两两组合，得到六种常用协议。本站选的这两个模块是：
+Creative Commons 的协议是「模块拼装」出来的，四个模块两两组合，得到六种常用协议。本站选的这三个模块是：
 
 | 缩写 | 全称 | 含义 | 本站 |
 |:---|:---|:---|:---|
 | **BY** | Attribution | 转载必须署名原作者 | ✅ 保留 |
 | **NC** | NonCommercial | 不得用于商业用途 | ✅ 保留 |
-| SA | ShareAlike | 衍生作品必须用同样的协议 | ❌ 未选 |
+| **SA** | ShareAlike | 衍生作品必须用同样的协议 | ✅ 保留 |
 | ND | NoDerivatives | 不允许修改后发布 | ❌ 未选 |
 
-另外两个模块没选，是有意的：
+四个模块里只有一个没选：
 
-- **没选 SA**：SA 要求「你改了再发，也得用 CC BY-NC 4.0」。听起来很美好，但实际会造成协议传染 —— 别人引一段代码进自己的项目，可能整套项目都被要求跟着换协议。对技术博客来说太麻烦。
 - **没选 ND**：ND 禁止修改。但博客文章被摘录、被翻译、被节选，绝大多数情况下是合理的引用行为，一刀切禁掉反而拦住了正常的传播。
 
-所以 **BY-NC** 这个组合的含义可以一句话概括：
+:::note[SA 到底约束了什么]
+SA（ShareAlike，相同方式共享）的要求是：**你可以改我的文章再发，但发出来的那一版也必须用 CC BY-NC-SA 4.0 授权** —— 不能换成一个更宽松的协议，更不能闭源。
 
-> 欢迎转载和引用，署名就行，但别拿去做生意。
+它只沿着「衍生作品」这条线往下传：只做引用、不产生新作品的读者，感受不到任何额外负担。
+:::
+
+:::note[这一行最初不是这个协议]
+页脚第一版写的是 **CC BY-NC 4.0**（少了 SA），后来才补成现在的 BY-NC-SA 4.0。多出来的 SA 只在「有人把文章改一改再发布」这个场景下起作用 —— 换来的是衍生内容不会跑出这套协议之外。
+
+改的时候协议名、链接、图标**三处都要动**，具体见下面「换协议时最容易漏的一处」。
+:::
+
+所以这个组合的含义可以一句话概括：
+
+> 欢迎转载和引用，署名就行，别拿去做生意，改了再发也请继续用同样的协议。
 
 ## 它管不着什么
 
@@ -78,23 +89,24 @@ Creative Commons 的协议是「模块拼装」出来的，四个模块两两组
 
 # 代码写在哪
 
-全部改动集中在一个文件：[`src/components/Footer.astro`](https://github.com/xieluyang912/fuwari/blob/main/src/components/Footer.astro) 的第 21–30 行，也就是原来 "Powered by Astro & Fuwari" 那行的**下面**、同一个圆角容器**内部**。
+全部改动集中在一个文件：[`src/components/Footer.astro`](https://github.com/xieluyang912/fuwari/blob/main/src/components/Footer.astro) 的第 21–31 行，也就是原来 "Powered by Astro & Fuwari" 那行的**下面**、同一个圆角容器**内部**。
 
 新增的是一个和上面那行同样式的 `<div>`：
 
 ```astro
 <div class="transition text-50 text-sm text-center mt-2">
     <a class="transition link text-[var(--primary)] font-medium" target="_blank"
-       href="https://xieluyang912.github.io/fuwari/">xieluyang' blog</a>
+       href="https://007912.xyz/">xieluyang' blog</a>
     &copy; {currentYear} by
     <a class="transition link text-[var(--primary)] font-medium" target="_blank"
        href="https://github.com/xieluyang912">xieluayng</a>
     is licensed under
     <a class="transition link text-[var(--primary)] font-medium" target="_blank"
-       href="https://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International</a>
+       href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International</a>
     <img class="dark:invert" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="...">
     <img class="dark:invert" src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="...">
     <img class="dark:invert" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="...">
+    <img class="dark:invert" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="...">
 </div>
 ```
 
@@ -116,7 +128,7 @@ Creative Commons 的协议是「模块拼装」出来的，四个模块两两组
 
 ## 1. 暗色模式下图标会消失
 
-`mirrors.creativecommons.org` 上的三个图标是**纯黑色**的 SVG。
+`mirrors.creativecommons.org` 上的这几个图标是**纯黑色**的 SVG。
 
 本站有暗色主题，页脚在暗色下背景接近黑 —— 黑图标放在黑底上，等于没有。这不是「有点淡」，是彻底看不见。
 
@@ -150,17 +162,18 @@ display:inline-block; vertical-align:middle;
 
 # 图标从哪来
 
-三个图标走的是 Creative Commons 官方的 presskit 镜像，这是 CC 官方提供的标准素材地址：
+四个图标走的是 Creative Commons 官方的 presskit 镜像，这是 CC 官方提供的标准素材地址：
 
 ```
 https://mirrors.creativecommons.org/presskit/icons/cc.svg   # CC 标志
 https://mirrors.creativecommons.org/presskit/icons/by.svg   # 署名
 https://mirrors.creativecommons.org/presskit/icons/nc.svg   # 非商业
+https://mirrors.creativecommons.org/presskit/icons/sa.svg   # 相同方式共享
 ```
 
-用哪个协议就挂哪几个图标。比如选了 BY-SA，就把 `nc.svg` 换成 `sa.svg`；选了 CC0，只挂 `cc.svg` 和 `zero.svg`。
+用哪个协议就挂哪几个图标。本站的 BY-NC-SA 是 **cc + by + nc + sa 四个**；换成 BY-SA 就少一个 `nc`，换成 CC0 只挂 `cc.svg` 和 `zero.svg`。
 
-另外推荐在页面里也放上协议全文的链接（就是那行 "Creative Commons Attribution-NonCommercial 4.0 International" 上的超链接），指向 `https://creativecommons.org/licenses/by-nc/4.0/`。CC 官方建议**图标 + 协议名 + 链接**三者齐全，只放图标容易被误解成别的协议。
+另外推荐在页面里也放上协议全文的链接（就是那行 "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International" 上的超链接），指向 `https://creativecommons.org/licenses/by-nc-sa/4.0/`。CC 官方建议**图标 + 协议名 + 链接**三者齐全，只放图标容易被误解成别的协议。
 
 :::note[图标是远程加载的]
 和[徽章那篇](/posts/badge)里说的一样：这些 SVG 是**访客浏览器直接向 mirrors.creativecommons.org 请求**的，构建时不会下载。
@@ -176,10 +189,10 @@ https://mirrors.creativecommons.org/presskit/icons/nc.svg   # 非商业
 | 改署名 | 改 "xieluayng" 那几个字和它指向的链接 |
 | 改年份 | **不用改**，`{currentYear}` 每年自动更新 |
 | 改博客名 | 改 "xieluyang' blog" 和它指向的链接 |
-| 整行删掉 | 删 `Footer.astro` 第 21–30 行那个 `<div>`，其余不动 |
+| 整行删掉 | 删 `Footer.astro` 第 21–31 行那个 `<div>`，其余不动 |
 
 :::warning[换协议时最容易漏的一处]
-三个图标是**手写的三个 `<img>`**，不是循环生成的。从 BY-NC 换成 BY-SA 时，很容易只改协议名和链接、忘了把 `nc.svg` 换成 `sa.svg` —— 结果声明写的是 SA，图标画的是 NC，两者矛盾。
+四个图标是**手写的四个 `<img>`**，不是循环生成的。从 BY-NC-SA 换成 BY-SA 时，很容易只改协议名和链接、忘了删掉那行 `nc.svg` —— 结果文字写的是 BY-SA，图标里却还挂着 NC，两者矛盾。
 
 协议名、链接、图标，**三处必须一致**。
 :::
@@ -189,7 +202,7 @@ https://mirrors.creativecommons.org/presskit/icons/nc.svg   # 非商业
 写在这里免得以后自己忘了：
 
 - **代码片段**：如前所述，CC 对代码不是合适的工具，本站代码实际跟着上游 Fuwari 走 MIT。
-- **封面图和正文配图**：本站图片多来自 Pexels 等免费图库。**图库图片的版权不在我手里**，我无权把它们纳入 CC BY-NC 授权。如果将来有人完整转载文章，图片的授权问题需要单独说明。
+- **封面图和正文配图**：本站图片多来自 Pexels 等免费图库。**图库图片的版权不在我手里**，我无权把它们纳入 CC BY-NC-SA 授权。如果将来有人完整转载文章，图片的授权问题需要单独说明。
 - **访客评论**：评论存在 GitHub Discussions，版权归评论者本人。
 
 所以更准确的说法是：**这行声明覆盖的是「除特别注明外」的原创文章正文**。
@@ -206,6 +219,6 @@ https://mirrors.creativecommons.org/presskit/icons/nc.svg   # 非商业
 
 # 最后
 
-改完之后我重新构建了一遍，确认 `example.com` 这个占位地址在产物里已经归零、三个图标和协议链接都正常出现在页面上。
+改完之后我重新构建了一遍，确认 `example.com` 这个占位地址在产物里已经归零、四个图标和协议链接都正常出现在页面上。
 
 有点讽刺的是，写这篇文章的过程本身就在提醒自己：**许可声明不是加一行字就完事**，它逼着人把「哪些东西是我的、哪些不是我的」想清楚。配图那一块就是我这次才意识到的漏洞，以后有空再单独处理。

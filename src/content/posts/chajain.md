@@ -4,7 +4,7 @@ published: 2026-09-29
 description: '给 DeepSeek Harness Web 界面加一只 Live2D 桌宠：打开 DSH 就能看到可爱的二次元角色站在聊天界面角落。 内置 4 个角色可自由切换，点她会弹出聊天气泡说符合人设的台词（台词可自己改）， 也支持随时导入自己的模型。零运行时依赖，纯插件挂载 —— 安装即启用，卸载不留痕。'
 image: ''
 tags: [deepseek]
-category: 'deepseek，deepseekharness，插件'
+category: 'deepseek'
 draft: false 
 lang: ''
 ---

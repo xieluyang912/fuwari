@@ -1,8 +1,29 @@
 /// <reference types="mdast" />
 import { h } from "hastscript";
+import { getRepoData } from "./github-card-data.mjs";
 
 /**
- * Creates a GitHub Card component.
+ * 数字格式化，和原来浏览器端那段 JS 保持一致：1234 -> "1.2K"。
+ *
+ * 要去掉的那个字符是 U+202F（窄不换行空格），en-us 的紧凑记法会带上它。
+ * 这里用 fromCharCode 显式写出来，不直接把字面量放进源码 ——
+ * 它在编辑器里跟普通空格长得一模一样，放进去以后没人看得出这行在删什么。
+ */
+const compactFormatter = new Intl.NumberFormat("en-us", {
+	notation: "compact",
+	maximumFractionDigits: 1,
+});
+const NARROW_NO_BREAK_SPACE = String.fromCharCode(0x202f);
+const compact = (n) =>
+	compactFormatter.format(n ?? 0).replaceAll(NARROW_NO_BREAK_SPACE, "");
+
+/**
+ * 渲染一张 GitHub 仓库卡片。
+ *
+ * 数据是构建时抓好存在本地的（见 github-card-data.mjs），这里只做静态渲染。
+ *
+ * 和旧版的区别：不再往页面里塞 <script>、不再有 fetch、不再有 "Waiting..." 占位。
+ * 代价是数据只在构建时更新一次，不是实时的 —— 想刷新见 github-card-data.mjs 顶部说明。
  *
  * @param {Object} properties - The properties of the component.
  * @param {string} properties.repo - The GitHub repository in the format "owner/repo".
@@ -23,73 +44,59 @@ export function GithubCardComponent(properties, children) {
 		);
 
 	const repo = properties.repo;
-	const cardUuid = `GC${Math.random().toString(36).slice(-6)}`; // Collisions are not important
-
-	const nAvatar = h(`div#${cardUuid}-avatar`, { class: "gc-avatar" });
-	const nLanguage = h(
-		`span#${cardUuid}-language`,
-		{ class: "gc-language" },
-		"Waiting...",
-	);
+	const [owner, name] = repo.split("/");
+	const data = getRepoData(repo);
 
 	const nTitle = h("div", { class: "gc-titlebar" }, [
 		h("div", { class: "gc-titlebar-left" }, [
 			h("div", { class: "gc-owner" }, [
-				nAvatar,
-				h("div", { class: "gc-user" }, repo.split("/")[0]),
+				h("div", {
+					class: "gc-avatar",
+					// 头像直接写成背景图（样式里 .gc-avatar 就是 background-size: cover），
+					// 省掉原来那段「拿到数据后再设置 backgroundImage」的 JS
+					style: data?.avatar
+						? `background-image: url('${data.avatar}'); background-color: transparent`
+						: undefined,
+				}),
+				h("div", { class: "gc-user" }, owner),
 			]),
 			h("div", { class: "gc-divider" }, "/"),
-			h("div", { class: "gc-repo" }, repo.split("/")[1]),
+			h("div", { class: "gc-repo" }, name),
 		]),
 		h("div", { class: "github-logo" }),
 	]);
 
 	const nDescription = h(
-		`div#${cardUuid}-description`,
+		"div",
 		{ class: "gc-description" },
-		"Waiting for api.github.com...",
+		data
+			? data.description || "Description not set"
+			: "暂时取不到仓库信息（构建时没抓到数据）",
 	);
 
-	const nStars = h(`div#${cardUuid}-stars`, { class: "gc-stars" }, "00K");
-	const nForks = h(`div#${cardUuid}-forks`, { class: "gc-forks" }, "0K");
-	const nLicense = h(`div#${cardUuid}-license`, { class: "gc-license" }, "0K");
+	const content = [nTitle, nDescription];
 
-	const nScript = h(
-		`script#${cardUuid}-script`,
-		{ type: "text/javascript", defer: true },
-		`
-      fetch('https://api.github.com/repos/${repo}', { referrerPolicy: "no-referrer" }).then(response => response.json()).then(data => {
-        document.getElementById('${cardUuid}-description').innerText = data.description?.replace(/:[a-zA-Z0-9_]+:/g, '') || "Description not set";
-        document.getElementById('${cardUuid}-language').innerText = data.language;
-        document.getElementById('${cardUuid}-forks').innerText = Intl.NumberFormat('en-us', { notation: "compact", maximumFractionDigits: 1 }).format(data.forks).replaceAll("\u202f", '');
-        document.getElementById('${cardUuid}-stars').innerText = Intl.NumberFormat('en-us', { notation: "compact", maximumFractionDigits: 1 }).format(data.stargazers_count).replaceAll("\u202f", '');
-        const avatarEl = document.getElementById('${cardUuid}-avatar');
-        avatarEl.style.backgroundImage = 'url(' + data.owner.avatar_url + ')';
-        avatarEl.style.backgroundColor = 'transparent';
-        document.getElementById('${cardUuid}-license').innerText = data.license?.spdx_id || "no-license";
-        document.getElementById('${cardUuid}-card').classList.remove("fetch-waiting");
-        console.log("[GITHUB-CARD] Loaded card for ${repo} | ${cardUuid}.")
-      }).catch(err => {
-        const c = document.getElementById('${cardUuid}-card');
-        c?.classList.add("fetch-error");
-        console.warn("[GITHUB-CARD] (Error) Loading card for ${repo} | ${cardUuid}.")
-      })
-    `,
-	);
+	// 没有数据时整条信息栏都不渲染，而不是留一堆 0 和 NaN
+	if (data) {
+		content.push(
+			h("div", { class: "gc-infobar" }, [
+				h("div", { class: "gc-stars" }, compact(data.stars)),
+				h("div", { class: "gc-forks" }, compact(data.forks)),
+				h("div", { class: "gc-license" }, data.license || "no-license"),
+				h("div", { class: "gc-language" }, data.language || ""),
+			]),
+		);
+	}
 
 	return h(
-		`a#${cardUuid}-card`,
+		"a",
 		{
-			class: "card-github fetch-waiting no-styling",
+			// 没有 fetch-waiting / fetch-error 了：卡片要么有数据，要么明说取不到
+			class: "card-github no-styling",
 			href: `https://github.com/${repo}`,
 			target: "_blank",
 			repo,
 		},
-		[
-			nTitle,
-			nDescription,
-			h("div", { class: "gc-infobar" }, [nStars, nForks, nLicense, nLanguage]),
-			nScript,
-		],
+		content,
 	);
 }

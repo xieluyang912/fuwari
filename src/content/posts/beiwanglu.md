@@ -44,6 +44,13 @@ git pull --rebase origin main   # 先拉取最远端代码
 git push origin main            # 推送到GitHub
 ```
 
+# deepseak harness
+
+```
+npx @deepseek-ai/dsh web
+```
+
+
 # 文章图片相关
 
 ## 封面图

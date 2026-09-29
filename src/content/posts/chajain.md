@@ -8,24 +8,18 @@ category: 'deepseek，deepseekharness，插件'
 draft: false 
 lang: ''
 ---
-<p align="center">
-  <img src="docs/assets/readme/banner.svg" alt="dsh-live2d-widget —— DeepSeek Harness 的 Live2D 桌宠插件" width="760">
-</p>
 
-<p align="center">
-  <strong>简体中文</strong> | <a href="README.md">English</a>
-</p>
+<div class="badge-row">
 
+![Static Badge](https://img.shields.io/badge/license-MIT-263146)
+![Static Badge](https://img.shields.io/badge/DeepSeek%20Harness-plugin-4b6fff)
+![Static Badge](https://img.shields.io/badge/Live2D-Cubism%202%20%7C%203%20%7C%204%20%7C%205-7da1de)
+![Static Badge](https://img.shields.io/badge/%E5%86%85%E7%BD%AE%E8%A7%92%E8%89%B2-4-ff9ec4)
+![Static Badge](https://img.shields.io/badge/%E8%BF%90%E8%A1%8C%E6%97%B6%E4%BE%9D%E8%B5%96-0-brightgreen)
+![Static Badge](https://img.shields.io/badge/Node-%E2%89%A520-339933?logo=nodedotjs&logoColor=white)
+![Static Badge](https://img.shields.io/badge/%E5%B9%B3%E5%8F%B0-Windows%20%7C%20macOS%20%7C%20Linux-6b7f99)
 
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-263146?style=flat-square"></a>
-  <img alt="DSH plugin" src="https://img.shields.io/badge/DeepSeek%20Harness-plugin-4b6fff?style=flat-square">
-  <img alt="Live2D" src="https://img.shields.io/badge/Live2D-Cubism%202%20%7C%203%20%7C%204%20%7C%205-7da1de?style=flat-square">
-  <img alt="Bundled characters" src="https://img.shields.io/badge/内置角色-4-ff9ec4?style=flat-square">
-  <img alt="Runtime dependencies" src="https://img.shields.io/badge/运行时依赖-0-brightgreen?style=flat-square">
-  <img alt="Node" src="https://img.shields.io/badge/Node-%E2%89%A520-339933?style=flat-square&logo=node.js&logoColor=white">
-  <img alt="Platform" src="https://img.shields.io/badge/平台-Windows%20%7C%20macOS%20%7C%20Linux-6b7f99?style=flat-square">
-  
-</p>
+</div>
 
 # dsh-live2d-widget
 

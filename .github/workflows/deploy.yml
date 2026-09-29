@@ -58,11 +58,6 @@ jobs:
 
       - name: Build
         run: pnpm build
-        env:
-          # GitHub 仓库卡片的构建时取数用（见 src/plugins/github-card-data.mjs）。
-          # 缓存（src/data/github-cards.json）没过期时根本不会发请求，
-          # 这里只是缓存过期时的保险：带 token 是 5000 次/小时，不带只有 60 次。
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

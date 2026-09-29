@@ -30,27 +30,11 @@ import remarkSectionize from "remark-sectionize";
 import { expressiveCodeConfig } from "./src/config.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
-import { loadRepoData } from "./src/plugins/github-card-data.mjs";
 import { AdmonitionComponent } from "./src/plugins/rehype-component-admonition.mjs";
 import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.mjs";
 import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
-
-/**
- * 在构建时把 ::github 卡片的数据抓到本地（逻辑见 src/plugins/github-card-data.mjs）。
- *
- * 必须赶在 markdown 渲染之前完成，所以挂在 astro:config:setup —— 这是整个构建里
- * 最早能跑自定义逻辑的钩子。取数失败不会让构建失败，只会让对应卡片退化成纯链接。
- */
-const githubCards = {
-	name: "github-card-data",
-	hooks: {
-		"astro:config:setup": async ({ logger }) => {
-			await loadRepoData({ logger });
-		},
-	},
-};
 
 // Astro 官方配置文档：https://astro.build/config
 export default defineConfig({
@@ -70,8 +54,6 @@ export default defineConfig({
   trailingSlash: "always",
 
   integrations: [
-      // GitHub 仓库卡片：构建时取数、缓存到本地，页面不再实时请求 GitHub API
-      githubCards,
       // Tailwind CSS，nesting 开启嵌套写法支持
       tailwind({
           nesting: true,

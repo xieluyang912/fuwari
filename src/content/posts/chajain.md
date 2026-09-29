@@ -16,7 +16,7 @@ lang: ''
   <strong>简体中文</strong> | <a href="README.md">English</a>
 </p>
 
-<p align="center">
+
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-263146?style=flat-square"></a>
   <img alt="DSH plugin" src="https://img.shields.io/badge/DeepSeek%20Harness-plugin-4b6fff?style=flat-square">
   <img alt="Live2D" src="https://img.shields.io/badge/Live2D-Cubism%202%20%7C%203%20%7C%204%20%7C%205-7da1de?style=flat-square">
@@ -24,6 +24,7 @@ lang: ''
   <img alt="Runtime dependencies" src="https://img.shields.io/badge/运行时依赖-0-brightgreen?style=flat-square">
   <img alt="Node" src="https://img.shields.io/badge/Node-%E2%89%A520-339933?style=flat-square&logo=node.js&logoColor=white">
   <img alt="Platform" src="https://img.shields.io/badge/平台-Windows%20%7C%20macOS%20%7C%20Linux-6b7f99?style=flat-square">
+  
 </p>
 
 # dsh-live2d-widget

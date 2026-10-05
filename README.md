@@ -1,41 +1,47 @@
-# 🍥Fuwari  
-![Node.js >= 20](https://img.shields.io/badge/node.js-%3E%3D20-brightgreen) 
-![pnpm >= 9](https://img.shields.io/badge/pnpm-%3E%3D9-blue) 
-[![DeepWiki](https://img.shields.io/badge/DeepWiki-saicaca%2Ffuwari-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAyCAYAAAAnWDnqAAAAAXNSR0IArs4c6QAAA05JREFUaEPtmUtyEzEQhtWTQyQLHNak2AB7ZnyXZMEjXMGeK/AIi+QuHrMnbChYY7MIh8g01fJoopFb0uhhEqqcbWTp06/uv1saEDv4O3n3dV60RfP947Mm9/SQc0ICFQgzfc4CYZoTPAswgSJCCUJUnAAoRHOAUOcATwbmVLWdGoH//PB8mnKqScAhsD0kYP3j/Yt5LPQe2KvcXmGvRHcDnpxfL2zOYJ1mFwrryWTz0advv1Ut4CJgf5uhDuDj5eUcAUoahrdY/56ebRWeraTjMt/00Sh3UDtjgHtQNHwcRGOC98BJEAEymycmYcWwOprTgcB6VZ5JK5TAJ+fXGLBm3FDAmn6oPPjR4rKCAoJCal2eAiQp2x0vxTPB3ALO2CRkwmDy5WohzBDwSEFKRwPbknEggCPB/imwrycgxX2NzoMCHhPkDwqYMr9tRcP5qNrMZHkVnOjRMWwLCcr8ohBVb1OMjxLwGCvjTikrsBOiA6fNyCrm8V1rP93iVPpwaE+gO0SsWmPiXB+jikdf6SizrT5qKasx5j8ABbHpFTx+vFXp9EnYQmLx02h1QTTrl6eDqxLnGjporxl3NL3agEvXdT0WmEost648sQOYAeJS9Q7bfUVoMGnjo4AZdUMQku50McDcMWcBPvr0SzbTAFDfvJqwLzgxwATnCgnp4wDl6Aa+Ax283gghmj+vj7feE2KBBRMW3FzOpLOADl0Isb5587h/U4gGvkt5v60Z1VLG8BhYjbzRwyQZemwAd6cCR5/XFWLYZRIMpX39AR0tjaGGiGzLVyhse5C9RKC6ai42ppWPKiBagOvaYk8lO7DajerabOZP46Lby5wKjw1HCRx7p9sVMOWGzb/vA1hwiWc6jm3MvQDTogQkiqIhJV0nBQBTU+3okKCFDy9WwferkHjtxib7t3xIUQtHxnIwtx4mpg26/HfwVNVDb4oI9RHmx5WGelRVlrtiw43zboCLaxv46AZeB3IlTkwouebTr1y2NjSpHz68WNFjHvupy3q8TFn3Hos2IAk4Ju5dCo8B3wP7VPr/FGaKiG+T+v+TQqIrOqMTL1VdWV1DdmcbO8KXBz6esmYWYKPwDL5b5FA1a0hwapHiom0r/cKaoqr+27/XcrS5UwSMbQAAAABJRU5ErkJggg==)](https://deepwiki.com/saicaca/fuwari)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsaicaca%2Ffuwari.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsaicaca%2Ffuwari?ref=badge_shield&issueType=license)
+# 🍥 Xieluyang's Blog
 
-A static blog template built with [Astro](https://astro.build).
+![Node.js >= 20](https://img.shields.io/badge/node.js-%3E%3D20-brightgreen)
+![pnpm >= 9](https://img.shields.io/badge/pnpm-%3E%3D9-blue)
+![Astro 5](https://img.shields.io/badge/Astro-5-BC52EE?logo=astro&logoColor=white)
 
-[**🖥️ Live Demo (Vercel)**](https://fuwari.vercel.app)
+My personal blog — notes from studying, things I tinker with, and anything else worth writing down. Built with [Astro](https://astro.build) on top of the [Fuwari](https://github.com/saicaca/fuwari) theme, with a Live2D mascot, a three-column layout and a few extra pages ported from the [Mizuki](https://github.com/LyraVoid/Mizuki) theme.
 
-![Preview Image](https://raw.githubusercontent.com/saicaca/resource/main/fuwari/home.png)
+[**🖥️ Live Site**](https://007912.xyz)
+
+![Homepage](docs/images/home-light.png)
 
 🌏 README in
-[**中文**](https://github.com/saicaca/fuwari/blob/main/docs/README.zh-CN.md) /
-[**日本語**](https://github.com/saicaca/fuwari/blob/main/docs/README.ja.md) /
-[**한국어**](https://github.com/saicaca/fuwari/blob/main/docs/README.ko.md) /
-[**Español**](https://github.com/saicaca/fuwari/blob/main/docs/README.es.md) /
-[**ไทย**](https://github.com/saicaca/fuwari/blob/main/docs/README.th.md) /
-[**Tiếng Việt**](https://github.com/saicaca/fuwari/blob/main/docs/README.vi.md) /
-[**Bahasa Indonesia**](https://github.com/saicaca/fuwari/blob/main/docs/README.id.md) (Provided by the community and may not always be up-to-date)
+[**中文**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.zh-CN.md) /
+[**日本語**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.ja.md) /
+[**한국어**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.ko.md) /
+[**Español**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.es.md) /
+[**ไทย**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.th.md) /
+[**Tiếng Việt**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.vi.md) /
+[**Bahasa Indonesia**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.id.md)
 
 ## ✨ Features
 
 - [x] Built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com)
-- [x] Smooth animations and page transitions
+- [x] Smooth animations and page transitions, powered by [Swup](https://swup.js.org/)
 - [x] Light / dark mode
-- [x] Customizable theme colors & banner
+- [x] Customizable theme color & banner
 - [x] Responsive design
-- [x] Search functionality with [Pagefind](https://pagefind.app/)
-- [x] [Markdown extended features](https://github.com/saicaca/fuwari?tab=readme-ov-file#-markdown-extended-syntax)
+- [x] Full-text search with [Pagefind](https://pagefind.app/)
+- [x] [Markdown extended features](#-markdown-extended-syntax)
 - [x] Table of contents
 - [x] RSS feed
+- [x] Comments via [giscus](https://giscus.app/)
+- [x] Live2D mascot in the bottom-left corner, rendered with [oh-my-live2d](https://github.com/hacxy/oh-my-live2d)
+- [x] Right sidebar with site statistics, a post calendar and categories
+- [x] Extra pages: [Projects](https://007912.xyz/projects/), [Skills](https://007912.xyz/skills/), [AI Tools](https://007912.xyz/ai-tools/) and [Timeline](https://007912.xyz/timeline/)
 
 ## 🚀 Getting Started
 
-1. Create your blog repository:
-    - [Generate a new repository](https://github.com/saicaca/fuwari/generate) from this template or fork this repository.
-    - Or run one of the following commands:
+Want to build a blog like this one?
+
+1. Start from this repository:
+    - [Generate a new repository](https://github.com/Xieluyang912/fuwari/generate) from this template, or fork this repository.
+    - Alternatively, scaffold the original Fuwari theme with one of these commands — note that this gives you the upstream theme **without** the customizations described above:
        ```sh
        npm create fuwari@latest
        yarn create fuwari
@@ -43,11 +49,11 @@ A static blog template built with [Astro](https://astro.build).
        bun create fuwari@latest
        deno run -A npm:create-fuwari@latest
        ```
-2. To edit your blog locally, clone your repository, run `pnpm install` to install dependencies.
-    - Install [pnpm](https://pnpm.io) `npm install -g pnpm` if you haven't.
-3. Edit the config file `src/config.ts` to customize your blog.
-4. Run `pnpm new-post <filename>` to create a new post and edit it in `src/content/posts/`.
-5. Deploy your blog to Vercel, Netlify, GitHub Pages, etc. following [the guides](https://docs.astro.build/en/guides/deploy/). You need to edit the site configuration in `astro.config.mjs` before deployment.
+2. Clone your repository and run `pnpm install` to install the dependencies.
+    - Install [pnpm](https://pnpm.io) with `npm install -g pnpm` if you haven't already.
+3. Edit the config file `src/config.ts` to customize your blog — site title, banner, profile card, navigation, comments, the Live2D mascot, the sidebar and the extra pages all live there.
+4. Run `pnpm new-post <filename>` to create a new post, then edit it in `src/content/posts/`.
+5. Before deploying, set `site` and `base` in `astro.config.mjs`, then deploy to Vercel, Netlify, GitHub Pages, etc. following [the Astro guides](https://docs.astro.build/en/guides/deploy/).
 
 ## 📝 Frontmatter of Posts
 
@@ -60,7 +66,7 @@ image: ./cover.jpg
 tags: [Foo, Bar]
 category: Front-end
 draft: false
-lang: jp      # Set only if the post's language differs from the site's language in `config.ts`
+lang: en      # Set only if the post's language differs from the site's language in `config.ts`
 ---
 ```
 
@@ -68,9 +74,25 @@ lang: jp      # Set only if the post's language differs from the site's language
 
 In addition to Astro's default support for [GitHub Flavored Markdown](https://github.github.com/gfm/), several extra Markdown features are included:
 
-- Admonitions ([Preview and Usage](https://fuwari.vercel.app/posts/markdown-extended/#admonitions))
-- GitHub repository cards ([Preview and Usage](https://fuwari.vercel.app/posts/markdown-extended/#github-repository-cards))
-- Enhanced code blocks with Expressive Code ([Preview](https://fuwari.vercel.app/posts/expressive-code/) / [Docs](https://expressive-code.com/))
+- **Admonitions**, written as directives:
+
+  ```md
+  :::note
+  Highlights information that users should take into account.
+  :::
+
+  :::tip
+  Optional information to help a user be more successful.
+  :::
+  ```
+
+- **GitHub repository cards**, via the `github` directive:
+
+  ```md
+  ::github{repo="saicaca/fuwari"}
+  ```
+
+- **Enhanced code blocks** powered by [Expressive Code](https://expressive-code.com/), with line numbers, collapsible sections and a copy button.
 
 ## ⚡ Commands
 
@@ -88,12 +110,14 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm astro ...`           | Run CLI commands like `astro add`, `astro check`    |
 | `pnpm astro --help`        | Get help using the Astro CLI                        |
 
-## ✏️ Contributing
+## 🙏 Credits
 
-Check out the [Contributing Guide](https://github.com/saicaca/fuwari/blob/main/CONTRIBUTING.md) for details on how to contribute to this project.
+- [Fuwari](https://github.com/saicaca/fuwari) — the theme this site is built on
+- [Mizuki](https://github.com/LyraVoid/Mizuki) — where the Live2D mascot, the right sidebar and the "Others" menu are ported from
+- [oh-my-live2d](https://github.com/hacxy/oh-my-live2d) — the Live2D rendering library
+- [Astro](https://astro.build) · [Svelte](https://svelte.dev) · [Tailwind CSS](https://tailwindcss.com)
+- [Pagefind](https://pagefind.app/) · [Swup](https://swup.js.org/) · [giscus](https://giscus.app/) · [Expressive Code](https://expressive-code.com/)
 
 ## 📄 License
 
-This project is licensed under the MIT License.
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsaicaca%2Ffuwari.svg?type=large&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsaicaca%2Ffuwari?ref=badge_large&issueType=license)
+The theme is licensed under the [MIT License](LICENSE). Blog posts are published under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).

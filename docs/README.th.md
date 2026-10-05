@@ -1,28 +1,47 @@
-# 🍥Fuwari
+# 🍥 บ้านหลังเล็กของ Xieluyang
 
-แม่แบบสำหรับเว็บบล็อกแบบ static สร้างด้วย [Astro](https://astro.build)
+![Node.js >= 20](https://img.shields.io/badge/node.js-%3E%3D20-brightgreen)
+![pnpm >= 9](https://img.shields.io/badge/pnpm-%3E%3D9-blue)
+![Astro 5](https://img.shields.io/badge/Astro-5-BC52EE?logo=astro&logoColor=white)
 
-[**🖥️ ตัวอย่างการใช้งานจริง (Vercel)**](https://fuwari.vercel.app)
+บล็อกส่วนตัวของผม ใช้จดบันทึกการเรียน สิ่งที่ลองผิดลองถูก และเรื่องอื่น ๆ ที่คิดว่าควรค่าแก่การเขียนเก็บไว้ สร้างด้วย [Astro](https://astro.build) บนธีม [Fuwari](https://github.com/saicaca/fuwari) พร้อมตัวละคร Live2D เลย์เอาต์สามคอลัมน์ และหน้าพิเศษอีกหลายหน้าที่พอร์ตมาจากธีม [Mizuki](https://github.com/LyraVoid/Mizuki)
 
-![ภาพตัวอย่าง](https://raw.githubusercontent.com/saicaca/resource/main/fuwari/home.png)
+[**🖥️ ไปที่เว็บไซต์**](https://007912.xyz)
+
+![หน้าแรก](images/home-light.png)
+
+🌏 README ภาษา
+[**English**](https://github.com/Xieluyang912/fuwari/blob/main/README.md) /
+[**中文**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.zh-CN.md) /
+[**日本語**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.ja.md) /
+[**한국어**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.ko.md) /
+[**Español**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.es.md) /
+[**Tiếng Việt**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.vi.md) /
+[**Bahasa Indonesia**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.id.md)
 
 ## ✨ คุณสมบัติ
 
 - [x] สร้างด้วย [Astro](https://astro.build) และ [Tailwind CSS](https://tailwindcss.com)
-- [x] มีอนิเมชั่นและการเปลี่ยนหน้าอย่างลื่นไหล
-- [x] โหมดสว่าง / โหมดมืด
-- [x] ปรับแต่งสีธีมและแบนเนอร์ได้
-- [x] Responsive design (หน้าตาเว็บปรับเปลี่ยนตามขนาดจอ)
-- [x] ฟังก์ชันการค้นหา ขับเคลื่อนด้วย [Pagefind](https://pagefind.app/)
-- [x] [คุณสมบัติเพิ่มเติมสำหรับมาร์กดาวน์](https://github.com/saicaca/fuwari/blob/main/docs/README.th.md#-markdown-extended-syntax)
-- [x] สารบัญ
-- [x] RSS feed
+- [x] แอนิเมชันและการเปลี่ยนหน้านุ่มนวลด้วย [Swup](https://swup.js.org/)
+- [x] โหมดสว่าง / มืด
+- [x] ปรับแต่งสีธีมและภาพแบนเนอร์ได้
+- [x] ดีไซน์ตอบสนองทุกขนาดหน้าจอ
+- [x] ค้นหาทั้งเว็บไซต์ด้วย [Pagefind](https://pagefind.app/)
+- [x] [ไวยากรณ์ Markdown ส่วนขยาย](#-ไวยากรณ์-markdown-ส่วนขยาย)
+- [x] สารบัญในบทความ (TOC)
+- [x] ฟีด RSS
+- [x] ระบบคอมเมนต์ด้วย [giscus](https://giscus.app/)
+- [x] ตัวละคร Live2D ที่มุมล่างซ้าย เรนเดอร์ด้วย [oh-my-live2d](https://github.com/hacxy/oh-my-live2d)
+- [x] แถบด้านขวา: สถิติเว็บไซต์ ปฏิทินบทความ และหมวดหมู่
+- [x] หน้าพิเศษ: [โปรเจกต์](https://007912.xyz/projects/), [ทักษะ](https://007912.xyz/skills/), [เครื่องมือ AI](https://007912.xyz/ai-tools/) และ [ไทม์ไลน์](https://007912.xyz/timeline/)
 
 ## 🚀 เริ่มต้นใช้งาน
 
-1. สร้าง repository ใหม่สำหรับบล็อกของคุณ:
-    - [Generate repository ใหม่](https://github.com/saicaca/fuwari/generate) ขึ้นมาจากแม่แบบนี้ หรือจะ fork repository นี้ก็ได้
-    - หรือจะสร้างโดยการเลือกรันคำสั่งต่อไปนี้ คำสั่งใดคำสั่งหนึ่ง:
+อยากสร้างบล็อกแบบนี้ใช่ไหม?
+
+1. เริ่มจากที่เก็บโค้ดนี้:
+    - [สร้างที่เก็บโค้ดใหม่](https://github.com/Xieluyang912/fuwari/generate) จากเทมเพลตนี้ หรือ fork ที่เก็บโค้ดนี้
+    - หรือจะใช้คำสั่งด้านล่างเพื่อเริ่มต้นธีม Fuwari ต้นฉบับก็ได้ แต่โปรดทราบว่าวิธีนี้จะ**ไม่ได้**การปรับแต่งที่กล่าวไว้ข้างต้น:
        ```sh
        npm create fuwari@latest
        yarn create fuwari
@@ -30,55 +49,75 @@
        bun create fuwari@latest
        deno run -A npm:create-fuwari@latest
        ```
-2. เริ่มแก้ไขบล็อกของคุณแบบ local โดยการ clone repository ของคุณ (จากข้อ 1) ไว้ในเครื่องของคุณ แล้วรันคำสั่ง `pnpm install` เพื่อติดตั้ง dependencies ที่จำเป็น
-    - ติดตั้ง [pnpm](https://pnpm.io) ด้วยคำสั่ง `npm install -g pnpm` ก่อน ถ้ายังไม่เคยติดตั้ง
-3. แก้ไขไฟล์การตั้งค่า `src/config.ts` เพื่อปรับแต่งบล็อกของคุณ
-4. รันคำสั่ง `pnpm new-post <filename>` เพื่อสร้างโพสต์ใหม่ใน `src/content/posts/` และแก้ไขไฟล์โพสต์นั้น ๆ ให้สมบูรณ์
-5. Deploy เว็บบล็อกของคุณไปยัง Vercel, Netlify, GitHub Pages หรือบริการอื่น ๆ โดยอ้างอิงวิธีการจาก[คู่มือนี้](https://docs.astro.build/en/guides/deploy/) อย่าลืมแก้ไขการตั้งค่าเว็บไซต์ในไฟล์ `astro.config.mjs` ก่อนที่คุณจะ deploy เว็บ
+2. โคลนที่เก็บโค้ดลงเครื่อง แล้วรัน `pnpm install` เพื่อติดตั้ง dependencies
+    - ถ้ายังไม่มี [pnpm](https://pnpm.io) ให้ติดตั้งด้วย `npm install -g pnpm`
+3. แก้ไขไฟล์ตั้งค่า `src/config.ts` เพื่อปรับแต่งบล็อกของคุณ ทั้งชื่อเว็บไซต์ แบนเนอร์ การ์ดโปรไฟล์ แถบนำทาง คอมเมนต์ ตัวละคร Live2D แถบด้านข้าง และหน้าพิเศษ ตั้งค่าได้ทั้งหมดที่นี่
+4. รัน `pnpm new-post <ชื่อไฟล์>` เพื่อสร้างบทความใหม่ แล้วแก้ไขได้ในโฟลเดอร์ `src/content/posts/`
+5. ก่อน deploy ให้ตั้งค่า `site` และ `base` ใน `astro.config.mjs` จากนั้น deploy ขึ้น Vercel, Netlify, GitHub Pages ฯลฯ ตาม[คู่มือของ Astro](https://docs.astro.build/en/guides/deploy/)
 
 ## 📝 Frontmatter (ส่วนหัวไฟล์) ของโพสต์
 
 ```yaml
 ---
-title: โพสต์แรกของฉัน
+title: My First Blog Post
 published: 2023-09-09
-description: นี่คือโพสต์แรกของเว็บบล็อก Astro อันใหม่ของฉัน
+description: This is the first post of my new Astro blog.
 image: ./cover.jpg
 tags: [Foo, Bar]
 category: Front-end
 draft: false
-lang: jp      # เขียนค่านี้เมื่อภาษาของโพสต์นั้น ๆ แตกต่างจากภาษาของเว็บไซต์ที่ตั้งค่าไว้ใน `config.ts` เท่านั้น
+lang: th      # ใส่เฉพาะเมื่อภาษาของโพสต์ต่างจากภาษาของเว็บไซต์ที่ตั้งไว้ใน `config.ts`
 ---
 ```
 
-## 🧩 Markdown Extended Syntax
+## 🧩 ไวยากรณ์ Markdown ส่วนขยาย
 
-เดิมที Astro มีการสนับสนุน[ภาษามาร์กดาวน์แบบของ GitHub](https://github.github.com/gfm/) ไว้อยู่แล้ว แต่ Fuwari ได้เพิ่มเติมคุณสมบัติพิเศษอื่น ๆ เข้าไปอีก:
+นอกจาก [GitHub Flavored Markdown](https://github.github.com/gfm/) ที่ Astro รองรับอยู่แล้ว เว็บนี้ยังเปิดใช้ฟีเจอร์ Markdown เพิ่มเติมอีกหลายอย่าง:
 
-- Admonitions หรือ กล่องข้อมูลพิเศษ ([ดูตัวอย่างและการใช้งาน](https://fuwari.vercel.app/posts/markdown-extended/#admonitions))
-- การ์ด GitHub Repository ([ดูตัวอย่างและการใช้งาน](https://fuwari.vercel.app/posts/markdown-extended/#github-repository-cards))
-- บล็อกโค้ดขั้นสูง ด้วย Expressive Code ([ดูตัวอย่าง](https://fuwari.vercel.app/posts/expressive-code/) / [เอกสารประกอบ](https://expressive-code.com/))
+- **Admonitions (กล่องข้อความเน้น)** เขียนในรูปแบบ directive:
+
+  ```md
+  :::note
+  ข้อมูลที่ผู้อ่านควรให้ความสนใจเป็นพิเศษ
+  :::
+
+  :::tip
+  ข้อมูลเสริมที่ช่วยให้เข้าใจได้ดียิ่งขึ้น
+  :::
+  ```
+
+- **การ์ดที่เก็บโค้ด GitHub** แทรกด้วย directive `github`:
+
+  ```md
+  ::github{repo="saicaca/fuwari"}
+  ```
+
+- **บล็อกโค้ดแบบปรับปรุง** ด้วย [Expressive Code](https://expressive-code.com/) รองรับเลขบรรทัด ส่วนที่พับเก็บได้ และปุ่มคัดลอก
 
 ## ⚡ คำสั่ง
 
-คำสั่งที่รันได้ใน terminal จาก root ของโปรเจกต์:
+คำสั่งทั้งหมดให้รันจากโฟลเดอร์รากของโปรเจกต์:
 
-| คำสั่ง                       | การทำงาน                                               |
-|:---------------------------|:-------------------------------------------------------|
-| `pnpm install`             | ติดตั้ง dependencies                                      |
-| `pnpm dev`                 | เปิดเซิร์ฟเวอร์สำหรับการพัฒนาแบบ local ที่ `localhost:4321`    |
-| `pnpm build`               | Build เว็บไซต์สำหรับใช้งานจริงไปยังโฟลเดอร์ `./dist/`         |
-| `pnpm preview`             | ดูตัวอย่าง build ของคุณแบบ local ก่อนที่จะ deploy จริง         |
-| `pnpm check`               | ดำเนินการตรวจสอบหาข้อผิดพลาดในโค้ดของคุณ                    |
-| `pnpm format`              | จัดรูปแบบโค้ดของคุณด้วย Biome                               |
-| `pnpm new-post <filename>` | สร้างโพสต์ใหม่                                            |
-| `pnpm astro ...`           | รันคำสั่ง CLI เช่น `astro add`, `astro check`              |
-| `pnpm astro --help`        | แสดงวิธีใช้งาน Astro CLI                                  |
+| Command                    | Action                                              |
+|:---------------------------|:----------------------------------------------------|
+| `pnpm install`             | ติดตั้ง dependencies                                |
+| `pnpm dev`                 | เปิดเซิร์ฟเวอร์สำหรับพัฒนาที่ `localhost:4321`          |
+| `pnpm build`               | บิลด์เว็บไซต์สำหรับ production ไปที่ `./dist/`          |
+| `pnpm preview`             | ดูตัวอย่างผลลัพธ์การบิลด์ในเครื่องก่อน deploy            |
+| `pnpm check`               | ตรวจหาข้อผิดพลาดในโค้ด                                |
+| `pnpm format`              | จัดรูปแบบโค้ดด้วย Biome                               |
+| `pnpm new-post <filename>` | สร้างบทความใหม่                                       |
+| `pnpm astro ...`           | รันคำสั่ง CLI เช่น `astro add`, `astro check`          |
+| `pnpm astro --help`        | แสดงความช่วยเหลือของ Astro CLI                        |
 
-## ✏️ การมีส่วนร่วม
+## 🙏 เครดิต
 
-กรุณาอ่าน [แนวทางการมีส่วนร่วม](https://github.com/saicaca/fuwari/blob/main/CONTRIBUTING.md) สำหรับรายละเอียดวิธีการมีส่วนร่วมในโปรเจกต์นี้
+- [Fuwari](https://github.com/saicaca/fuwari) —— ธีมที่เว็บไซต์นี้สร้างขึ้นมา
+- [Mizuki](https://github.com/LyraVoid/Mizuki) —— ต้นทางของตัวละคร Live2D แถบด้านขวา และเมนู "Others"
+- [oh-my-live2d](https://github.com/hacxy/oh-my-live2d) —— ไลบรารีสำหรับเรนเดอร์ Live2D
+- [Astro](https://astro.build) · [Svelte](https://svelte.dev) · [Tailwind CSS](https://tailwindcss.com)
+- [Pagefind](https://pagefind.app/) · [Swup](https://swup.js.org/) · [giscus](https://giscus.app/) · [Expressive Code](https://expressive-code.com/)
 
 ## 📄 สัญญาอนุญาต
 
-โปรเจกต์นี้เผยแพร่ภายใต้สัญญาอนุญาตแบบ MIT License
+ส่วนของธีมเผยแพร่ภายใต้ [MIT License](LICENSE) ส่วนเนื้อหาบทความใช้สัญญาอนุญาต [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)

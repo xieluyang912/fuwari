@@ -47,9 +47,10 @@ export async function getSortedPosts() {
 export type PostForList = {
 	slug: string;
 	/**
-	 * 这里比完整的 frontmatter 少了 password —— 原因见 getSortedPostsList。
+	 * 这里比完整的 frontmatter 少了 password 和 passwordHint
+	 * —— 原因见 getSortedPostsList。
 	 */
-	data: Omit<CollectionEntry<"posts">["data"], "password">;
+	data: Omit<CollectionEntry<"posts">["data"], "password" | "passwordHint">;
 };
 export async function getSortedPostsList(): Promise<PostForList[]> {
 	const sortedFullPosts = await getRawSortedPosts();
@@ -59,17 +60,22 @@ export async function getSortedPostsList(): Promise<PostForList[]> {
 		const data = { ...post.data };
 
 		/*
-		 * 把 password 摘掉再往外给。
+		 * 把 password 和 passwordHint 摘掉再往外给。
 		 *
 		 * 这个函数的返回值会喂给 archive.astro 里 client:only="svelte" 的
 		 * ArchivePanel —— Astro 会把 props 序列化成 JSON 塞进 HTML。
 		 * 也就是说 data 里有什么，访客在页面源码里就能看到什么。
 		 * 密码跟着发出去的话，加密文章就白加密了。
 		 *
+		 * passwordHint 也要摘：它本来就只是给「文章页的密码框下面」用的，
+		 * 列表和归档页并不显示它。留在 props 里等于把提示语撒到了每一页，
+		 * 而提示语是人写的 —— 有人（比如演示文章）会直接把密码写进去。
+		 *
 		 * 这里统一摘掉，比在每个组件里各自小心要可靠：
 		 * 只要以后有人再往 frontmatter 里加敏感字段，也只需改这一处。
 		 */
 		delete data.password;
+		delete data.passwordHint;
 
 		return { slug: post.slug, data };
 	});

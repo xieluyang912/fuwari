@@ -57,8 +57,6 @@ export async function getSortedPostsList(): Promise<PostForList[]> {
 
 	// delete post.body
 	const sortedPostsList = sortedFullPosts.map((post) => {
-		const data = { ...post.data };
-
 		/*
 		 * 把 password 和 passwordHint 摘掉再往外给。
 		 *
@@ -73,9 +71,12 @@ export async function getSortedPostsList(): Promise<PostForList[]> {
 		 *
 		 * 这里统一摘掉，比在每个组件里各自小心要可靠：
 		 * 只要以后有人再往 frontmatter 里加敏感字段，也只需改这一处。
+		 *
+		 * 用解构 + rest 而不是 delete：passwordHint 在 schema 里带了
+		 * .default("")，推出来是必填字段，对必填字段用 delete 过不了
+		 * 类型检查（ts2790）。解构出去的这两个变量纯粹是为了丢弃。
 		 */
-		delete data.password;
-		delete data.passwordHint;
+		const { password: _pw, passwordHint: _hint, ...data } = post.data;
 
 		return { slug: post.slug, data };
 	});

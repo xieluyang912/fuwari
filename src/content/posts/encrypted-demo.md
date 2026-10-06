@@ -5,7 +5,7 @@ description: '这篇文章是锁着的 —— 演示怎么给文章加密码，�
 image: ''
 tags: [网站维护]
 category: '网站维护'
-draft: true
+draft: false
 lang: ''
 password: demo1234
 passwordHint: '演示密码就是 demo1234'

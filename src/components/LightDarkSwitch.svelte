@@ -16,9 +16,14 @@ import type { LIGHT_DARK_MODE } from "@/types/config.ts";
  * Svelte 5 对「完全没有 props」的组件会推导出 Record<string, never>，
  * 而 Astro 的类型检查会把 client:only 这类指令当成 props 传进来，
  * 于是 Navbar 里报 ts(2322)「client:only 与索引签名不兼容」。
- * 空的 $props() 能让推导结果变成普通对象类型，检查就过了。
+ * 写一句 $props() 就能让推导结果变成普通对象类型，检查就过了。
+ *
+ * 这里用了「剩余属性」而不是空模式 `let {} = $props()`：
+ * biome 的 noEmptyPattern（correctness/recommended）不允许空解构，
+ * 而 .svelte 的 override 里恰好关掉了 noUnusedVariables，
+ * 所以多出来的 `_rest` 不会引出别的告警。
  */
-let {} = $props();
+let { ..._rest } = $props();
 
 const seq: LIGHT_DARK_MODE[] = [LIGHT_MODE, DARK_MODE, AUTO_MODE];
 let mode: LIGHT_DARK_MODE = $state(AUTO_MODE);

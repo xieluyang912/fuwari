@@ -93,4 +93,21 @@ export const zh_TW: PartialTranslation = {
 	[Key.viewProject]: "查看專案",
 	[Key.viewSource]: "原始碼",
 	[Key.noContent]: "這裡還什麼都沒有",
+
+	/* ---- 文章加密 ---- */
+	[Key.postPasswordTitle]: "這是一篇加密文章",
+	[Key.postPasswordDescription]: "文章內容已加密，輸入密碼後才能查看。",
+	[Key.postPasswordLabel]: "密碼",
+	[Key.postPasswordPlaceholder]: "請輸入密碼",
+	[Key.postPasswordShow]: "顯示密碼",
+	[Key.postPasswordHide]: "隱藏密碼",
+	[Key.postPasswordRequired]: "請輸入密碼",
+	[Key.postPasswordInvalid]: "密碼錯誤",
+	[Key.postPasswordUnlock]: "解鎖",
+	[Key.postPasswordUnlocking]: "解密中…",
+	[Key.postPasswordUnsupported]:
+		"目前瀏覽器無法解密這篇文章。請改用現代瀏覽器，並透過 HTTPS 存取本站。",
+	[Key.postEncryptedSummary]: "本文已加密，輸入密碼後可查看。",
+	[Key.postEncryptedBadge]: "已加密",
+	[Key.postEncryptedLabel]: "加密文章",
 };

@@ -93,4 +93,22 @@ export const en: Translation = {
 	[Key.viewProject]: "View project",
 	[Key.viewSource]: "Source code",
 	[Key.noContent]: "Nothing here yet",
+
+	/* ---- 文章加密 ---- */
+	[Key.postPasswordTitle]: "Password Protected",
+	[Key.postPasswordDescription]:
+		"This post is encrypted. Enter the password to unlock its content.",
+	[Key.postPasswordLabel]: "Password",
+	[Key.postPasswordPlaceholder]: "Enter password",
+	[Key.postPasswordShow]: "Show password",
+	[Key.postPasswordHide]: "Hide password",
+	[Key.postPasswordRequired]: "Please enter a password",
+	[Key.postPasswordInvalid]: "Incorrect password",
+	[Key.postPasswordUnlock]: "Unlock",
+	[Key.postPasswordUnlocking]: "Decrypting…",
+	[Key.postPasswordUnsupported]:
+		"This browser cannot decrypt the post. Please use a modern browser and open the site over HTTPS.",
+	[Key.postEncryptedSummary]: "This post is password-protected.",
+	[Key.postEncryptedBadge]: "Protected",
+	[Key.postEncryptedLabel]: "Password-protected post",
 };

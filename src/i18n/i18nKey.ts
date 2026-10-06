@@ -98,6 +98,38 @@ enum I18nKey {
 	viewProject = "viewProject",
 	viewSource = "viewSource",
 	noContent = "noContent",
+
+	/* ======================================================================
+	 * 以下为「文章加密」功能新增的文案键
+	 * 对应 src/components/misc/EncryptedContent.astro
+	 * ==================================================================== */
+
+	/** 密码框标题 */
+	postPasswordTitle = "postPasswordTitle",
+	/** 密码框下方的说明 */
+	postPasswordDescription = "postPasswordDescription",
+	/** 输入框的无障碍名 */
+	postPasswordLabel = "postPasswordLabel",
+	/** 输入框占位符 */
+	postPasswordPlaceholder = "postPasswordPlaceholder",
+	/** 显隐密码按钮：显示 / 隐藏 */
+	postPasswordShow = "postPasswordShow",
+	postPasswordHide = "postPasswordHide",
+	/** 没输密码就点了解锁 */
+	postPasswordRequired = "postPasswordRequired",
+	/** 密码错误 */
+	postPasswordInvalid = "postPasswordInvalid",
+	/** 解锁按钮 / 正在解密 */
+	postPasswordUnlock = "postPasswordUnlock",
+	postPasswordUnlocking = "postPasswordUnlocking",
+	/** 浏览器不支持 Web Crypto（http 访问时会出现） */
+	postPasswordUnsupported = "postPasswordUnsupported",
+	/** 列表卡片和 RSS 里，用来替换被藏起来的摘要 */
+	postEncryptedSummary = "postEncryptedSummary",
+	/** 文章页头部的小徽章 */
+	postEncryptedBadge = "postEncryptedBadge",
+	/** 列表卡片上锁图标的无障碍名 */
+	postEncryptedLabel = "postEncryptedLabel",
 }
 
 export default I18nKey;

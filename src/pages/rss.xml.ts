@@ -1,5 +1,8 @@
 import rss from "@astrojs/rss";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
 import { getSortedPosts } from "@utils/content-utils";
+import { isLockedPost } from "@utils/password-protection";
 import { url } from "@utils/url-utils";
 import type { APIContext } from "astro";
 import MarkdownIt from "markdown-it";
@@ -31,6 +34,23 @@ export async function GET(context: APIContext) {
 		description: siteConfig.subtitle || "No description",
 		site,
 		items: blog.map((post) => {
+			/*
+			 * 加密文章在 RSS 里必须整段换掉。
+			 * 这里原本是把 post.body（Markdown 原文）渲染成 HTML 塞进 feed ——
+			 * 对加密文章来说那就是把明文直接发到订阅器里，锁等于白上了。
+			 * 所以只留一句「去站点上看」，标题前面加个锁做区分。
+			 */
+			const locked = isLockedPost(post.data);
+			if (locked) {
+				return {
+					title: `🔒 ${post.data.title}`,
+					pubDate: post.data.published,
+					description: i18n(I18nKey.postEncryptedSummary),
+					link: url(`/posts/${post.slug}/`),
+					content: `<p><em>🔒 ${i18n(I18nKey.postEncryptedSummary)}</em></p>`,
+				};
+			}
+
 			const content =
 				typeof post.body === "string" ? post.body : String(post.body || "");
 			const cleanedContent = stripInvalidXmlChars(content);

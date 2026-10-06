@@ -1,0 +1,458 @@
+---
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { encryptProtectedContent } from "@utils/password-protection";
+/**
+ * 加密文章的「锁」。
+ *
+ * 用法（见 src/pages/posts/[...slug].astro）：
+ *
+ *   <EncryptedContent password={entry.data.password} scope={`post:${entry.id}`} hint={entry.data.passwordHint}>
+ *       <Content />
+ *   </EncryptedContent>
+ *
+ * 关键在下面这一句 `Astro.slots.render("default")`：
+ * 它会在这时（构建期）就把插槽里的 `<Content />` 渲染成 HTML 字符串。
+ * 我们拿到的这份字符串只存在于构建进程的内存里 —— 加密之后立刻丢掉，
+ * 页面产物里只有密文。所以「正文没有明文进 dist/」不是靠事后过滤，
+ * 而是它压根就没被写出去过：Pagefind、RSS、查看源代码都拿不到。
+ */
+import { Icon } from "astro-icon/components";
+import type { ProtectedPayload } from "@/types/protected-content";
+
+interface Props {
+	/** 文章的解锁密码，来自 frontmatter。只会被这一行用掉，不会写进页面 */
+	password: string;
+	/** 作用域，形如 post:<文章 id>。同时用作 AAD 和 sessionStorage 的键 */
+	scope: string;
+	/** 可选的密码提示，明文显示在密码框下面 */
+	hint?: string;
+	class?: string;
+}
+
+const { password, scope, hint = "", class: className } = Astro.props;
+
+let rawHtml = await Astro.slots.render("default");
+
+/*
+ * astro-expressive-code 会在「有代码块」的正文里注入一对样式/脚本标签。
+ * 平时它们会被提升到页面 <head>；但正文是在插槽里渲染的，
+ * 这对标签就会落在我们这份字符串里 —— 如果直接加密掉，
+ * 文章解锁后代码块就没有高亮样式了。
+ *
+ * 所以先把它们摘出来，留在页面上正常加载，再加密剩下的正文。
+ */
+const assetPattern =
+	/<link\b[^>]*href="[^"]*\/_astro\/ec\.[^"]*"[^>]*>|<script\b[^>]*src="[^"]*\/_astro\/ec\.[^"]*"[^>]*>\s*<\/script>/g;
+const contentAssets = rawHtml.match(assetPattern) ?? [];
+rawHtml = rawHtml.replace(assetPattern, "");
+
+const payload: ProtectedPayload = await encryptProtectedContent(
+	rawHtml,
+	password,
+	scope,
+	"text/html",
+);
+
+/*
+ * 交给浏览器脚本的文案。
+ *
+ * 不把字符串硬编码进 <script> 里，是因为这份脚本是打包提交的、
+ * 整站共用一份；而文案要跟着 siteConfig.lang 走，只能在构建时决定。
+ * 顺带也避免了往脚本里拼字符串带来的转义问题。
+ */
+const clientStrings = {
+	unlock: i18n(I18nKey.postPasswordUnlock),
+	unlocking: i18n(I18nKey.postPasswordUnlocking),
+	required: i18n(I18nKey.postPasswordRequired),
+	invalid: i18n(I18nKey.postPasswordInvalid),
+	unsupported: i18n(I18nKey.postPasswordUnsupported),
+	show: i18n(I18nKey.postPasswordShow),
+	hide: i18n(I18nKey.postPasswordHide),
+};
+
+/*
+ * 两个 <script type="application/json">：一个是密文，一个是文案。
+ * 都加了 is:inline，Astro 才会原样输出、不做打包处理。
+ * 把 "<" 转义掉，避免内容里万一出现 "</script" 提前结束标签
+ * —— 虽然 base64url 不会有 "<"，但这是免费的保险。
+ */
+const toJsonScript = (value: unknown) =>
+	JSON.stringify(value).replace(/</g, "\\u003c");
+---
+
+<div class:list={["protected-post", className]} data-protected-root>
+    {/* 解锁后正文注入这里。构建时是空的 —— 里面没有任何明文 */}
+    <div class="protected-content markdown-content" data-protected-content hidden></div>
+
+    {/* 解锁前的密码框 */}
+    <div class="protected-gate" data-protected-gate>
+        <div class="protected-icon" aria-hidden="true">
+            <Icon name="material-symbols:lock-outline" class="text-3xl"></Icon>
+        </div>
+
+        <div class="protected-title">{i18n(I18nKey.postPasswordTitle)}</div>
+        <p class="protected-desc">{i18n(I18nKey.postPasswordDescription)}</p>
+
+        <form class="protected-form" data-protected-form novalidate>
+            <div class="protected-input-row">
+                <input
+                    type="password"
+                    name="password"
+                    class="protected-input"
+                    data-protected-input
+                    placeholder={i18n(I18nKey.postPasswordPlaceholder)}
+                    aria-label={i18n(I18nKey.postPasswordLabel)}
+                    autocomplete="current-password"
+                />
+                <button
+                    type="button"
+                    class="btn-regular protected-reveal"
+                    data-protected-toggle
+                    aria-label={i18n(I18nKey.postPasswordShow)}
+                    title={i18n(I18nKey.postPasswordShow)}
+                >
+                    <Icon name="material-symbols:visibility-outline-rounded" class="text-xl"></Icon>
+                </button>
+            </div>
+
+            <button type="submit" class="protected-submit" data-protected-submit>
+                <Icon name="material-symbols:lock-open-outline-rounded" class="text-lg"></Icon>
+                <span data-protected-submit-label>{i18n(I18nKey.postPasswordUnlock)}</span>
+            </button>
+        </form>
+
+        {hint && (
+            <p class="protected-hint">
+                <Icon name="material-symbols:lightbulb-outline-rounded" class="text-base shrink-0"></Icon>
+                <span>{hint}</span>
+            </p>
+        )}
+
+        {/* role="alert"：密码错了屏幕阅读器也能听到，不用只靠看红字 */}
+        <p class="protected-error" data-protected-error role="alert" hidden></p>
+    </div>
+
+    {/* expressive-code 的样式/脚本，见文件顶部说明 */}
+    {contentAssets.map((tag) => <Fragment set:html={tag} />)}
+
+    <script type="application/json" data-protected-payload is:inline set:html={toJsonScript(payload)}></script>
+    <script type="application/json" data-protected-strings is:inline set:html={toJsonScript(clientStrings)}></script>
+</div>
+
+<style>
+    .protected-gate {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 2.5rem 1.5rem 2rem;
+        border-radius: var(--radius-large);
+        background: var(--btn-regular-bg);
+    }
+
+    .protected-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 4rem;
+        height: 4rem;
+        border-radius: var(--radius-large);
+        background: var(--card-bg);
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .protected-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .protected-desc {
+        font-size: 0.875rem;
+        opacity: 0.75;
+        max-width: 28rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .protected-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 100%;
+        max-width: 22rem;
+    }
+
+    .protected-input-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .protected-input {
+        flex: 1;
+        min-width: 0;
+        height: 2.75rem;
+        padding: 0 1rem;
+        border-radius: 0.75rem;
+        border: 2px solid var(--line-divider);
+        background: var(--card-bg);
+        color: inherit;
+        font-size: 0.95rem;
+        transition: border-color 0.2s;
+    }
+
+    .protected-input:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .protected-reveal {
+        width: 2.75rem;
+        height: 2.75rem;
+        flex-shrink: 0;
+        border-radius: 0.75rem;
+        color: var(--primary);
+        cursor: pointer;
+    }
+
+    .protected-submit {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        height: 2.75rem;
+        border-radius: 0.75rem;
+        background: var(--primary);
+        color: white;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .protected-submit:hover:not(:disabled) {
+        opacity: 0.9;
+    }
+
+    .protected-submit:active:not(:disabled) {
+        transform: scale(0.98);
+    }
+
+    .protected-submit:disabled {
+        opacity: 0.6;
+        cursor: progress;
+    }
+
+    .protected-hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        margin-top: 1rem;
+        font-size: 0.8rem;
+        color: var(--primary);
+        opacity: 0.8;
+        max-width: 22rem;
+    }
+
+    .protected-error {
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #e5484d;
+    }
+
+    /* hidden 要显式写出来：下面 [data-unlocked] 那条规则会动 .protected-content，
+       不锁住的话解锁后把它 hidden 回去会失效 */
+    .protected-content[hidden],
+    .protected-gate[hidden] {
+        display: none;
+    }
+
+    /* 刚解锁的那一下让正文淡入上浮。data-unlocked 由脚本在解锁成功后打上，
+       所以这个动画不会在普通文章上误触发 */
+    .protected-post[data-unlocked] .protected-content {
+        animation: 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards protected-reveal;
+    }
+
+    @keyframes protected-reveal {
+        0% {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<script>
+    import {
+        ProtectedContentError,
+        unlockWithPassword,
+        unlockWithRawKey,
+    } from "../../utils/password-protection";
+    import { clearCachedKey, readCachedKey, writeCachedKey } from "../../utils/protected-session";
+    import { getPayloadId, parseProtectedPayload } from "../../types/protected-content";
+
+    interface ClientStrings {
+        unlock: string;
+        unlocking: string;
+        required: string;
+        invalid: string;
+        unsupported: string;
+        show: string;
+        hide: string;
+    }
+
+    /**
+     * 初始化页面上所有还没初始化过的加密文章。
+     *
+     * 为什么要遍历「所有」并且判断有没有初始化过：本站用 Swup 做无刷新跳转，
+     * 这段脚本有可能被重复执行，也可能换页后一次都不再执行。
+     * 所以写成幂等函数，再把首次加载和 Swup 的 page:view 都挂上，
+     * 谁先谁后都不会漏，也不会重复绑事件。
+     */
+    function initProtectedPosts(): void {
+        const roots = document.querySelectorAll<HTMLElement>("[data-protected-root]");
+        for (const root of roots) {
+            if (root.dataset.bound === "true") continue;
+            root.dataset.bound = "true";
+            void setupProtectedPost(root);
+        }
+    }
+
+    function readJsonScript<T>(root: HTMLElement, selector: string): T | null {
+        const el = root.querySelector<HTMLScriptElement>(selector);
+        if (!el) return null;
+        try {
+            return JSON.parse(el.textContent || "null") as T;
+        } catch {
+            return null;
+        }
+    }
+
+    async function setupProtectedPost(root: HTMLElement): Promise<void> {
+        const gate = root.querySelector<HTMLElement>("[data-protected-gate]");
+        const target = root.querySelector<HTMLElement>("[data-protected-content]");
+        const form = root.querySelector<HTMLFormElement>("[data-protected-form]");
+        const input = root.querySelector<HTMLInputElement>("[data-protected-input]");
+        const toggle = root.querySelector<HTMLButtonElement>("[data-protected-toggle]");
+        const submit = root.querySelector<HTMLButtonElement>("[data-protected-submit]");
+        const submitLabel = root.querySelector<HTMLElement>("[data-protected-submit-label]");
+        const errorBox = root.querySelector<HTMLElement>("[data-protected-error]");
+
+        if (!gate || !target || !form || !input || !submit) return;
+
+        const rawPayload = readJsonScript<unknown>(root, "[data-protected-payload]");
+        const strings = readJsonScript<ClientStrings>(root, "[data-protected-strings]");
+        if (!rawPayload || !strings) return;
+
+        let payload: ReturnType<typeof parseProtectedPayload>;
+        try {
+            payload = parseProtectedPayload(rawPayload);
+        } catch {
+            return;
+        }
+
+        const { scope } = payload;
+        const payloadId = getPayloadId(payload);
+
+        const showError = (message: string) => {
+            if (!errorBox) return;
+            errorBox.textContent = message;
+            errorBox.hidden = false;
+        };
+
+        const reveal = (html: string) => {
+            target.innerHTML = html;
+            target.hidden = false;
+            gate.hidden = true;
+            root.dataset.unlocked = "true";
+        };
+
+        const setLoading = (loading: boolean) => {
+            submit.disabled = loading;
+            input.disabled = loading;
+            if (submitLabel) {
+                submitLabel.textContent = loading ? strings.unlocking : strings.unlock;
+            }
+        };
+
+        // 显隐密码。顺带换掉按钮的无障碍名，不然读屏软件会念反
+        toggle?.addEventListener("click", () => {
+            const revealed = input.type === "text";
+            input.type = revealed ? "password" : "text";
+            const label = revealed ? strings.show : strings.hide;
+            toggle.setAttribute("aria-label", label);
+            toggle.setAttribute("title", label);
+        });
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const password = input.value;
+            if (!password) {
+                showError(strings.required);
+                input.focus();
+                return;
+            }
+
+            if (errorBox) errorBox.hidden = true;
+            setLoading(true);
+            try {
+                const { content, rawKey } = await unlockWithPassword(payload, password);
+                // 能派生出密钥就说明密码是对的（见 password-protection.ts 的说明）。
+                // 把密钥缓存住，本站内再翻回来就不用重输密码，也不用重跑 31 万次 PBKDF2
+                writeCachedKey(scope, payloadId, rawKey);
+                reveal(content);
+            } catch (error) {
+                showError(
+                    error instanceof ProtectedContentError && error.code === "unsupported"
+                        ? strings.unsupported
+                        : strings.invalid,
+                );
+                input.select();
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        /*
+         * 这个标签页已经解锁过这篇文章的话，直接解开，不再弹密码框。
+         * 用缓存的密钥解 —— 走的是一次 AES-GCM 解密，不用重跑 PBKDF2，快得多。
+         * 解不开（换了密码、密文变了、缓存坏了）就清掉缓存，退回正常流程。
+         */
+        const cachedKey = readCachedKey(scope, payloadId);
+        if (cachedKey) {
+            setLoading(true);
+            try {
+                reveal(await unlockWithRawKey(payload, cachedKey));
+                return;
+            } catch {
+                clearCachedKey(scope);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        input.focus();
+    }
+
+    initProtectedPosts();
+
+    /*
+     * Swup 换页后重新扫描一遍。
+     * 与 CategoryBar 等组件同一个套路：swup 还没就绪时先记下 swup:enable，
+     * 就绪之后直接用 page:view 钩子。
+     */
+    if (window.swup?.hooks) {
+        window.swup.hooks.on("page:view", initProtectedPosts);
+    } else {
+        document.addEventListener("swup:enable", initProtectedPosts);
+    }
+</script>

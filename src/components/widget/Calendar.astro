@@ -52,11 +52,12 @@ const weekDays = [
 import { siteConfig } from "../../config";
 
 const lang = siteConfig.lang.toLowerCase();
-const yearSuffix = lang.startsWith("zh") || lang.startsWith("ja")
-	? "年"
-	: lang.startsWith("ko")
-		? "년 "
-		: " ";
+const yearSuffix =
+	lang.startsWith("zh") || lang.startsWith("ja")
+		? "年"
+		: lang.startsWith("ko")
+			? "년 "
+			: " ";
 
 // 数据接口走 url() 补 base path。本站现在部署在根路径（base 是 "/"），
 // 保留这层处理是为了日后若改回 /fuwari/ 这类子路径时不用动这里

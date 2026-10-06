@@ -7,9 +7,11 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPosts } from "@utils/content-utils";
+import { isLockedPost } from "@utils/password-protection";
 import { getDir, getPostUrlBySlug, url } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
 import { licenseConfig } from "src/config";
+import EncryptedContent from "../../components/misc/EncryptedContent.astro";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
 import PostMetadata from "../../components/PostMeta.astro";
 import { profileConfig, siteConfig } from "../../config";
@@ -27,6 +29,19 @@ const { entry } = Astro.props;
 const { Content, headings } = await entry.render();
 
 const { remarkPluginFrontmatter } = await entry.render();
+
+/**
+ * 加密文章要额外藏起三类「由正文推导出来」的信息：
+ *  - headings：目录会泄露所有小标题，等于把文章大纲送出去
+ *  - 字数 / 阅读时长：也是从正文算的
+ *  - 摘要：由 remark-excerpt 从正文抽，见 PostCard 里的处理
+ * 作者自己在 frontmatter 里写的 title / description / tags 不算泄露，
+ * 那些本来就是要给访客看的。
+ */
+const isLocked = isLockedPost(entry.data);
+// 转成字符串：frontmatter 里 `password: 123456`（不带引号）会是数字类型
+const postPassword = String(entry.data.password ?? "");
+const tocHeadings = isLocked ? [] : headings;
 
 const jsonLd = {
 	"@context": "https://schema.org",
@@ -47,28 +62,42 @@ const jsonLd = {
 	// TODO include cover image here
 };
 ---
-<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings}>
+<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={tocHeadings}>
     <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
     <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4">
         <div id="post-container" class:list={["card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full ",
             {}
         ]}>
-            <!-- word count and reading time -->
+            {/*
+                加密文章不显示字数和阅读时长 —— 这两个数都是从正文算出来的，
+                摆在这里等于告诉访客文章有多长。换成一个小锁徽章。
+            */}
             <div class="flex flex-row text-black/30 dark:text-white/30 gap-5 mb-3 transition onload-animation">
-                <div class="flex flex-row items-center">
-                    <div class="transition h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2">
-                        <Icon name="material-symbols:notes-rounded"></Icon>
+                {isLocked ? (
+                    <div class="flex flex-row items-center">
+                        <div class="transition h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-[var(--primary)] flex items-center justify-center mr-2">
+                            <Icon name="material-symbols:lock-outline"></Icon>
+                        </div>
+                        <div class="text-sm">{i18n(I18nKey.postEncryptedBadge)}</div>
                     </div>
-                    <div class="text-sm">{remarkPluginFrontmatter.words} {" " + i18n(I18nKey.wordsCount)}</div>
-                </div>
-                <div class="flex flex-row items-center">
-                    <div class="transition h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2">
-                        <Icon name="material-symbols:schedule-outline-rounded"></Icon>
-                    </div>
-                    <div class="text-sm">
-                        {remarkPluginFrontmatter.minutes} {" " + i18n(remarkPluginFrontmatter.minutes === 1 ? I18nKey.minuteCount : I18nKey.minutesCount)}
-                    </div>
-                </div>
+                ) : (
+                    <>
+                        <div class="flex flex-row items-center">
+                            <div class="transition h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2">
+                                <Icon name="material-symbols:notes-rounded"></Icon>
+                            </div>
+                            <div class="text-sm">{remarkPluginFrontmatter.words} {" " + i18n(I18nKey.wordsCount)}</div>
+                        </div>
+                        <div class="flex flex-row items-center">
+                            <div class="transition h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2">
+                                <Icon name="material-symbols:schedule-outline-rounded"></Icon>
+                            </div>
+                            <div class="text-sm">
+                                {remarkPluginFrontmatter.minutes} {" " + i18n(remarkPluginFrontmatter.minutes === 1 ? I18nKey.minuteCount : I18nKey.minutesCount)}
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
 
             <!-- title -->
@@ -104,11 +133,28 @@ const jsonLd = {
             }
 
 
-            <Markdown class="mb-6 markdown-content onload-animation">
-                <Content />
-            </Markdown>
+            {/*
+                加密文章走 EncryptedContent：<Content /> 会被它拿去在构建时
+                渲染成 HTML 再加密，产物里只有密文。解锁后由浏览器把明文注入页面。
+                两边的外层类名保持一致，解锁后的正文才能套上同一套排版样式。
+            */}
+            {isLocked ? (
+                <EncryptedContent
+                    password={postPassword}
+                    scope={`post:${entry.id}`}
+                    hint={entry.data.passwordHint}
+                    class="mb-6 markdown-content onload-animation"
+                >
+                    <Content />
+                </EncryptedContent>
+            ) : (
+                <Markdown class="mb-6 markdown-content onload-animation">
+                    <Content />
+                </Markdown>
+            )}
 
-            {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
+            {/* 许可声明放在密文下面没意义（解锁前就露出去了），加密文章直接不显示 */}
+            {!isLocked && licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
 
             <!-- 评论区，通过 giscus 嵌入 GitHub Discussions，见 src/components/misc/Comments.astro -->
             <Comments class="mb-6 rounded-xl comments-container onload-animation"></Comments>

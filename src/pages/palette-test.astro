@@ -8,19 +8,34 @@
 <pre id="out" style="padding:12px;white-space:pre-wrap">跑测试中…</pre>
 <iframe id="f" src="/" style="width:1600px;height:520px;border:0"></iframe>
 <script>
-    const out = document.getElementById("out");
-    const f = document.getElementById("f");
-    const lines = [];
+    const outEl = document.getElementById("out");
+    const fEl = document.getElementById("f");
 
-    const rect = (el) => {
+    // getElementById 返回的是 HTMLElement | null，而 contentDocument /
+    // contentWindow 只有 HTMLIFrameElement 才有；另外 TS 不会把外层的
+    // 收窄带进下面的回调里。所以这里检查一次，再赋给带显式类型的常量 ——
+    // 闭包里拿到的就是确定非空的类型。
+    if (!outEl || !(fEl instanceof HTMLIFrameElement)) {
+        throw new Error("palette-test：页面上找不到 #out 或 #f");
+    }
+    const out: HTMLElement = outEl;
+    const f: HTMLIFrameElement = fEl;
+
+    const lines: string[] = [];
+
+    const rect = (el: Element | null): string => {
         if (!el) return "n/a";
         const r = el.getBoundingClientRect();
         return `x=${Math.round(r.left)} y=${Math.round(r.top)} w=${Math.round(r.width)} h=${Math.round(r.height)}`;
     };
 
-    function probe(label) {
+    function probe(label: string): void {
         const d = f.contentDocument;
         const w = f.contentWindow;
+        if (!d || !w) {
+            out.textContent = `${label}\n  ❌ 拿不到 iframe 的 document / window`;
+            return;
+        }
         const nav = d.getElementById("navbar");
         const bar = nav?.querySelector(".navbar-bar");
         const btn = d.getElementById("display-settings-switch");
@@ -50,7 +65,7 @@
     f.addEventListener("load", () => {
         setTimeout(() => {
             probe("① 顶部 · 浅色");
-            f.contentWindow.scrollTo(0, 200);
+            f.contentWindow?.scrollTo(0, 200);
             setTimeout(() => {
                 probe("② 滚动 200px · 浅色");
                 out.textContent = lines.join("\n");

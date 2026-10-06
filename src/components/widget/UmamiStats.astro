@@ -1,0 +1,106 @@
+---
+/**
+ * 侧栏「访问统计」卡片 —— Umami 公开分享统计的展示层。
+ *
+ * 数据来源与开关都在 `src/config/umamiConfig.ts`：
+ * 未启用（默认）或 shareUrl 为空时，这个组件渲染出空内容，页面上不留痕迹。
+ *
+ * 数字有两条来源，先到先得、后到的覆盖：
+ *   1. 构建期：utils/umami.ts 在 Node 里抓一次，直接写进下面的 HTML。
+ *      好处是纯静态产物首屏就有真实数值，访客端即使被 CORS 挡住也不会空白。
+ *   2. 运行时：components/system/UmamiRuntime.astro 里的内联脚本再拉一次，
+ *      成功就把数字换成实时的（带千分位），失败就保留构建期这一份。
+ *
+ * 槽位的约定（两边都靠这几个 data 属性对接，改名字要一起改）：
+ *   data-umami-stats                 —— 卡片根节点，脚本靠它发现需要填充的卡片
+ *   data-umami-share-url             —— 这份数据从哪来（脚本读它去拉实时值）
+ *   data-umami-metric="pageviews"    —— 具体要填哪个指标
+ */
+import { Icon } from "astro-icon/components";
+import { resolveUmamiOptions, umamiConfig } from "../../config/umamiConfig";
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+import { getUmamiSiteStats } from "../../utils/umami";
+import WidgetLayout from "./WidgetLayout.astro";
+
+interface Props {
+	class?: string;
+	style?: string;
+}
+
+const className = Astro.props.class;
+const style = Astro.props.style;
+
+const options = resolveUmamiOptions(umamiConfig);
+
+// 构建期的实时值。拿不到就是 null —— 页面照常渲染，等浏览器端去补
+const stats = options ? await getUmamiSiteStats(options) : null;
+
+/** 没有数据时显示占位符，避免构建期和运行时的排版跳动 */
+const placeholder = "--";
+
+const metrics = options
+	? [
+			{
+				key: "pageviews",
+				icon: "material-symbols:visibility-outline-rounded",
+				label: i18n(I18nKey.umamiPageviews),
+				value: stats ? stats.pageviews : null,
+			},
+			{
+				key: "visitors",
+				icon: "material-symbols:group-outline-rounded",
+				label: i18n(I18nKey.umamiVisitors),
+				value: stats ? stats.visitors : null,
+			},
+			{
+				key: "visits",
+				icon: "material-symbols:footprint-outline",
+				label: i18n(I18nKey.umamiVisits),
+				value: stats ? stats.visits : null,
+			},
+		]
+	: [];
+---
+
+{
+	options && (
+		<WidgetLayout
+			name={i18n(I18nKey.umamiStats)}
+			id="umami-stats"
+			class={className}
+			style={style}
+		>
+			<div
+				data-umami-stats
+				data-umami-share-url={options.shareUrl}
+				class="flex flex-col gap-2 pb-1"
+			>
+				{metrics.map((metric) => (
+					<div class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 bg-[var(--btn-regular-bg)] transition">
+						<div class="flex items-center gap-2 min-w-0">
+							<Icon
+								name={metric.icon}
+								class="text-[1.15rem] text-[var(--primary)] shrink-0"
+							/>
+							<span class="text-sm text-neutral-600 dark:text-neutral-300 truncate transition">
+								{metric.label}
+							</span>
+						</div>
+						{/*
+							数字用等宽字形 + 固定的最小宽度并右对齐：
+							从 "--" 换成 "12,345" 时不会把左边那行字挤得来回跳。
+						*/}
+						<span
+							data-umami-metric={metric.key}
+							class="text-sm font-bold tabular-nums text-right min-w-[4ch] shrink-0
+							       text-neutral-900 dark:text-neutral-100 transition"
+						>
+							{metric.value === null ? placeholder : metric.value.toLocaleString()}
+						</span>
+					</div>
+				))}
+			</div>
+		</WidgetLayout>
+	)
+}

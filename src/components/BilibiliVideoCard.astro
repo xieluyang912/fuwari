@@ -1,0 +1,147 @@
+---
+/**
+ * B 站视频卡片（`/anime/` 的「最近投币」区块在用）。
+ *
+ * 「我投了几个币」的角标和底部的投币日期都由数据本身决定
+ * （看 `video.coins` / `video.coinedAt` 有没有值），
+ * 不需要额外的开关 prop —— 少一个 prop 就少一处调用方可能传错的地方。
+ */
+import { Icon } from "astro-icon/components";
+import type { BilibiliVideo } from "../data/bilibili";
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
+import { formatDuration } from "../utils/bilibili/normalize";
+
+interface Props {
+	video: BilibiliVideo;
+	class?: string;
+}
+
+const { video } = Astro.props;
+const className = Astro.props.class;
+
+/**
+ * 把播放量这类大数字压成中文习惯的「万 / 亿」。
+ *
+ * 用中文单位而不是 `Intl.NumberFormat` 的 compact 记法（"5.3M"）：
+ * 站点面向中文读者，而 B 站自己的页面上也是这么显示的 —— 数字看一眼就认识。
+ */
+function formatCount(value: number | undefined): string | null {
+	if (value === undefined) return null;
+	if (value < 10000) return String(value);
+	if (value < 100000000) return `${(value / 10000).toFixed(1)}万`;
+	return `${(value / 100000000).toFixed(1)}亿`;
+}
+
+const stats = [
+	{
+		icon: "material-symbols:play-circle-outline-rounded",
+		value: formatCount(video.stats?.view),
+		label: i18n(I18nKey.bilibiliView),
+	},
+	{
+		icon: "material-symbols:chat-bubble-outline-rounded",
+		value: formatCount(video.stats?.danmaku),
+		label: i18n(I18nKey.bilibiliDanmaku),
+	},
+	{
+		icon: "material-symbols:thumb-up-outline-rounded",
+		value: formatCount(video.stats?.like),
+		label: i18n(I18nKey.bilibiliLike),
+	},
+	{
+		icon: "material-symbols:monetization-on-outline-rounded",
+		value: formatCount(video.stats?.coin),
+		label: i18n(I18nKey.bilibiliCoinTotal),
+	},
+].filter((entry) => entry.value !== null);
+
+const duration = formatDuration(video.duration);
+
+/** 底部那行「我投币的时间」 */
+const actionLabel = video.coinedAt
+	? i18n(I18nKey.bilibiliCoinsCoinedAt).replace(
+			"{date}",
+			video.coinedAt.slice(0, 10),
+		)
+	: "";
+---
+
+<a
+    href={video.link}
+    target="_blank"
+    rel="noopener noreferrer"
+    class:list={[
+        className,
+        "group flex flex-col rounded-xl overflow-hidden border border-[var(--line-divider)]",
+        "transition hover:border-[var(--primary)] hover:-translate-y-0.5",
+    ]}
+    title={video.title}
+>
+    {/* 封面：16:9，角上压时长与（投币列表才有的）投币数 */}
+    <div class="relative w-full aspect-video overflow-hidden bg-[var(--btn-regular-bg)]">
+        {video.cover ? (
+            <img
+                src={video.cover}
+                alt={i18n(I18nKey.bilibiliCoverOf).replace("{title}", video.title)}
+                loading="lazy"
+                decoding="async"
+                class="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+            />
+        ) : (
+            <div class="w-full h-full flex items-center justify-center">
+                <Icon name="material-symbols:movie-outline" class="text-3xl text-neutral-400/60" />
+            </div>
+        )}
+
+        {duration && (
+            <div class="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded
+                        bg-black/70 text-white text-xs tabular-nums backdrop-blur-sm">
+                {duration}
+            </div>
+        )}
+
+        {video.coins ? (
+            <div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded
+                        bg-[var(--primary)] text-white text-xs font-bold flex items-center gap-1">
+                <Icon name="material-symbols:monetization-on-rounded" class="text-[0.9rem]" />
+                ×{video.coins}
+            </div>
+        ) : null}
+    </div>
+
+    <div class="flex flex-col gap-1.5 p-3 flex-1">
+        <div class="text-sm font-bold leading-snug line-clamp-2
+                    text-neutral-900 dark:text-neutral-100
+                    group-hover:text-[var(--primary)] transition">
+            {video.title}
+        </div>
+
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-neutral-400">
+            {video.author && (
+                <span class="inline-flex items-center gap-1 min-w-0">
+                    <Icon name="material-symbols:person-outline-rounded" class="text-[0.95rem] shrink-0" />
+                    <span class="truncate max-w-[10rem]">{video.author.name}</span>
+                </span>
+            )}
+            {video.category && <span>{video.category}</span>}
+        </div>
+
+        {/* 计数行：图标 + 紧凑数字，鼠标悬停能看到完整含义 */}
+        {stats.length > 0 && (
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs
+                        text-neutral-400 tabular-nums">
+                {stats.map((stat) => (
+                    <span class="inline-flex items-center gap-1" title={stat.label}>
+                        <Icon name={stat.icon} class="text-[0.95rem]" />
+                        {stat.value}
+                    </span>
+                ))}
+            </div>
+        )}
+
+        {actionLabel && (
+            <div class="text-xs text-[var(--primary)]/80 mt-auto pt-1">{actionLabel}</div>
+        )}
+    </div>
+</a>

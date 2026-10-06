@@ -62,17 +62,26 @@ fuwari/
 ├── wrangler.jsonc          # Cloudflare Workers 静态托管配置
 ├── biome.json              # 代码风格规则
 ├── pagefind.yml             # 搜索索引生成配置
-├── scripts/new-post.js     # 新建文章的脚手架脚本
-├── docs/                   # 官方多语言 README（11 种语言）
+├── scripts/new-post.js     # 新建文章的脚手架脚本（按文件夹方案生成）
+├── scripts/anime/          # B 站同步：追番 / 投币 / 勋章 / 收藏集 + 快照落盘
+├── docs/                   # 官方多语言 README + 各功能的详细说明
 ├── public/favicon/         # 不经构建直接复制的静态资源
 ├── public/pio/             # 看板娘资源：oh-my-live2d 控件 + NOIR 模型 + 宿主页
+├── public/assets/anime/    # 追番封面（同步阶段下载，避开 B 站图床防盗链）
 ├── .github/workflows/      # CI：biome.yml / build.yml / deploy.yml
 └── src/
     ├── config.ts           # ★ 站点总配置文件，日常只改这一个
+    ├── config/             # 体量较大、自带说明的独立配置
+    │   ├── umamiConfig.ts  #   Umami 访问统计（默认关闭）
+    │   └── animeConfig.ts  #   追番页与 B 站数据源
+    ├── user/user-config.ts # 用户覆盖层：不改默认值也能覆盖配置
     ├── types/config.ts     # 上述配置的类型定义
+    ├── data/anime.ts       # 追番数据模型 + 本地兜底数据
+    ├── data/bilibili.ts    # 投币视频 / 粉丝勋章 / 数字收藏集的数据模型
+    ├── data/anime-snapshots/ # pnpm anime:sync 生成的快照（提交进 Git）
     ├── content/
     │   ├── config.ts       # 文章 frontmatter 的字段校验规则
-    │   ├── posts/          # 所有 Markdown 文章 + img/ 配图
+    │   ├── posts/          # 文章：一篇文章一个文件夹，index.md + 就近存放的配图
     │   └── spec/about.md   # 「关于」页正文
     ├── layouts/            # Layout.astro（页面骨架）、MainGridLayout.astro（栅格布局）
     ├── pages/              # 路由：首页分页、归档、文章详情、about、rss.xml、robots.txt
@@ -80,22 +89,36 @@ fuwari/
     │   ├── skills.astro    # Others → 技能
     │   ├── ai-tools.astro  # Others → AI 工具导航
     │   ├── timeline.astro  # Others → 时间线
+    │   ├── tags.astro      # 标签总览（左栏只放一部分标签）
+    │   ├── anime.astro     # B 站：追番 + 最近投币
+    │   ├── medals.astro    # 粉丝勋章
+    │   ├── collections.astro # 数字收藏集（装扮体系的卡牌，不是收藏夹）
     │   └── api/calendar-data.json.ts  # 日历用的文章数据接口（构建成静态 JSON）
     ├── components/
     │   ├── *.astro         # 导航栏、页脚、文章卡片、正文渲染等
     │   ├── control/        # 分页、返回顶部、按钮等小控件
+    │   ├── system/         # UmamiRuntime.astro：统计脚本的一次性挂载点
     │   ├── widget/         # 侧边栏：个人资料、分类、标签、目录、显示设置
-    │   │   ├── RightSideBar.astro     # 右侧栏容器（统计/日历/分类）
+    │   │   ├── RightSideBar.astro     # 右侧栏容器（统计/访问统计/日历/分类）
     │   │   ├── SiteStats.astro        # 站点统计
+    │   │   ├── UmamiStats.astro       # 访问统计（Umami 公开分享接口）
     │   │   ├── Calendar.astro         # 日历（交互逻辑在 calendar/ 下的 Svelte 组件）
     │   │   ├── Pio.astro              # 左下角 Live2D 看板娘
     │   │   ├── DropdownMenu.astro     # 顶栏下拉菜单（Others 按钮）
     │   │   └── NavMenuPanel.astro     # 移动端汉堡菜单
     │   └── misc/           # 图片包装、版权声明、Markdown 容器、giscus 评论区、页面标题
     ├── plugins/            # 自定义 remark / rehype / Expressive Code 插件
+    │   └── markdown/core/bilibili.mjs #   ::bilibili{} 的参数校验与 URL 生成
     ├── i18n/               # 11 种语言的界面文案
     ├── styles/             # 全局样式、Markdown 样式、代码块与滚动条样式
     ├── utils/              # 内容、日期、URL、设置相关的工具函数
+    │   ├── umami.ts        #   Umami 公开分享接口的读取（构建期）
+    │   ├── anime-data.ts   #   追番数据的读取与降级
+    │   ├── anime/normalize.ts # 追番条目的校验与归一化
+    │   ├── bilibili-data.ts #  投币 / 勋章 / 收藏集的读取与降级
+    │   ├── bilibili/normalize.ts # 上述三类数据的校验与归一化
+    │   ├── snapshot.ts     #   快照读取的公共逻辑（四块共用）
+    │   └── bilibili.ts     #   视频门面的客户端激活
     └── assets/images/      # 横幅图、头像等需要被构建处理的图片
 ```
 
@@ -117,7 +140,11 @@ fuwari/
     可横向滚动、两侧有渐隐提示、当前分类会高亮
   - **文章卡片** —— 标题前的主题色竖线、图标小块式的元信息（日期 / 分类 / 字数）、
     摘要、`# 标签` chip 行，右侧封面或箭头按钮；卡片之间有极淡的描边和投影
-  - **左侧栏** —— 个人资料 → 公告 → 标签 →（文章页）目录
+- **左侧栏** —— 个人资料 → 公告 → 标签 →（文章页）目录。
+  其中标签只显示一部分，底部给一个「查看全部标签」入口通向 `/tags/`；
+  标签很多时不会把左栏撑得比正文还长
+- **标签总览页 `/tags/`** —— 完整标签列表，字号随文章数缩放，
+  可选按首字母分组；纯静态直出，没有任何客户端脚本
 - **文章目录（TOC）** —— 基于 `remark-sectionize` 按标题层级切分，跟随滚动高亮；
   在三栏布局下放进左侧栏的卡片里（参考站的做法），不再占用第四条浮动栏
 - **站内全文搜索** —— 构建后由 Pagefind 扫描 `dist/` 生成索引，纯前端检索，无需服务端
@@ -126,6 +153,9 @@ fuwari/
   - 提示框：`::note`、`::tip`、`::important`、`::caution`、`::warning`
   - 也兼容 GitHub 的 `> [!NOTE]` 写法
   - GitHub 仓库卡片：`::github{repo="owner/repo"}`
+  - B 站视频门面：`::bilibili{bvid="BV..." p=1}` ——
+    构建期只输出一张静态占位卡片，**点击播放前不与 B 站发生任何连接**
+    （无 iframe、无第三方脚本、无 Cookie）；参数写错会原样降级成文本，避免静默消失
   - 数学公式：行内 `$...$` 与独立 `$$...$$`
 - **图片放大** —— 集成 PhotoSwipe，点开文章配图可全屏查看
 - **阅读体验细节** —— 自动估算阅读时长、标题锚点链接、自定义滚动条、返回顶部按钮
@@ -144,13 +174,33 @@ fuwari/
   - **日历** —— 有文章的日子标点，点某天筛出当天文章；点标题可逐层切到
     月份 / 年份视图；正在阅读的文章会自动定位到对应月份
   - **分类** —— 带文章数徽标
+  - **访问统计** —— 接入 [Umami](https://umami.is)（开源自托管分析服务）。
+    两个能力层彼此独立：公开分享统计（只填 `shareUrl`）与访问采集
+    （需同时填 `websiteId` + `scriptUrl`）。**默认全局关闭**，关闭时零请求、
+    零 DOM、零包体积；开启后数字有「构建期抓取 + 浏览器端刷新」两条来源，
+    构建期那份保证首屏就有真实数值、且访客端即使取不到数据也不会空白
+- **B 站四个数据页** —— 全部由 `pnpm anime:sync` 在构建前抓取，各写一份本地 JSON 快照。
+  **构建期与页面运行时都不访问外部接口**，B 站挂了不会影响博客发布：
+  - **`/anime/` 追番** —— 按「在看 / 看过 / 想看」分组，展示封面、评分、进度
+  - **`/anime/` 最近投币** —— 最近投过币的视频，按投币时间倒序（不是发布时间）
+  - **`/medals/` 粉丝勋章** —— 直播间勋章墙，按 B 站直播间那枚勋章的样子渲染配色
+  - **`/collections/` 数字收藏集** —— 装扮体系的付费数字卡牌，
+    显示「已收集 X / Y」与已有卡面
+  封面在同步阶段下载到站内，避开图床防盗链，访客端零第三方请求。
+  前两块不需要登录态，后两块需要 `.env` 里的 `BILI_SESSDATA`
 - **顶栏 Others 下拉菜单** —— 支持任意层级的下拉菜单配置（`navLink.children`），
-  键盘可达（↑↓ 移动、Esc 关闭、Enter 展开），移动端自动变成可折叠分组。当前挂了 4 个特色页面：
+  键盘可达（↑↓ 移动、Esc 关闭、Enter 展开），移动端自动变成可折叠分组。
+  当前挂了 8 个页面：
   - **`/projects/` 项目展示** —— 卡片列表，支持置顶、封面图、标签、项目主页与源码链接
   - **`/skills/` 技能** —— 按分组展示，填了 `level` 会画熟练度进度条
   - **`/ai-tools/` AI 工具导航** —— 按 `category` 自动分组
   - **`/timeline/` 时间线** —— 按日期自动倒序，不同类型节点配色不同
-  这 4 个页面的内容全部由 `src/config.ts` 里的配置数组驱动，改配置即可增删
+  - **`/tags/` 标签总览**
+  - **`/anime/` B 站**（追番 + 最近投币；`animeConfig.enable` 关掉时该入口一并隐藏）
+  - **`/medals/` 粉丝勋章**
+  - **`/collections/` 数字收藏集**
+  这些页面的内容全部由 `src/config.ts` 与 `src/config/*Config.ts` 里的配置数组驱动，
+  改配置即可增删
 
 ---
 
@@ -168,14 +218,37 @@ fuwari/
 | `commentConfig` | 文章底部评论区（giscus，评论存放在 GitHub Discussions） |
 | `expressiveCodeConfig` | 代码高亮主题 |
 | `pioConfig` | 左下角 Live2D 看板娘：开关、模型、位置、尺寸、台词 |
-| `sidebarConfig` | 右侧栏开关，以及 3 个小部件的显示与排序 |
+| `sidebarConfig` | 右侧栏开关，以及 4 个小部件的显示与排序（含访问统计） |
+| `tagsConfig` | 标签：左栏显示上限、排序、`/tags/` 页面的分组与缩放 |
 | `projectsConfig` | `/projects/` 页面的项目列表 |
 | `skillsConfig` | `/skills/` 页面的技能分组 |
 | `aiToolsConfig` | `/ai-tools/` 页面的工具列表 |
 | `timelineConfig` | `/timeline/` 页面的事件列表 |
 
+体量较大、自带一套说明的配置被拆成了独立文件（同样从 `src/config.ts` 统一导出）：
+
+| 文件 | 控制内容 |
+|:---|:---|
+| `src/config/umamiConfig.ts` | Umami 访问统计：总开关、分享链接、Website ID、采集脚本 |
+| `src/config/animeConfig.ts` | 追番页：数据源、B 站 UID、封面策略、快照目录 |
+
 > 所有配置在**构建时**被读取并写进静态页面，因此修改后需重新构建才会生效。
-> 各项字段的类型定义见 `src/types/config.ts`，编辑器会给出提示与报错。
+> 各项字段的类型定义见 `src/types/config.ts`（独立配置见 `src/types/*Config.ts`），
+> 编辑器会给出提示与报错。
+
+**不想改主题自带的默认值**时，可以写到 `src/user/user-config.ts` 的
+`userConfigOverrides` 里，合并规则是「对象递归合并、数组整体替换」
+（见 `src/utils/config-overlay.ts`）。这样升级主题时默认值可以整份替换，
+不会覆盖你的配置。
+
+**各功能的详细说明**（配置项、实现原理、易踩的坑）都在 `docs/` 下：
+
+| 文档 | 内容 |
+|:---|:---|
+| [`docs/tags.md`](docs/tags.md) | 标签：左栏截断规则、`/tags/` 总览页、标签链接的路由落点 |
+| [`docs/umami.md`](docs/umami.md) | Umami 统计：两层能力的开关、域名绑定要求、构建期/运行时双数据源 |
+| [`docs/bilibili.md`](docs/bilibili.md) | B 站：追番 / 投币 / 粉丝勋章 / 数字收藏集四套同步 + 视频门面嵌入 |
+| [`docs/post-folders.md`](docs/post-folders.md) | 文章文件夹方案：目录结构、引用方式、路由规则 |
 
 **几个容易踩的点：**
 
@@ -222,15 +295,15 @@ pnpm lint             # 用 Biome 检查并自动修复 src/
 
 ## 七、内容写作
 
-新建文章推荐用 `pnpm new-post <文件名>`，生成的文件位于 `src/content/posts/`，
-顶部 frontmatter 格式如下：
+新建文章推荐用 `pnpm new-post <文件名>`，它会按**文件夹方案**生成
+`src/content/posts/<文件名>/index.md`，顶部 frontmatter 格式如下：
 
 ```yaml
 ---
 title: 文章标题
 published: 2026-09-25
 description: 文章摘要，用于列表页展示和 SEO 描述
-image: 'img/cover.png'    # 封面图，相对当前文章目录
+image: './cover.png'      # 封面图，相对当前文章所在文件夹
 tags: [标签一, 标签二]
 category: 分类名
 draft: false              # 为 true 时不会被构建进站点
@@ -238,7 +311,18 @@ lang: ''                  # 仅当文章语言与站点语言不同时才填
 ---
 ```
 
-配图统一放在 `src/content/posts/img/` 下，用相对路径引用。
+一篇文章一个文件夹，配图（封面 + 插图）就近放在同一层：
+
+```
+src/content/posts/
+└── hello-world/
+    ├── index.md      ← 正文
+    ├── cover.png     ← 封面
+    └── photo-1.png   ← 正文插图
+```
+
+图片跟着文章一起进 Git，不依赖图床；删文章时整个文件夹一起删，不留孤儿素材；
+文件夹改名（等于改 URL）时配图一起搬走，相对路径不会失效。
 
 ---
 

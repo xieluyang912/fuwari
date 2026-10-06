@@ -1,0 +1,57 @@
+---
+/**
+ * Umami 运行时（一次性挂载在 Layout 里，位于 Swup 替换容器之外）。
+ *
+ * 这里做两件事，都受 `src/config/umamiConfig.ts` 控制：
+ *
+ *  ① 访问采集：当 websiteId 与 scriptUrl 同时配置时，插入 Umami 官方采集脚本。
+ *     官方脚本自己会处理 Swup 这类 SPA 跳转（它劫持了 history.pushState），
+ *     所以本站不是整页刷新也不会漏记。
+ *
+ *  ② 公开分享统计的「刷新」：构建期已经抓过一次并把数字写进 HTML，
+ *     这里在浏览器里再拉一次覆盖，能拉到就是实时的，拉不到就保留构建期那份。
+ *
+ * ⚠️ 零额外负担：`umamiConfig.enable` 为 false（默认）或 shareUrl 为空时，
+ *    整个组件渲染出空内容 —— 下面两个 <script> 都不会进入渲染树，
+ *    Astro 也就不会把它们打包/输出，连字节都不会产生。
+ */
+import { resolveUmamiOptions, umamiConfig } from "../../config/umamiConfig";
+
+const umami = resolveUmamiOptions(umamiConfig);
+---
+
+{umami && (
+    <>
+        {umami.collect && (
+            <script
+                is:inline
+                async
+                src={umami.scriptUrl}
+                data-website-id={umami.websiteId}
+            ></script>
+        )}
+
+        {/*
+          统计卡片放在 <main> 之外的侧栏里，Swup 换页不会重建它们，
+          所以正常情况下这段脚本整站只会跑一次。
+
+          仍然挂上 page:view 是为了覆盖「以后有人把卡片放进正文容器」的情况：
+          refreshUmamiStats 内有 dataset 去重，重复触发不会重复请求。
+        */}
+        <script>
+            import { scheduleUmamiRefresh } from "../../utils/umami-client";
+
+            scheduleUmamiRefresh();
+
+            const setupUmami = () => {
+                window.swup.hooks.on("page:view", () => scheduleUmamiRefresh());
+            };
+
+            if (window?.swup?.hooks) {
+                setupUmami();
+            } else {
+                document.addEventListener("swup:enable", setupUmami);
+            }
+        </script>
+    </>
+)}

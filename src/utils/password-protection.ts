@@ -201,8 +201,12 @@ async function importRawKey(rawKey: string): Promise<CryptoKey> {
  * 构建时调用：把正文 HTML 加密成 payload。
  *
  * 同一个密码、同一篇正文，每次构建得到的密文都不一样 ——
- * 因为 salt 和 iv 每次都重新随机，这是 AES-GCM 的硬性要求
- * （iv 重用会直接破坏 GCM 的安全性）。
+ * 因为 salt 和 iv 每次都重新随机。这两条随机性来自两条不同的要求：
+ * iv 是 AES-GCM 的（同一把密钥下重复会直接破坏它的安全性），
+ * salt 是 PBKDF2 的（盐固定 = 同一密码永远派生出同一把密钥）。
+ *
+ * 两者都会写进 payload，所以随机不影响解密：解密时用的就是
+ * 加密时那一份，同一密码重建多少次都还能解开。
  */
 export async function encryptProtectedContent(
 	content: string,

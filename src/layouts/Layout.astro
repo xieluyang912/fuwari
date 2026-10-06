@@ -4,6 +4,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 import ConfigCarrier from "@components/ConfigCarrier.astro";
+import UmamiRuntime from "@components/system/UmamiRuntime.astro";
 import { profileConfig, siteConfig } from "@/config";
 
 /*
@@ -26,6 +27,7 @@ import "../styles/scrollbar.css";
 import "../styles/transition.css";
 import "../styles/photoswipe.css";
 import "../styles/expressive-code.css";
+import "../styles/bilibili.css";
 
 import {
 	AUTO_MODE,
@@ -177,6 +179,15 @@ const bannerOffset =
 	>
 		<ConfigCarrier></ConfigCarrier>
 		<slot />
+
+		{/*
+			Umami 统计运行时（访问采集脚本 + 分享统计的客户端刷新）。
+			必须放在这里而不是正文里：Swup 只替换 <main> 和 #toc 两个容器，
+			放在正文里每跳一次页面脚本都会重新执行一遍。
+			未开启统计时它渲染出空内容，不占任何字节。
+			详见 components/system/UmamiRuntime.astro 与 src/config/umamiConfig.ts
+		*/}
+		<UmamiRuntime></UmamiRuntime>
 
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>
@@ -725,5 +736,43 @@ if (window?.swup?.hooks) {
 	setup();
 } else {
 	document.addEventListener("swup:enable", setup);
+}
+</script>
+
+<script>
+/*
+ * B 站视频门面的激活脚本。
+ *
+ * 静态 HTML 里只有「门面」（占位区 + 播放按钮），真正的 <iframe> 由
+ * utils/bilibili.ts 在读者点击时创建。这里只负责把它挂到正确的时机上：
+ *
+ *  - 首次加载：如果当前页确实有 [data-bilibili]，才去 import 那个模块。
+ *    没有视频的页面连这个 chunk 都不会下载。
+ *  - Swup 无刷新跳转：门面在 <main>（Swup 的替换容器）里，
+ *    每次换页都是全新的 DOM，必须重新绑定。
+ *
+ * 为什么写在 Layout 而不是 Markdown.astro：Astro 会把组件里的 <script>
+ * 打包成模块塞进 <head>，Swup 换页时并不会重新执行它 ——
+ * 写在被替换的容器里反而会漏绑定。Layout 整站只执行一次，最稳。
+ */
+async function initBilibiliFacades() {
+	const root = document.getElementById("swup-container") ?? document;
+	// 先看有没有门面再决定要不要加载模块，避免每个页面都多下一个 chunk
+	if (!root.querySelector("[data-bilibili]")) return;
+
+	const { initBilibiliFacades: bind } = await import("../utils/bilibili");
+	bind(root);
+}
+
+initBilibiliFacades();
+
+const setupBilibili = () => {
+	window.swup.hooks.on("page:view", initBilibiliFacades);
+};
+
+if (window?.swup?.hooks) {
+	setupBilibili();
+} else {
+	document.addEventListener("swup:enable", setupBilibili);
 }
 </script>

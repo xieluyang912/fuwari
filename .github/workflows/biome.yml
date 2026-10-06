@@ -17,4 +17,7 @@ jobs:
         with:
           version: latest
       - name: Run Biome
-        run: biome ci ./src --reporter=github
+        # ⚠️ 一定要带上 ./scripts：astro check 与 astro build 都不编译
+        # scripts/ 下的文件，那里写错了只有真正跑脚本时才会炸。
+        # 把它们纳入 lint，这类问题才能在提交前被发现。
+        run: biome ci ./src ./scripts --reporter=github

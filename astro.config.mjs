@@ -31,8 +31,10 @@ import { expressiveCodeConfig } from "./src/config.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
 import { AdmonitionComponent } from "./src/plugins/rehype-component-admonition.mjs";
+import { BilibiliComponent } from "./src/plugins/rehype-component-bilibili.mjs";
 import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.mjs";
 import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
+import { remarkBilibili } from "./src/plugins/markdown/remark-bilibili.mjs";
 import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 
@@ -157,6 +159,7 @@ export default defineConfig({
           remarkExcerpt, // 提取摘要，用于文章列表和 SEO 描述
           remarkGithubAdmonitionsToDirectives, // 把 GitHub 的 > [!NOTE] 写法转成指令
           remarkDirective, // 解析 ::指令{} 语法
+          remarkBilibili, // 把参数不合法的 ::bilibili{} 还原成纯文本（必须紧跟 remarkDirective 之后）
           remarkSectionize, // 按标题层级切分文章，TOC 依赖它
           parseDirectiveNode, // 把指令节点转换成后续可渲染的节点
       ],
@@ -169,6 +172,9 @@ export default defineConfig({
               {
                   components: {
                       github: GithubCardComponent, // ::github{repo="owner/repo"} 仓库卡片
+                      // ::bilibili{bvid="BV..." p=1} 延迟加载的 B 站视频门面
+                      // （点击之前不与 B 站发生任何连接，见 src/utils/bilibili.ts）
+                      bilibili: BilibiliComponent,
                       // ::note / ::tip / ::important / ::caution / ::warning 提示框
                       note: (x, y) => AdmonitionComponent(x, y, "note"),
                       tip: (x, y) => AdmonitionComponent(x, y, "tip"),

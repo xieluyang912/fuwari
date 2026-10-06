@@ -67,6 +67,14 @@ export enum LinkPreset {
 	Skills = 4,
 	AITools = 5,
 	Timeline = 6,
+	// ---- 标签总览页 /tags/ ----
+	Tags = 7,
+	// ---- 追番页 /anime/（数据由 pnpm anime:sync 同步） ----
+	Anime = 8,
+	// ---- 粉丝勋章页 /medals/（同一套同步命令） ----
+	Medals = 10,
+	// ---- 数字收藏集页 /collections/（装扮体系的收藏集，不是收藏夹） ----
+	Collections = 11,
 }
 
 export type NavBarLink = {
@@ -239,13 +247,53 @@ export type PioConfig = {
  * 右侧栏里各个小组件的开关与顺序。
  * 数组顺序 = 从上到下的显示顺序。
  */
-export type SidebarWidgetType = "site-stats" | "calendar" | "categories";
+export type SidebarWidgetType =
+	| "site-stats"
+	| "calendar"
+	| "categories"
+	| "umami";
 
 export type SidebarConfig = {
 	/** 右侧栏是否启用。关掉后退回原来的两栏布局 */
 	enable: boolean;
 	/** 右侧栏要显示哪些小部件，以及它们的顺序 */
 	widgets: SidebarWidgetType[];
+};
+
+/* ---------------------- 标签系统（侧栏只放一部分 + /tags/ 总览页） ---------------------- */
+
+/**
+ * 标签系统配置。
+ *
+ * 背景：文章一多，标签就会多到几十个。全部塞进左侧栏那张小卡片里，
+ * 左栏会被撑得比正文还长，首页首屏基本全被标签占满。
+ *
+ * 所以拆成两处显示：
+ *   - 左侧栏：只放最「重」的若干个（见 sidebarLimit），下面给一个「全部标签」入口
+ *   - /tags/ 页面：完整列表，带文章数、字号按热度缩放，可选按首字母分组
+ */
+export type TagsConfig = {
+	/**
+	 * 左侧栏「标签」卡片最多显示几个标签。
+	 * 设为 0 表示不限制，全部显示（标签很少时可以这么用）。
+	 */
+	sidebarLimit: number;
+	/**
+	 * 左侧栏标签的排序方式：
+	 * - count：按文章数从多到少（默认，保证先看到最有代表性的标签）
+	 * - name：按名称字母序（与 /tags/ 页面、归档页的观感一致）
+	 */
+	sidebarSort: "count" | "name";
+	/** /tags/ 页面标签的排序方式，取值含义同上 */
+	pageSort: "count" | "name";
+	/** /tags/ 页面是否按首字母分组（数字 / A-Z / 其它） */
+	pageGroupByLetter: boolean;
+	/** /tags/ 页面是否在每个标签后面显示文章数（左侧栏的标签卡片同样遵循这一项） */
+	showCount: boolean;
+	/** /tags/ 页面标签云的字号是否随文章数缩放（越热门的标签越大） */
+	cloudSizing: boolean;
+	/** /tags/ 页面顶部的一句话说明。留空则使用内置的多语言文案 */
+	description: string;
 };
 
 /* ---------------------- Others 里的 4 个特色页面 ---------------------- */

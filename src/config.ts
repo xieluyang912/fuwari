@@ -11,8 +11,16 @@
  *    所以修改后需要重新运行 pnpm build / pnpm dev 才能看到效果。
  * 3. 涉及颜色的配置（themeColor）会通过 ConfigCarrier.astro
  *    传给浏览器，供客户端脚本在运行时读取。
+ * 4. 不想改动本文件时，可以到 src/user/user-config.ts 写覆盖
+ *    （见 utils/config-overlay.ts 里的 withUserConfig）。
+ *
+ * 独立出去的配置（体量较大、自带一套说明，所以单独成文件）：
+ *   - ./config/umamiConfig.ts   Umami 访问统计
  */
 
+// 导航栏里要按 animeConfig.enable 决定是否挂上「追番」入口，所以这里用普通
+// import 拿一个本地绑定（`export ... from` 那种写法不会产生本地变量）
+import { animeConfig } from "./config/animeConfig";
 import type {
 	AIToolsConfig,
 	AnnouncementConfig,
@@ -27,9 +35,30 @@ import type {
 	SidebarConfig,
 	SiteConfig,
 	SkillsConfig,
+	TagsConfig,
 	TimelineConfig,
 } from "./types/config";
 import { LinkPreset } from "./types/config";
+
+export {
+	animeConfig,
+	resolveAnimeOptions,
+	resolvedAnimeOptions,
+} from "./config/animeConfig";
+/*
+ * 独立配置文件的统一出口。
+ * 这样消费方既可以 `import { umamiConfig } from "@/config"`，
+ * 也可以 `import { umamiConfig } from "@/config/umamiConfig"`，两种写法都通。
+ */
+export {
+	resolveUmamiOptions,
+	umamiConfig,
+} from "./config/umamiConfig";
+export type {
+	AnimeConfig,
+	ResolvedAnimeOptions,
+} from "./types/animeConfig";
+export type { ResolvedUmamiOptions, UmamiConfig } from "./types/umamiConfig";
 
 /**
  * 站点全局信息：标题、副标题、语言、主题色、横幅图和网站图标。
@@ -98,6 +127,18 @@ const othersMenu: NavBarLink = {
 		LinkPreset.Skills, // 技能页 /skills/
 		LinkPreset.AITools, // AI 工具导航 /ai-tools/
 		LinkPreset.Timeline, // 时间线 /timeline/
+		LinkPreset.Tags, // 标签总览 /tags/（左侧栏标签卡片底部也有入口）
+		// 追番页 /anime/。animeConfig.enable 关掉时这里也一起消失，
+		// 免得留一个点进去是空白页的入口
+		...(animeConfig.enable ? [LinkPreset.Anime] : []),
+		// 粉丝勋章 /medals/（同一套同步命令；这一块需要 SESSDATA）
+		...(animeConfig.providers?.bilibili?.medals?.enable
+			? [LinkPreset.Medals]
+			: []),
+		// 数字收藏集 /collections/（装扮体系的收藏集，不是收藏夹）
+		...(animeConfig.providers?.bilibili?.collections?.enable
+			? [LinkPreset.Collections]
+			: []),
 		{
 			// 想再加自定义项，照这个格式写就行
 			name: "Gallery", // 示例：外部相册
@@ -318,9 +359,29 @@ export const sidebarConfig: SidebarConfig = {
 	// 数组顺序 = 从上到下的显示顺序
 	widgets: [
 		"site-stats", // 站点统计：文章数/分类数/标签数/总字数/运行天数/最近更新
+		"umami", // 访问统计：来自 Umami 公开分享接口，需先在 umamiConfig 里开启
 		"calendar", // 日历：有文章的日子会标点，点一下看当天文章
 		"categories", // 分类
 	],
+};
+
+/**
+ * 标签系统配置。
+ *
+ * 拆成两处显示，避免标签一多就把左侧栏撑爆：
+ *   - 左侧栏「标签」卡片：只放最热的 sidebarLimit 个，底部给一个「全部标签」入口
+ *   - /tags/ 页面：完整列表，字号随热度缩放，可切换分组
+ *
+ * 想改回「左栏显示全部标签」，把 sidebarLimit 设为 0 即可。
+ */
+export const tagsConfig: TagsConfig = {
+	sidebarLimit: 12, // 左侧栏最多显示 12 个标签；0 = 不限制
+	sidebarSort: "count", // 左栏按文章数排，先把最有代表性的标签露出来
+	pageSort: "count", // /tags/ 页面也按文章数排
+	pageGroupByLetter: false, // 想按首字母分组就改成 true
+	showCount: true, // 每个标签后面显示文章数
+	cloudSizing: true, // 字号随文章数缩放，形成标签云
+	description: "", // 留空则使用内置的多语言文案
 };
 
 /**

@@ -1,17 +1,66 @@
 ---
-
+/**
+ * 左侧栏的「标签」卡片。
+ *
+ * 这里**只显示一部分标签**，不再把所有标签都堆在左栏里。
+ *
+ * 原因：文章一多，标签会涨到几十个（本站现在就有十几个），全部铺在
+ * 这张小卡片里会把左栏撑得比正文还长，首页首屏几乎全被标签占满；
+ * 而真正的「找某个标签」需求，靠这种小按钮墙其实也很难完成。
+ *
+ * 所以现在的分工是：
+ *   - 这里：只放最热的 tagsConfig.sidebarLimit 个（按热度或字母序）
+ *     底部给一个「查看全部标签」入口
+ *   - /tags/ 页面（src/pages/tags/index.astro）：完整列表，字号随热度缩放
+ *
+ * 想改回「左栏显示全部标签」，把 tagsConfig.sidebarLimit 设为 0 即可。
+ */
+import { Icon } from "astro-icon/components";
+import { tagsConfig } from "../../config";
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
-import { getTagList } from "../../utils/content-utils";
-import { getTagUrl } from "../../utils/url-utils";
+import { getTagList, type Tag } from "../../utils/content-utils";
+import { getTagUrl, url } from "../../utils/url-utils";
 import ButtonTag from "../control/ButtonTag.astro";
 import WidgetLayout from "./WidgetLayout.astro";
 
-const tags = await getTagList();
+const allTags = await getTagList();
 
+/** 按配置排序。count 是「热门优先」，name 是字母序 */
+function sortTags(tags: Tag[], by: "count" | "name"): Tag[] {
+	const sorted = [...tags];
+	if (by === "count") {
+		// 文章数相同时退化成字母序，保证每次构建的顺序稳定
+		sorted.sort(
+			(a, b) =>
+				b.count - a.count ||
+				a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+		);
+	} else {
+		sorted.sort((a, b) =>
+			a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+		);
+	}
+	return sorted;
+}
+
+const sortedTags = sortTags(allTags, tagsConfig.sidebarSort);
+
+/*
+ * sidebarLimit <= 0 视为「不限制」。
+ * 用 Math.max / slice 而不是条件分支，是为了让下面 remaining 的计算只有一处。
+ */
+const limit =
+	tagsConfig.sidebarLimit > 0 ? tagsConfig.sidebarLimit : sortedTags.length;
+const tags = sortedTags.slice(0, limit);
+const remaining = sortedTags.length - tags.length;
+
+// 只有被限制时才需要「查看全部标签」入口
+const showViewAll = remaining > 0;
+
+// 全部显示（limit = 0）且标签很多时，仍旧折叠，避免旧行为被改坏
 const COLLAPSED_HEIGHT = "7.5rem";
-
-const isCollapsed = tags.length >= 20;
+const isCollapsed = !showViewAll && tags.length >= 20;
 
 interface Props {
 	class?: string;
@@ -23,9 +72,29 @@ const style = Astro.props.style;
 <WidgetLayout name={i18n(I18nKey.tags)} id="tags" isCollapsed={isCollapsed} collapsedHeight={COLLAPSED_HEIGHT} class={className} style={style}>
     <div class="flex gap-2 flex-wrap">
         {tags.map(t => (
-            <ButtonTag href={getTagUrl(t.name)} label={`View all posts with the ${t.name.trim()} tag`}>
+            <ButtonTag href={getTagUrl(t.name)} label={i18n(I18nKey.tagsViewTagPosts).replace("{tag}", t.name.trim())}>
                 {t.name.trim()}
+                {tagsConfig.showCount && <span class="text-xs opacity-60 ml-1.5">{t.count}</span>}
             </ButtonTag>
         ))}
     </div>
+
+    {showViewAll && (
+        <a
+            href={url("/tags/")}
+            class="tags-view-all group mt-3 mb-1 flex items-center justify-center gap-1.5 w-full h-9 rounded-lg
+                   text-sm text-[var(--primary)] border border-dashed border-[var(--line-divider)]
+                   hover:border-[var(--primary)] transition-colors duration-200"
+        >
+            <Icon name="material-symbols:tag-rounded" class="text-[1.15rem]" />
+            <span>{i18n(I18nKey.viewAllTags)}</span>
+            <span class="text-xs opacity-60">
+                {i18n(I18nKey.tagsMoreCount).replace("{count}", String(remaining))}
+            </span>
+            <Icon
+                name="material-symbols:chevron-right-rounded"
+                class="text-[1.15rem] transition-transform duration-200 group-hover:translate-x-0.5"
+            />
+        </a>
+    )}
 </WidgetLayout>

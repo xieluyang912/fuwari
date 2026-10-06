@@ -1,0 +1,226 @@
+---
+/**
+ * 数字收藏集页面（/collections/）。
+ *
+ * ⚠️ 先澄清一个容易混的地方：这里的「收藏集」**不是收藏夹**。
+ *
+ *   收藏夹（/favorites/）  = 你收藏视频用的文件夹，space.bilibili.com/<mid>/favlist
+ *   收藏集（本页）         = B 站装扮体系里的付费数字卡牌产品，
+ *                           App 入口在「我的 → 个性装扮 → 收藏集」
+ *
+ * 两个是完全不同的产品，接口、域名、数据模型都不一样。
+ *
+ * ── 数据从哪来 ──────────────────────────────────────────────────────
+ * `src/data/anime-snapshots/bilibili-collections.json`，
+ * 由 `pnpm anime:sync --provider bilibili` 生成。
+ *
+ * ⚠️ B 站没有「列出我拥有哪些收藏集」的接口，只能按 act_id 逐个查，
+ *    而收藏集目录实测有 1500+ 个。所以：
+ *      - 首次要跑 `--scan-collections` 做全量扫描（请求量大，可能触发风控）
+ *      - 之后普通同步只刷新快照里已知的那几个，很快
+ *
+ * ⚠️ 和 /anime/、/medals/、/collections/ 一样：这个页面**不发任何运行时网络请求**，
+ *    也不含客户端岛。
+ */
+import { Icon } from "astro-icon/components";
+import PageHeader from "../components/misc/PageHeader.astro";
+import type { BilibiliCollectionCard } from "../data/bilibili";
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+import { getCollections } from "../utils/bilibili-data";
+
+const { collections, fetchedAt, stale } = getCollections();
+
+const syncedDate = fetchedAt ? fetchedAt.slice(0, 10) : "";
+const description = i18n(I18nKey.bilibiliCollectionsDesc);
+
+/** 收集进度百分比 */
+function progressPercent(owned: number, total: number): number {
+	if (total <= 0) return 0;
+	return Math.min(Math.max(Math.round((owned / total) * 100), 0), 100);
+}
+
+/**
+ * 稀有度分档。
+ *
+ * B 站的 `card_scarcity` 是个数值（实测 40 / 60 / 80 等），越大越稀有，
+ * 大致对应「普通 / 小隐藏 / 大隐藏」。阈值随活动变化，所以只用来打标记和配色，
+ * 不做硬性判断 —— 认不出来就当普通卡。
+ */
+function scarcityTag(
+	card: BilibiliCollectionCard,
+): { label: string; color: string } | null {
+	const s = card.scarcity ?? 0;
+	if (s >= 80)
+		return {
+			label: i18n(I18nKey.bilibiliCollectionScarcityHigh),
+			color: "#e0a44a",
+		};
+	if (s >= 60)
+		return {
+			label: i18n(I18nKey.bilibiliCollectionScarcityMid),
+			color: "#c96fd6",
+		};
+	return null;
+}
+---
+
+<MainGridLayout title={i18n(I18nKey.bilibiliCollections)} description={description}>
+    <PageHeader
+        title={i18n(I18nKey.bilibiliCollections)}
+        icon="material-symbols:style-outline"
+        description={description}
+    />
+
+    {collections.length === 0 ? (
+        <div class="card-base px-6 py-12 text-center transition">
+            <div class="text-neutral-400 mb-2">{i18n(I18nKey.bilibiliCollectionsEmpty)}</div>
+            <div class="text-xs text-neutral-400/80 max-w-2xl mx-auto">
+                {i18n(I18nKey.bilibiliCollectionsEmptyHint)}
+            </div>
+        </div>
+    ) : (
+        <>
+            <div class="flex flex-wrap items-center gap-x-5 gap-y-2 mb-4 text-sm
+                        text-neutral-500 dark:text-neutral-400 transition">
+                <div class="flex items-center gap-2">
+                    <Icon name="material-symbols:style-outline" class="text-[1.15rem] text-[var(--primary)]" />
+                    <span>
+                        {i18n(I18nKey.bilibiliCollectionsCount).replace(
+                            "{count}",
+                            String(collections.length),
+                        )}
+                    </span>
+                </div>
+                {syncedDate && (
+                    <div class:list={["flex items-center gap-2", stale ? "text-amber-500" : ""]}>
+                        <Icon name="material-symbols:sync-outline" class="text-[1.15rem]" />
+                        <span>
+                            {i18n(I18nKey.bilibiliCollectionsSyncedAt).replace("{date}", syncedDate)}
+                        </span>
+                    </div>
+                )}
+            </div>
+
+            {collections.map((collection) => {
+                const percent = progressPercent(collection.ownedCount, collection.totalCount);
+
+                return (
+                    <section class="card-base px-5 py-5 md:px-7 mb-4">
+                        {/* 收藏集头部：封面 + 名称 + 进度 + 外链 */}
+                        <div class="flex items-start gap-4 mb-4">
+                            {collection.cover ? (
+                                <img
+                                    src={collection.cover}
+                                    alt={collection.name}
+                                    loading="lazy"
+                                    decoding="async"
+                                    referrerpolicy="no-referrer"
+                                    class="w-16 h-16 md:w-20 md:h-20 rounded-xl object-cover shrink-0
+                                           border border-[var(--line-divider)]"
+                                />
+                            ) : (
+                                <div class="w-16 h-16 md:w-20 md:h-20 rounded-xl shrink-0 flex items-center
+                                            justify-center bg-[var(--btn-regular-bg)]">
+                                    <Icon name="material-symbols:style-outline" class="text-2xl text-neutral-400" />
+                                </div>
+                            )}
+
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                                    <span class="font-bold text-lg text-neutral-900 dark:text-neutral-100 transition">
+                                        {collection.name}
+                                    </span>
+                                    {collection.description && (
+                                        <span class="text-xs text-neutral-400">{collection.description}</span>
+                                    )}
+                                </div>
+
+                                <div class="flex items-center gap-3 mt-2">
+                                    <div class="flex-1 max-w-xs h-1.5 rounded-full overflow-hidden
+                                                bg-[var(--btn-regular-bg)]">
+                                        <div
+                                            class="h-full rounded-full bg-[var(--primary)] transition-all"
+                                            style={`width: ${percent}%`}
+                                        ></div>
+                                    </div>
+                                    <span class="text-xs text-neutral-500 dark:text-neutral-400 tabular-nums whitespace-nowrap">
+                                        {i18n(I18nKey.bilibiliCollectionProgress)
+                                            .replace("{owned}", String(collection.ownedCount))
+                                            .replace("{total}", String(collection.totalCount))}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <a
+                                href={collection.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="shrink-0 text-xs text-[var(--primary)] inline-flex items-center gap-1
+                                       hover:underline mt-1"
+                            >
+                                {i18n(I18nKey.bilibiliCollectionOpen)}
+                                <Icon name="fa6-solid:arrow-up-right-from-square" class="text-[0.7rem]" />
+                            </a>
+                        </div>
+
+                        {collection.ownedCards.length > 0 && (
+                            <>
+                                <div class="text-xs text-neutral-400 mb-2">
+                                    {i18n(I18nKey.bilibiliCollectionOwnedCards)}
+                                </div>
+                                <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                                    {collection.ownedCards.map((card) => {
+                                        const tag = scarcityTag(card);
+                                        return (
+                                            <div class="flex flex-col gap-1">
+                                                <div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden
+                                                            bg-[var(--btn-regular-bg)]
+                                                            border border-[var(--line-divider)]">
+                                                    {card.image ? (
+                                                        <img
+                                                            src={card.image}
+                                                            alt={i18n(I18nKey.bilibiliCollectionCardOf).replace(
+                                                                "{name}",
+                                                                card.name,
+                                                            )}
+                                                            loading="lazy"
+                                                            decoding="async"
+                                                            referrerpolicy="no-referrer"
+                                                            class="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div class="w-full h-full flex items-center justify-center">
+                                                            <Icon
+                                                                name="material-symbols:image-outline"
+                                                                class="text-xl text-neutral-400/60"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    {tag && (
+                                                        <div
+                                                            class="absolute top-1 left-1 px-1.5 py-0.5 rounded
+                                                                   text-white text-[0.65rem] font-bold"
+                                                            style={`background: ${tag.color}`}
+                                                        >
+                                                            {tag.label}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div class="text-xs text-neutral-500 dark:text-neutral-400 truncate"
+                                                     title={card.name}>
+                                                    {card.name}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </>
+                        )}
+                    </section>
+                );
+            })}
+        </>
+    )}
+</MainGridLayout>

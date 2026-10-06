@@ -1,0 +1,262 @@
+---
+/**
+ * 粉丝勋章页面（/medals/）。
+ *
+ * 数据来自 `getFanMedals()`（src/utils/bilibili-data.ts），
+ * 读 `src/data/anime-snapshots/bilibili-medals.json` ——
+ * 由 `pnpm anime:sync --provider bilibili` 生成。
+ *
+ * ⚠️ 和 /anime/ 一样：这个页面**不发任何运行时网络请求**，
+ *    也不含客户端岛，所有数据都在同步阶段变成了本地 JSON。
+ *
+ * ── 为什么这一块必须配 SESSDATA ──────────────────────────────────────
+ * 勋章墙接口在 api.live.bilibili.com 上，匿名访问一律返回
+ * `-101 账号未登录`。这和别的接口不一样，勋章墙是真的**整个接口都校验登录态**，
+ * 换域名、补参数、加 Cookie、加 WBI 签名都绕不过去。
+ *
+ * 所以没配凭据时页面会显示「怎么配」的提示，而不是一片空白。
+ */
+import { Icon } from "astro-icon/components";
+import PageHeader from "../components/misc/PageHeader.astro";
+import type { BilibiliFanMedal, BilibiliGuardLevel } from "../data/bilibili";
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+import { getFanMedals } from "../utils/bilibili-data";
+
+const { medals, fetchedAt, stale } = getFanMedals();
+
+const syncedDate = fetchedAt ? fetchedAt.slice(0, 10) : "";
+const description = i18n(I18nKey.bilibiliMedalsDesc);
+
+/** 大航海：只有真的上过舰才有，用金色小徽标标出来 */
+const GUARD_META: Record<
+	Exclude<BilibiliGuardLevel, 0>,
+	{ key: I18nKey; icon: string; color: string }
+> = {
+	1: {
+		key: I18nKey.bilibiliGuardGovernor,
+		icon: "material-symbols:workspace-premium",
+		color: "#e0a44a",
+	},
+	2: {
+		key: I18nKey.bilibiliGuardAdmiral,
+		icon: "material-symbols:military-tech",
+		color: "#c96fd6",
+	},
+	3: {
+		key: I18nKey.bilibiliGuardCaptain,
+		icon: "material-symbols:shield",
+		color: "#4aa3e0",
+	},
+};
+
+/** 亲密度进度百分比；下一级需求未知时返回 null（不画进度条） */
+function intimacyPercent(medal: BilibiliFanMedal): number | null {
+	if (medal.nextIntimacy === undefined || medal.nextIntimacy <= 0) return null;
+	const ratio = (medal.intimacy ?? 0) / medal.nextIntimacy;
+	return Math.min(Math.max(Math.round(ratio * 100), 0), 100);
+}
+
+/**
+ * 勋章 pill 的配色。
+ *
+ * 接口给的是 8 位十六进制（带透明度，形如 `#5762A799`），浏览器可以直接用。
+ * 缺字段时退回主题色，保证任何情况下都不会渲染出一个看不见的勋章。
+ */
+function medalStyle(medal: BilibiliFanMedal): string {
+	const start = medal.colorStart ?? "var(--primary)";
+	const end = medal.colorEnd ?? start;
+	const border = medal.colorBorder ?? end;
+	return [
+		`--medal-start: ${start}`,
+		`--medal-end: ${end}`,
+		`--medal-border: ${border}`,
+		`--medal-text: ${medal.colorText ?? "#FFFFFF"}`,
+	].join("; ");
+}
+---
+
+<MainGridLayout title={i18n(I18nKey.bilibiliMedals)} description={description}>
+    <PageHeader
+        title={i18n(I18nKey.bilibiliMedals)}
+        icon="material-symbols:military-tech-outline"
+        description={description}
+    />
+
+    {medals.length === 0 ? (
+        <div class="card-base px-6 py-12 text-center transition">
+            <div class="text-neutral-400 mb-2">{i18n(I18nKey.bilibiliMedalsEmpty)}</div>
+            <div class="text-xs text-neutral-400/80 max-w-2xl mx-auto">
+                {i18n(I18nKey.bilibiliMedalsEmptyHint)}
+            </div>
+        </div>
+    ) : (
+        <>
+            {/* 统计条：几枚勋章 + 快照时间 */}
+            <div class="flex flex-wrap items-center gap-x-5 gap-y-2 mb-4 text-sm
+                        text-neutral-500 dark:text-neutral-400 transition">
+                <div class="flex items-center gap-2">
+                    <Icon name="material-symbols:military-tech-outline" class="text-[1.15rem] text-[var(--primary)]" />
+                    <span>
+                        {i18n(I18nKey.bilibiliMedalsCount).replace("{count}", String(medals.length))}
+                    </span>
+                </div>
+                {syncedDate && (
+                    <div class:list={["flex items-center gap-2", stale ? "text-amber-500" : ""]}>
+                        <Icon name="material-symbols:sync-outline" class="text-[1.15rem]" />
+                        <span>
+                            {i18n(I18nKey.bilibiliMedalsSyncedAt).replace("{date}", syncedDate)}
+                        </span>
+                    </div>
+                )}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {medals.map((medal) => {
+                    const percent = intimacyPercent(medal);
+                    const guard = medal.guardLevel ? GUARD_META[medal.guardLevel] : null;
+
+                    return (
+                        <a
+                            href={medal.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="card-base group px-4 py-4 flex flex-col gap-3
+                                   transition hover:border-[var(--primary)]"
+                            title={medal.targetName}
+                        >
+                            {/* 第一行：主播 + 直播状态 + 佩戴标记 */}
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                {medal.targetIcon ? (
+                                    <img
+                                        src={medal.targetIcon}
+                                        alt={medal.targetName}
+                                        loading="lazy"
+                                        decoding="async"
+                                        referrerpolicy="no-referrer"
+                                        class="w-9 h-9 rounded-full object-cover shrink-0
+                                               border border-[var(--line-divider)]"
+                                    />
+                                ) : (
+                                    <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center
+                                                bg-[var(--btn-regular-bg)]">
+                                        <Icon
+                                            name="material-symbols:person-outline-rounded"
+                                            class="text-[1.1rem] text-neutral-400"
+                                        />
+                                    </div>
+                                )}
+
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-sm font-bold truncate
+                                                text-neutral-900 dark:text-neutral-100
+                                                group-hover:text-[var(--primary)] transition">
+                                        {medal.targetName}
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs text-neutral-400">
+                                        {medal.liveStatus === 1 && (
+                                            <span class="inline-flex items-center gap-1 text-red-500">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                                                {i18n(I18nKey.bilibiliMedalLiveNow)}
+                                            </span>
+                                        )}
+                                        {medal.liveStatus === 2 && (
+                                            <span>{i18n(I18nKey.bilibiliMedalLiveRound)}</span>
+                                        )}
+                                        {guard && (
+                                            <span class="inline-flex items-center gap-0.5" style={`color: ${guard.color}`}>
+                                                <Icon name={guard.icon} class="text-[0.9rem]" />
+                                                {i18n(guard.key)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {medal.wearing && (
+                                    <span class="text-xs px-2 py-0.5 rounded-full shrink-0
+                                                 bg-[color-mix(in_oklab,var(--primary)_18%,transparent)]
+                                                 text-[var(--primary)]">
+                                        {i18n(I18nKey.bilibiliMedalWearing)}
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* 第二行：勋章本体。左边是名字、右边是等级，和 B 站直播间里那枚长得一样 */}
+                            <div class="medal-pill inline-flex self-start" style={medalStyle(medal)}>
+                                <span class="medal-pill__name">{medal.medalName}</span>
+                                <span class="medal-pill__level">{medal.level}</span>
+                            </div>
+
+                            {/* 第三行：亲密度进度 */}
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-center justify-between text-xs text-neutral-400 tabular-nums">
+                                    <span>
+                                        {i18n(I18nKey.bilibiliMedalIntimacy)
+                                            .replace("{current}", String(medal.intimacy ?? 0))
+                                            .replace("{next}", String(medal.nextIntimacy ?? 0))}
+                                    </span>
+                                    {medal.dayLimit ? (
+                                        <span class="opacity-70">
+                                            {i18n(I18nKey.bilibiliMedalTodayFeed)
+                                                .replace("{today}", String(medal.todayFeed ?? 0))
+                                                .replace("{limit}", String(medal.dayLimit))}
+                                        </span>
+                                    ) : null}
+                                </div>
+                                {percent !== null && (
+                                    <div class="h-1.5 rounded-full overflow-hidden bg-[var(--btn-regular-bg)]">
+                                        <div
+                                            class="h-full rounded-full medal-pill__bar"
+                                            style={`width: ${percent}%; background: linear-gradient(90deg, var(--medal-start), var(--medal-end))`}
+                                        ></div>
+                                    </div>
+                                )}
+                            </div>
+                        </a>
+                    );
+                })}
+            </div>
+        </>
+    )}
+</MainGridLayout>
+
+<style>
+    /*
+     * 勋章 pill。刻意做得和 B 站直播间里那枚一样：左边是勋章名、
+     * 右边是等级，中间一道竖直分隔线，整体圆角、带描边。
+     *
+     * 配色全部走 CSS 变量（由行内 style 注入），因为每枚勋章的颜色都不一样，
+     * 用 Tailwind 类名表达不了。
+     */
+    .medal-pill {
+        align-items: stretch;
+        border-radius: 9999px;
+        overflow: hidden;
+        border: 1px solid var(--medal-border);
+        background: linear-gradient(90deg, var(--medal-start), var(--medal-end));
+        color: var(--medal-text);
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+    }
+
+    .medal-pill__name {
+        padding: 0.3rem 0.5rem;
+        max-width: 9rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .medal-pill__level {
+        display: flex;
+        align-items: center;
+        padding: 0.3rem 0.5rem;
+        /* 等级段的底色比勋章名略深，靠一层半透明黑压出来 */
+        background: rgba(0, 0, 0, 0.18);
+        border-left: 1px solid var(--medal-border);
+        font-variant-numeric: tabular-nums;
+    }
+</style>

@@ -1,0 +1,218 @@
+---
+/**
+ * 标签总览页（/tags/）。
+ *
+ * 左侧栏的「标签」卡片只显示一部分（见 components/widget/Tags.astro），
+ * 其余的、以及完整列表都在这里 —— 点侧栏底部的「查看全部标签」就能到。
+ *
+ * 页面本身是纯静态直出（不含客户端岛），所以没有任何运行时代价：
+ * 构建时把 getTagList() 的结果排好、渲染成一组链接即可。
+ *
+ * 每个标签的链接仍然指向归档页的筛选参数 /archive/?tag=xxx
+ * （由 utils/url-utils.ts 的 getTagUrl 统一生成），
+ * 这样「标签」只有一种落地方式，不需要为每个标签单独生成路由。
+ *
+ * 所有行为都由 src/config.ts 的 tagsConfig 控制：
+ *   pageSort            排序方式（count 热度 / name 字母）
+ *   pageGroupByLetter   是否按首字母分组
+ *   showCount           是否显示文章数
+ *   cloudSizing         字号是否随热度缩放
+ */
+import { Icon } from "astro-icon/components";
+import PageHeader from "../components/misc/PageHeader.astro";
+import { tagsConfig } from "../config";
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+import { getSortedPosts, getTagList, type Tag } from "../utils/content-utils";
+import { getTagUrl } from "../utils/url-utils";
+
+const allTags = await getTagList();
+const totalPosts = (await getSortedPosts()).length;
+
+/** 按配置排序 */
+function sortTags(tags: Tag[]): Tag[] {
+	const sorted = [...tags];
+	if (tagsConfig.pageSort === "count") {
+		// 文章数相同时退化成字母序，保证构建结果稳定
+		sorted.sort(
+			(a, b) =>
+				b.count - a.count ||
+				a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+		);
+	} else {
+		sorted.sort((a, b) =>
+			a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+		);
+	}
+	return sorted;
+}
+
+const tags = sortTags(allTags);
+
+/**
+ * 标签云的字号。
+ *
+ * 以「文章数最多的标签」为上限做线性插值，映射到 0.95rem ~ 1.35rem。
+ * 所有标签文章数都一样时分母会是 0，这里提前把这种退化情况挡掉，
+ * 否则会算出 NaN 塞进 style 里。
+ */
+const maxCount = tags.reduce((max, t) => Math.max(max, t.count), 0);
+const minCount = tags.reduce((min, t) => Math.min(min, t.count), maxCount);
+
+function fontSize(count: number): string {
+	if (!tagsConfig.cloudSizing || maxCount === minCount) return "1rem";
+	const ratio = (count - minCount) / (maxCount - minCount);
+	return `${(0.95 + ratio * 0.4).toFixed(2)}rem`;
+}
+
+/**
+ * 按首字母分组。
+ *
+ * 分组键取标签名的第一个字符并转大写：
+ *   0-9 → "0-9"
+ *   a-z → "A" ~ "Z"
+ *   其它（中文、假名、符号…）→ 归入「其它」一组
+ * 中文标签在拼音排序下会全落到「其它」，所以这个开关默认是关的
+ * （见 config.ts 里的 tagsConfig.pageGroupByLetter）。
+ */
+const OTHER_GROUP = i18n(I18nKey.tagsGroupOther);
+
+function groupKey(name: string): string {
+	const first = name.trim().charAt(0).toUpperCase();
+	if (/[0-9]/.test(first)) return "0-9";
+	if (/[A-Z]/.test(first)) return first;
+	return OTHER_GROUP;
+}
+
+/** 分组后的结果：字母序排列，但「其它」永远排在最后 */
+const groups = (() => {
+	if (!tagsConfig.pageGroupByLetter) return null;
+	const map = new Map<string, Tag[]>();
+	for (const tag of tags) {
+		const key = groupKey(tag.name);
+		const bucket = map.get(key);
+		if (bucket) bucket.push(tag);
+		else map.set(key, [tag]);
+	}
+	return [...map.entries()].sort(([a], [b]) => {
+		if (a === OTHER_GROUP) return 1;
+		if (b === OTHER_GROUP) return -1;
+		return a.localeCompare(b);
+	});
+})();
+
+const statsText = i18n(I18nKey.tagsPageStats)
+	.replace("{tags}", String(tags.length))
+	.replace("{posts}", String(totalPosts));
+
+const description = tagsConfig.description || i18n(I18nKey.tagsPageDescription);
+---
+
+<MainGridLayout title={i18n(I18nKey.tags)} description={statsText}>
+    <PageHeader
+        title={i18n(I18nKey.tags)}
+        icon="material-symbols:tag-rounded"
+        description={description}
+    />
+
+    {/* 统计条：N 个标签 · M 篇文章 */}
+    <div class="card-base px-6 py-4 mb-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm
+                text-neutral-500 dark:text-neutral-400 transition">
+        <div class="flex items-center gap-2">
+            <Icon name="material-symbols:tag-rounded" class="text-[1.15rem] text-[var(--primary)]" />
+            <span>{statsText}</span>
+        </div>
+    </div>
+
+    {tags.length === 0 ? (
+        <div class="card-base px-6 py-12 text-center text-neutral-400 transition">
+            {i18n(I18nKey.tagsEmpty)}
+        </div>
+    ) : (
+        <div class="card-base px-6 py-7 md:px-9">
+            {groups
+                ? groups.map(([key, list]) => (
+                      <section class="mb-7 last:mb-0">
+                          <div class="flex items-center gap-3 mb-3">
+                              <span class="text-lg font-bold text-[var(--primary)] transition">{key}</span>
+                              <span class="text-xs text-neutral-400">{list.length}</span>
+                              <div class="flex-1 h-px bg-[var(--line-divider)]"></div>
+                          </div>
+                          <div class="flex flex-wrap items-center gap-2.5">
+                              {list.map((tag) => (
+                                  <a
+                                      href={getTagUrl(tag.name)}
+                                      aria-label={i18n(I18nKey.tagsViewTagPosts).replace(
+                                          "{tag}",
+                                          tag.name.trim(),
+                                      )}
+                                      class="tag-chip group inline-flex items-center rounded-full
+                                             border border-[var(--line-divider)] px-3.5 py-1.5
+                                             text-neutral-700 dark:text-neutral-200
+                                             hover:border-[var(--primary)] hover:text-[var(--primary)]
+                                             transition-colors duration-200"
+                                      style={`font-size: ${fontSize(tag.count)}`}
+                                  >
+                                      <span class="font-medium">{tag.name.trim()}</span>
+                                      {tagsConfig.showCount && (
+                                          <span class="tag-chip-count ml-2">{tag.count}</span>
+                                      )}
+                                  </a>
+                              ))}
+                          </div>
+                      </section>
+                  ))
+                : (
+                      <div class="flex flex-wrap items-center gap-2.5">
+                          {tags.map((tag) => (
+                              <a
+                                  href={getTagUrl(tag.name)}
+                                  aria-label={i18n(I18nKey.tagsViewTagPosts).replace(
+                                      "{tag}",
+                                      tag.name.trim(),
+                                  )}
+                                  class="tag-chip group inline-flex items-center rounded-full
+                                         border border-[var(--line-divider)] px-3.5 py-1.5
+                                         text-neutral-700 dark:text-neutral-200
+                                         hover:border-[var(--primary)] hover:text-[var(--primary)]
+                                         transition-colors duration-200"
+                                  style={`font-size: ${fontSize(tag.count)}`}
+                              >
+                                  <span class="font-medium">{tag.name.trim()}</span>
+                                  {tagsConfig.showCount && (
+                                      <span class="tag-chip-count ml-2">{tag.count}</span>
+                                  )}
+                              </a>
+                          ))}
+                      </div>
+                  )}
+        </div>
+    )}
+</MainGridLayout>
+
+<style>
+    /*
+     * 标签后面的文章数徽标。
+     * 用主题色的浅色底 + 等宽数字，保证「1」和「10」宽度一致，
+     * 一排标签看起来才是对齐的。
+     */
+    .tag-chip-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.375rem;
+        height: 1.125rem;
+        padding: 0 0.3rem;
+        border-radius: 9999px;
+        background: color-mix(in oklab, var(--primary) 14%, transparent);
+        color: var(--primary);
+        font-size: 0.7rem;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        transition: background-color 200ms ease;
+    }
+    .tag-chip:hover .tag-chip-count {
+        background: color-mix(in oklab, var(--primary) 24%, transparent);
+    }
+</style>

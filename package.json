@@ -11,8 +11,9 @@
     "astro": "astro",
     "type-check": "tsc --noEmit --isolatedDeclarations",
     "new-post": "node scripts/new-post.js",
-    "format": "biome format --write ./src",
-    "lint": "biome check --write ./src",
+    "anime:sync": "node scripts/anime/sync.mjs",
+    "format": "biome format --write ./src ./scripts",
+    "lint": "biome check --write ./src ./scripts",
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {

@@ -1,0 +1,112 @@
+/**
+ * `::bilibili{...}` 视频门面的样式。
+ *
+ * 「门面」（facade）指的是：页面里先只放一张静态的舞台 + 播放按钮，
+ * 读者点击之后才把真正的 <iframe> 插进来。在点击之前，这个块和 B 站
+ * 之间没有任何连接 —— 没有第三方 JS、没有 Cookie、没有 IP 泄漏。
+ *
+ * 因此这里的样式要同时管两件事：
+ *   1. 未激活时：一块和正文协调的 16:9 占位区 + 居中的播放按钮；
+ *   2. 激活后：iframe 精确铺满同一块区域，尺寸不跳变。
+ *
+ * 舞台用 aspect-ratio 固定比例，所以无论封面有没有加载出来，
+ * 高度都是一开始就定好的，不会出现「点了播放页面往下窜一截」。
+ */
+
+.bili-facade {
+	margin: 1.5rem 0;
+	color: var(--deep-text);
+}
+
+.bili-facade__stage {
+	position: relative;
+	display: grid;
+	place-items: center;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+	background: var(--btn-regular-bg);
+	border-radius: var(--radius-large, 0.75rem);
+}
+
+/* 激活后插入的播放器：绝对定位铺满舞台，盖住下面的播放按钮 */
+.bili-facade__player {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+}
+
+.bili-facade__play {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	place-items: center;
+	width: 3.25rem;
+	height: 3.25rem;
+	padding: 0;
+	cursor: pointer;
+	color: white;
+	background: var(--primary);
+	border: 0;
+	border-radius: 9999px;
+	transition:
+		transform 200ms ease,
+		opacity 200ms ease;
+}
+
+.bili-facade__play:hover {
+	transform: scale(1.08);
+}
+
+.bili-facade__play:active {
+	transform: scale(0.95);
+}
+
+/* 已经点过了：按钮淡出，播放器接管；保留过渡而不是直接消失 */
+.bili-facade__play:disabled {
+	cursor: wait;
+	opacity: 0;
+}
+
+/* 用纯 CSS 画一个三角形播放图标，省掉一次图标请求 */
+.bili-facade__play-icon {
+	display: block;
+	width: 0;
+	height: 0;
+	margin-left: 0.25rem;
+	border-block: 0.5rem solid transparent;
+	border-inline-start: 0.8rem solid currentcolor;
+}
+
+.bili-facade__caption {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 0.6rem 0.25rem 0;
+	font-size: 0.875rem;
+}
+
+.bili-facade__title {
+	min-width: 0;
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+.bili-facade__source {
+	flex: none;
+	color: var(--primary);
+	font-weight: 500;
+	text-decoration: none;
+}
+
+.bili-facade__source:hover {
+	text-decoration: underline;
+}
+
+/* 深色模式下给占位区一点层次，免得和卡片背景糊在一起 */
+:root.dark .bili-facade__stage {
+	background: oklch(0.28 0.02 var(--hue));
+}

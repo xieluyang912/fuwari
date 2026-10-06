@@ -1,0 +1,68 @@
+{
+	"schemaVersion": 1,
+	"provider": "bilibili",
+	"fetchedAt": "2026-10-06T09:44:35.827Z",
+	"accountRef": "3546912602982411",
+	"items": [
+		{
+			"title": "间谍过家家 第二季",
+			"status": "watching",
+			"rating": 9.7,
+			"year": "2023",
+			"genres": ["日常", "搞笑", "漫画改"],
+			"progress": {
+				"watched": 12,
+				"total": 12
+			},
+			"cover": "/assets/anime/covers/bili_46085.webp",
+			"link": "https://www.bilibili.com/bangumi/play/ss46085",
+			"description": "每个人都有不可告人的一面。 这是一个世界各国均暗地里进行激烈情报战的时代。奥斯塔尼亚（Ostania）与维斯达利斯（Westalis）的冷战状态已经持续数十年。 是维斯达利斯情报局奥斯塔尼...",
+			"studio": "日本",
+			"identity": {
+				"provider": "bilibili",
+				"seasonId": "46085",
+				"sourceId": "21086686"
+			}
+		},
+		{
+			"title": "间谍过家家",
+			"status": "watching",
+			"rating": 9.7,
+			"year": "2022",
+			"genres": ["日常", "搞笑", "战斗", "漫画改"],
+			"progress": {
+				"watched": 25,
+				"total": 25
+			},
+			"cover": "/assets/anime/covers/bili_41410.webp",
+			"link": "https://www.bilibili.com/bangumi/play/ss41410",
+			"description": "每个人都有不可告人的一面。 这是一个世界各国均暗地里进行激烈情报战的时代。奥斯塔尼亚（Ostania）与维斯达利斯（Westalis）的冷战状态已经持续数十年。 是维斯达利斯情报局奥斯塔尼...",
+			"studio": "日本",
+			"identity": {
+				"provider": "bilibili",
+				"seasonId": "41410",
+				"sourceId": "28237119"
+			}
+		},
+		{
+			"title": "怪盗基德",
+			"status": "watching",
+			"rating": 9.7,
+			"year": "2010",
+			"genres": ["智斗", "漫画改", "悬疑"],
+			"progress": {
+				"watched": 1,
+				"total": 12
+			},
+			"cover": "/assets/anime/covers/bili_33383.webp",
+			"link": "https://www.bilibili.com/bangumi/play/ss33383",
+			"description": "拥有“平成鲁邦”之称的怪盗基德，无论防备多么严密的钻石珠宝对他来说都易如反掌。他一直是中森银三等警官的梦魇，而关于他的身份却始终是个谜。某高中二年级学生黑羽快斗，是一个出身于魔术世家的俊朗男孩，他...",
+			"studio": "日本",
+			"identity": {
+				"provider": "bilibili",
+				"seasonId": "33383",
+				"sourceId": "28228780"
+			}
+		}
+	]
+}

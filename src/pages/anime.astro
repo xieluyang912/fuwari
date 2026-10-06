@@ -1,0 +1,314 @@
+---
+/**
+ * B 站页（/anime/）。两个区块：
+ *
+ *   1. **追番** —— 数据来自 `getAnimeList()`（src/utils/anime-data.ts）：
+ *      默认读 `src/data/anime-snapshots/bilibili.json`，
+ *      那是 `pnpm anime:sync --provider bilibili` 在构建前抓的；
+ *      快照缺失或损坏时回退到 `src/data/anime.ts` 的手写数据。
+ *
+ *   2. **最近投币** —— 数据来自 `getCoinVideos()`（src/utils/bilibili-data.ts）：
+ *      读 `src/data/anime-snapshots/bilibili-coins.json`，同一个命令顺带生成。
+ *
+ * 两块数据来自两个不同的 B 站接口、两份独立的快照，互不影响 ——
+ * 追番抓不到的时候投币照样显示，反之亦然。
+ *
+ * ⚠️ 这个页面**不发任何运行时网络请求**，也不含客户端岛：
+ *    所有外部数据都在同步阶段变成了一份本地 JSON。
+ *    所以它和博客其它页面一样，是纯静态、可离线、构建可复现的。
+ *
+ * 卡片顺序在各自的 normalize.ts 里定死（追番按状态 + 年份，投币按投币时间倒序），
+ * 保证每次构建结果一致。
+ */
+import { Icon } from "astro-icon/components";
+import BilibiliVideoCard from "../components/BilibiliVideoCard.astro";
+import PageHeader from "../components/misc/PageHeader.astro";
+import { animeConfig, resolvedAnimeOptions } from "../config/animeConfig";
+import type { AnimeItem, AnimeStatus } from "../data/anime";
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+import { getAnimeList } from "../utils/anime-data";
+import { getCoinVideos } from "../utils/bilibili-data";
+
+const { items, fetchedAt, stale } = getAnimeList();
+
+/** 分组顺序与图标 / 配色。和 normalize.ts 里的排序优先级保持一致 */
+const STATUS_META: Record<
+	AnimeStatus,
+	{ key: I18nKey; icon: string; color: string }
+> = {
+	watching: {
+		key: I18nKey.animeStatusWatching,
+		icon: "material-symbols:play-arrow-rounded",
+		color: "var(--primary)",
+	},
+	completed: {
+		key: I18nKey.animeStatusCompleted,
+		icon: "material-symbols:check-rounded",
+		color: "oklch(0.7 0.14 160)",
+	},
+	planned: {
+		key: I18nKey.animeStatusPlanned,
+		icon: "material-symbols:bookmark-outline-rounded",
+		color: "oklch(0.7 0.14 250)",
+	},
+	onHold: {
+		key: I18nKey.animeStatusOnHold,
+		icon: "material-symbols:pause-rounded",
+		color: "oklch(0.7 0.05 250)",
+	},
+	dropped: {
+		key: I18nKey.animeStatusDropped,
+		icon: "material-symbols:close-rounded",
+		color: "oklch(0.65 0.18 25)",
+	},
+};
+
+const STATUS_ORDER: AnimeStatus[] = [
+	"watching",
+	"completed",
+	"planned",
+	"onHold",
+	"dropped",
+];
+
+/** 按状态分组，只保留有内容的组 */
+const groups = STATUS_ORDER.map((status) => ({
+	status,
+	meta: STATUS_META[status],
+	items: items.filter((item) => item.status === status),
+})).filter((group) => group.items.length > 0);
+
+const description = animeConfig.description || i18n(I18nKey.animeDesc);
+
+/** 快照时间只显示到「天」，避免同一份数据因为构建时刻不同而看起来一直在变 */
+const syncedDate = fetchedAt ? fetchedAt.slice(0, 10) : "";
+
+/** 进度百分比。总集数未知（0）时返回 null，由模板决定不画进度条 */
+function progressPercent(item: AnimeItem): number | null {
+	if (!item.progress || item.progress.total <= 0) return null;
+	const ratio = item.progress.watched / item.progress.total;
+	return Math.min(Math.max(Math.round(ratio * 100), 0), 100);
+}
+
+/**
+ * 评分。AnimeItem.rating 是可选的（本地手写数据可以不填），
+ * 这里统一收敛成数字，省得模板里到处写 `?? 0`。
+ */
+function ratingOf(item: AnimeItem): number {
+	return item.rating ?? 0;
+}
+
+/* ==========================================================================
+ * 「最近投币的视频」
+ * ========================================================================== */
+
+const {
+	items: coinItems,
+	fetchedAt: coinFetchedAt,
+	stale: coinStale,
+} = getCoinVideos();
+
+/** 投币快照的时间，同样只显示到「天」 */
+const coinSyncedDate = coinFetchedAt ? coinFetchedAt.slice(0, 10) : "";
+---
+
+<MainGridLayout title={i18n(I18nKey.anime)} description={description}>
+    <PageHeader
+        title={animeConfig.title || i18n(I18nKey.anime)}
+        icon="fa6-brands:bilibili"
+        description={description}
+    />
+
+    {/* ── 追番 ── */}
+    <div class="flex items-center gap-3 mb-3 mt-6">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0
+                    bg-[color-mix(in_oklab,var(--primary)_18%,transparent)] transition">
+            <Icon name="material-symbols:movie-outline" class="text-[1.15rem] text-[var(--primary)]" />
+        </div>
+        <span class="font-bold text-lg text-neutral-900 dark:text-neutral-100 transition">
+            {i18n(I18nKey.animeSection)}
+        </span>
+        <span class="text-xs text-neutral-400">{items.length}</span>
+        {syncedDate && (
+            <span class:list={[
+                "ml-auto text-xs flex items-center gap-1.5",
+                stale ? "text-amber-500" : "text-neutral-400",
+            ]}>
+                <Icon name="material-symbols:sync-outline" class="text-[1rem]" />
+                {i18n(I18nKey.animeSyncedAt).replace("{date}", syncedDate)}
+            </span>
+        )}
+    </div>
+
+    {items.length === 0 ? (
+        <div class="card-base px-6 py-10 text-center transition">
+            <div class="text-neutral-400 mb-2">{i18n(I18nKey.animeEmpty)}</div>
+            <div class="text-xs text-neutral-400/80">{i18n(I18nKey.animeEmptyHint)}</div>
+        </div>
+    ) : (
+        groups.map((group) => (            <section class="card-base px-5 py-5 md:px-7 mb-4">
+                <div class="flex items-center gap-3 mb-4">
+                    <div
+                        class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition"
+                        style={`background: color-mix(in oklab, ${group.meta.color} 18%, transparent)`}
+                    >
+                        <Icon
+                            name={group.meta.icon}
+                            class="text-[1.15rem]"
+                            style={`color: ${group.meta.color}`}
+                        />
+                    </div>
+                    <span class="font-bold text-lg text-neutral-900 dark:text-neutral-100 transition">
+                        {i18n(group.meta.key)}
+                    </span>
+                    <span class="text-xs text-neutral-400">{group.items.length}</span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {group.items.map((item) => {
+                        const percent = progressPercent(item);
+                        return (
+                            <a
+                                href={item.link || "#"}
+                                target={item.link ? "_blank" : undefined}
+                                rel={item.link ? "noopener noreferrer" : undefined}
+                                class:list={[
+                                    "group flex flex-col rounded-xl overflow-hidden",
+                                    "border border-[var(--line-divider)] transition",
+                                    "hover:border-[var(--primary)] hover:-translate-y-0.5",
+                                    { "pointer-events-none": !item.link },
+                                ]}
+                                title={item.title}
+                            >
+                                {/* 封面：固定 11:14 的比例，没图时留一块占位，避免卡片高度参差 */}
+                                <div class="relative w-full aspect-[11/14] overflow-hidden bg-[var(--btn-regular-bg)]">
+                                    {item.cover ? (
+                                        <img
+                                            src={item.cover}
+                                            alt={i18n(I18nKey.animeCoverOf).replace(
+                                                "{title}",
+                                                item.title,
+                                            )}
+                                            loading="lazy"
+                                            decoding="async"
+                                            class="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                                        />
+                                    ) : (
+                                        <div class="w-full h-full flex items-center justify-center">
+                                            <Icon
+                                                name="material-symbols:movie-outline"
+                                                class="text-3xl text-neutral-400/60"
+                                            />
+                                        </div>
+                                    )}
+
+                                    {ratingOf(item) > 0 && (
+                                        <div class="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md
+                                                    bg-black/65 text-white text-xs font-bold backdrop-blur-sm">
+                                            {ratingOf(item).toFixed(1)}
+                                        </div>
+                                    )}
+
+                                    {/* 进度条压在封面底部 */}
+                                    {percent !== null && (
+                                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-black/35">
+                                            <div
+                                                class="h-full bg-[var(--primary)]"
+                                                style={`width: ${percent}%`}
+                                            ></div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div class="flex flex-col gap-1 p-2.5 flex-1">
+                                    <div class="text-sm font-bold leading-snug line-clamp-2
+                                                text-neutral-900 dark:text-neutral-100
+                                                group-hover:text-[var(--primary)] transition">
+                                        {item.title}
+                                    </div>
+
+                                    <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-neutral-400">
+                                        {item.year && <span>{item.year}</span>}
+                                        {item.progress && (
+                                            <span>
+                                                {item.progress.total > 0
+                                                    ? i18n(I18nKey.animeProgress)
+                                                          .replace(
+                                                              "{watched}",
+                                                              String(item.progress.watched),
+                                                          )
+                                                          .replace(
+                                                              "{total}",
+                                                              String(item.progress.total),
+                                                          )
+                                                    : i18n(I18nKey.animeProgressWatched).replace(
+                                                          "{watched}",
+                                                          String(item.progress.watched),
+                                                      )}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {item.description && (
+                                        <div class="text-xs text-neutral-400 line-clamp-2 mt-0.5">
+                                            {item.description}
+                                        </div>
+                                    )}
+                                </div>
+                            </a>
+                        );
+                    })}
+                </div>
+            </section>
+        ))
+    )}
+
+    {/*
+        最近投币的视频。
+        数据来自另一份快照（bilibili-coins.json），和追番互不影响：
+        追番抓不到的时候投币照样能显示，反之亦然。
+    */}
+    {resolvedAnimeOptions.coins.enable && (
+        <section class="card-base px-5 py-5 md:px-7 mb-4 mt-6">
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mb-4">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0
+                            bg-[color-mix(in_oklab,var(--primary)_18%,transparent)] transition">
+                    <Icon
+                        name="material-symbols:monetization-on-outline-rounded"
+                        class="text-[1.15rem] text-[var(--primary)]"
+                    />
+                </div>
+                <span class="font-bold text-lg text-neutral-900 dark:text-neutral-100 transition">
+                    {i18n(I18nKey.bilibiliCoins)}
+                </span>
+                <span class="text-xs text-neutral-400">{coinItems.length}</span>
+                {coinSyncedDate && (
+                    <span class:list={[
+                        "ml-auto text-xs flex items-center gap-1.5",
+                        coinStale ? "text-amber-500" : "text-neutral-400",
+                    ]}>
+                        <Icon name="material-symbols:sync-outline" class="text-[1rem]" />
+                        {i18n(I18nKey.animeSyncedAt).replace("{date}", coinSyncedDate)}
+                    </span>
+                )}
+            </div>
+
+            {coinItems.length === 0 ? (
+                <div class="py-8 text-center">
+                    <div class="text-neutral-400 mb-2">{i18n(I18nKey.bilibiliCoinsEmpty)}</div>
+                    <div class="text-xs text-neutral-400/80 max-w-xl mx-auto">
+                        {i18n(I18nKey.bilibiliCoinsEmptyHint)}
+                    </div>
+                </div>
+            ) : (
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {coinItems.map((video) => (
+                        <BilibiliVideoCard video={video} />
+                    ))}
+                </div>
+            )}
+        </section>
+    )}
+</MainGridLayout>

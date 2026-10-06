@@ -1,0 +1,55 @@
+{
+	"schemaVersion": 1,
+	"provider": "bilibili",
+	"kind": "coins",
+	"fetchedAt": "2026-10-06T09:44:36.135Z",
+	"accountRef": "3546912602982411",
+	"items": [
+		{
+			"bvid": "BV1CRahzZEmy",
+			"title": "Wei单曲《最斥碧》",
+			"cover": "/assets/bilibili/covers/coin_BV1CRahzZEmy.webp",
+			"author": {
+				"mid": "18026414",
+				"name": "蔚蓝边际"
+			},
+			"duration": 245,
+			"publishedAt": "2025-09-05T10:57:37.000Z",
+			"coinedAt": "2026-09-30T16:35:33.000Z",
+			"coins": 2,
+			"stats": {
+				"view": 5269171,
+				"danmaku": 33146,
+				"like": 248137,
+				"coin": 239450,
+				"favorite": 55642
+			},
+			"category": "翻唱",
+			"description": "原曲：《醉赤壁》 原唱：林俊杰 填词：蔚蓝边际 聒噪的山海君 混音：益辉 翻唱/和声/剪辑：蔚蓝边际",
+			"link": "https://www.bilibili.com/video/BV1CRahzZEmy/"
+		},
+		{
+			"bvid": "BV1h5QaY5EaH",
+			"title": "TES先锋赛单曲1.0《突然的陀螺》",
+			"cover": "/assets/bilibili/covers/coin_BV1h5QaY5EaH.webp",
+			"author": {
+				"mid": "18026414",
+				"name": "蔚蓝边际"
+			},
+			"duration": 144,
+			"publishedAt": "2025-03-16T13:31:08.000Z",
+			"coinedAt": "2026-09-29T07:38:39.000Z",
+			"coins": 2,
+			"stats": {
+				"view": 53609555,
+				"danmaku": 404336,
+				"like": 1341688,
+				"coin": 1387121,
+				"favorite": 444227
+			},
+			"category": "翻唱",
+			"description": "原曲：《突然的自我》 原唱：伍佰 混音：@SpecialSound 填词/翻唱/视频：蔚蓝边际",
+			"link": "https://www.bilibili.com/video/BV1h5QaY5EaH/"
+		}
+	]
+}

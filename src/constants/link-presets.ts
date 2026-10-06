@@ -47,4 +47,33 @@ export const LinkPresets: { [key in LinkPreset]: NavBarLink } = {
 		url: "/timeline/",
 		icon: "material-symbols:timeline",
 	},
+
+	/* ---- 标签总览页，对应 src/pages/tags.astro ---- */
+	[LinkPreset.Tags]: {
+		name: i18n(I18nKey.tags),
+		url: "/tags/",
+		icon: "material-symbols:tag-rounded",
+	},
+
+	/* ---- 追番页，对应 src/pages/anime.astro ---- */
+	[LinkPreset.Anime]: {
+		name: i18n(I18nKey.anime),
+		url: "/anime/",
+		icon: "fa6-brands:bilibili",
+	},
+
+	/* ---- 粉丝勋章页，对应 src/pages/medals.astro ---- */
+	[LinkPreset.Medals]: {
+		name: i18n(I18nKey.bilibiliMedals),
+		url: "/medals/",
+		icon: "material-symbols:military-tech-outline",
+	},
+
+	/* ---- 数字收藏集页，对应 src/pages/collections.astro ----
+	 * 注意是装扮体系的「收藏集」（付费数字卡牌），不是「收藏夹」 */
+	[LinkPreset.Collections]: {
+		name: i18n(I18nKey.bilibiliCollections),
+		url: "/collections/",
+		icon: "material-symbols:style-outline",
+	},
 };

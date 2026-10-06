@@ -3,7 +3,7 @@
  * 右侧栏（对应 Mizuki 的 RightSideBar）。
  *
  * 这里按 sidebarConfig.widgets 的顺序渲染几个小部件：
- *   站点统计 / 日历 / 分类
+ *   站点统计 / 访问统计（Umami）/ 日历 / 分类
  *
  * 响应式行为：
  * - ≥1280px（xl）：作为第三栏显示在正文右边，内部是 sticky 定位
@@ -15,6 +15,7 @@ import { sidebarConfig } from "../../config";
 import Calendar from "./Calendar.astro";
 import Categories from "./Categories.astro";
 import SiteStats from "./SiteStats.astro";
+import UmamiStats from "./UmamiStats.astro";
 
 interface Props {
 	class?: string;
@@ -51,6 +52,7 @@ const animationDelay = (index: number) =>
 						style: animationDelay(index),
 					};
 					if (widget === "site-stats") return <SiteStats {...commonProps} />;
+					if (widget === "umami") return <UmamiStats {...commonProps} />;
 					if (widget === "calendar") return <Calendar {...commonProps} />;
 					if (widget === "categories") return <Categories {...commonProps} />;
 					return null;

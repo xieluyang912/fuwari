@@ -1,4 +1,4 @@
-﻿import Key from "../i18nKey";
+import Key from "../i18nKey";
 import type { PartialTranslation } from "../translation";
 
 export const zh_CN: PartialTranslation = {
@@ -110,4 +110,87 @@ export const zh_CN: PartialTranslation = {
 	[Key.postEncryptedSummary]: "本文已加密，输入密码后可查看。",
 	[Key.postEncryptedBadge]: "已加密",
 	[Key.postEncryptedLabel]: "加密文章",
+
+	/* ---- 标签总览页 ---- */
+	[Key.viewAllTags]: "查看全部标签",
+	[Key.tagsMoreCount]: "还有 {count} 个",
+	[Key.tagsPageStats]: "{tags} 个标签 · {posts} 篇文章",
+	[Key.tagsPageDescription]:
+		"这里汇总了全站用到的所有标签，点任意一个即可查看对应文章。",
+	[Key.tagsGroupOther]: "其它",
+	[Key.tagsEmpty]: "还没有任何标签",
+	[Key.tagsViewTagPosts]: "查看带有 {tag} 标签的全部文章",
+
+	/* ---- Umami 访问统计 ---- */
+	[Key.umamiStats]: "访问统计",
+	[Key.umamiPageviews]: "浏览量",
+	[Key.umamiVisitors]: "访客数",
+	[Key.umamiVisits]: "访问次数",
+
+	/* ---- 追番（Bilibili 同步） ---- */
+	[Key.anime]: "追番",
+	[Key.animeDesc]: "我在 B 站追的番。",
+	[Key.animeCount]: "共 {count} 部",
+	[Key.animeProgress]: "{watched} / {total} 集",
+	[Key.animeProgressWatched]: "看过 {watched} 集",
+	[Key.animeSyncedAt]: "数据更新于 {date}",
+	[Key.animeEmpty]: "还没有追番数据",
+	[Key.animeEmptyHint]:
+		"先在本地执行 `pnpm anime:sync --provider bilibili` 抓取 B 站追番列表，然后重新构建。",
+	[Key.animeWatchOnBilibili]: "去 B 站看",
+	[Key.animeCoverOf]: "{title} 的封面",
+	[Key.animeStatusWatching]: "在看",
+	[Key.animeStatusCompleted]: "看过",
+	[Key.animeStatusPlanned]: "想看",
+	[Key.animeStatusOnHold]: "搁置",
+	[Key.animeStatusDropped]: "抛弃",
+
+	/* ---- 最近投币的视频 ---- */
+	[Key.animeSection]: "追番",
+	[Key.bilibiliCoins]: "最近投币",
+	[Key.bilibiliCoinsDesc]: "我最近在 B 站投过币的视频。",
+	[Key.bilibiliCoinsEmpty]: "还没有投币记录",
+	[Key.bilibiliCoinsEmptyHint]:
+		"先在本地执行 `pnpm anime:sync --provider bilibili` 抓取。注意需要在 B 站的隐私设置里把「投币视频」设为公开，否则接口会返回 53013。",
+	[Key.bilibiliCoinsGiven]: "投了 {count} 个币",
+	[Key.bilibiliCoinsCoinedAt]: "{date} 投币",
+	[Key.bilibiliUp]: "UP 主",
+	[Key.bilibiliView]: "播放",
+	[Key.bilibiliDanmaku]: "弹幕",
+	[Key.bilibiliLike]: "点赞",
+	[Key.bilibiliCoinTotal]: "投币",
+	[Key.bilibiliCoverOf]: "{title} 的封面",
+
+	/* ---- 粉丝勋章 ---- */
+	[Key.bilibiliMedals]: "粉丝勋章",
+	[Key.bilibiliMedalsDesc]: "我在 B 站拿到的粉丝勋章（直播间勋章墙）。",
+	[Key.bilibiliMedalsEmpty]: "还没有拿到任何勋章",
+	[Key.bilibiliMedalsEmptyHint]:
+		"勋章墙接口需要登录才能访问。请在项目根目录的 .env 里配置 BILI_SESSDATA，再执行 `pnpm anime:sync --provider bilibili`。",
+	[Key.bilibiliMedalsCount]: "{count} 枚勋章",
+	[Key.bilibiliMedalsSyncedAt]: "数据更新于 {date}",
+	[Key.bilibiliMedalWearing]: "佩戴中",
+	[Key.bilibiliMedalLevel]: "{level} 级",
+	[Key.bilibiliMedalIntimacy]: "亲密度 {current} / {next}",
+	[Key.bilibiliMedalTodayFeed]: "今日 {today} / {limit}",
+	[Key.bilibiliMedalLiveNow]: "直播中",
+	[Key.bilibiliMedalLiveRound]: "轮播中",
+	[Key.bilibiliGuardGovernor]: "总督",
+	[Key.bilibiliGuardAdmiral]: "提督",
+	[Key.bilibiliGuardCaptain]: "舰长",
+
+	/* ---- 数字收藏集（装扮体系里的，不是收藏夹） ---- */
+	[Key.bilibiliCollections]: "数字收藏集",
+	[Key.bilibiliCollectionsDesc]: "我在 B 站收藏集里收集到的卡牌。",
+	[Key.bilibiliCollectionsEmpty]: "还没有同步到任何收藏集",
+	[Key.bilibiliCollectionsEmptyHint]:
+		"首次需要在项目根目录的 .env 里配置 BILI_SESSDATA，然后执行 `pnpm anime:sync --provider bilibili --scan-collections`。注意全量扫描要遍历 1500+ 个收藏集、请求量较大且可能触发 B 站风控，偶尔跑一次即可；之后普通同步只会刷新已知的那些。",
+	[Key.bilibiliCollectionsCount]: "{count} 个收藏集",
+	[Key.bilibiliCollectionsSyncedAt]: "数据更新于 {date}",
+	[Key.bilibiliCollectionProgress]: "已收集 {owned} / {total}",
+	[Key.bilibiliCollectionOwnedCards]: "我拥有的卡牌",
+	[Key.bilibiliCollectionOpen]: "在 B 站打开",
+	[Key.bilibiliCollectionCardOf]: "{name} 的卡面",
+	[Key.bilibiliCollectionScarcityHigh]: "大隐藏",
+	[Key.bilibiliCollectionScarcityMid]: "小隐藏",
 };

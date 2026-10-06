@@ -17,6 +17,9 @@ pnpm-debug.log*
 .env
 .env.production
 
+# 追番同步的临时快照（原子写入的中间文件，正常情况写完就 rename 掉了）
+src/data/anime-snapshots/.temp-*.json
+
 # macOS-specific files
 .DS_Store
 

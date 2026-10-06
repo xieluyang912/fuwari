@@ -1,0 +1,141 @@
+{
+	"schemaVersion": 1,
+	"provider": "bilibili",
+	"kind": "collections",
+	"fetchedAt": "2026-10-06T09:44:38.704Z",
+	"accountRef": "3546912602982411",
+	"items": [
+		{
+			"actId": "114082",
+			"lotteryId": "114083",
+			"name": "TEAM FALCONS CS2",
+			"cover": "https://i0.hdslb.com/bfs/garb/32f7d178aea48f2ef694a67c53ad21556f4d1097.jpg",
+			"description": "已售份数25万+",
+			"link": "https://www.bilibili.com/h5/mall/digital-card/home?-Abrowser=live&act_id=114082&hybrid_set_header=2&lottery_id=114083",
+			"ownedCount": 1,
+			"totalCount": 13,
+			"ownedCards": []
+		},
+		{
+			"actId": "108760",
+			"lotteryId": "108868",
+			"name": "永雏塔菲叮咚集",
+			"cover": "https://i0.hdslb.com/bfs/garb/4ac8e7c41f099a0a571bf6692f96671659ec08e3.jpg",
+			"description": "已售份数13万+",
+			"link": "https://www.bilibili.com/h5/mall/digital-card/home?-Abrowser=live&act_id=108760&hybrid_set_header=2&lottery_id=108868",
+			"ownedCount": 2,
+			"totalCount": 8,
+			"ownedCards": []
+		},
+		{
+			"actId": "111670",
+			"lotteryId": "111671",
+			"name": "雪糕cheese·星罗棋布",
+			"cover": "https://i0.hdslb.com/bfs/garb/fe9e4be14f0a6ba8e6903c7e960bfca3e1a0ac1f.jpg",
+			"description": "已售份数3万+",
+			"link": "https://www.bilibili.com/h5/mall/digital-card/home?-Abrowser=live&act_id=111670&hybrid_set_header=2&lottery_id=111671",
+			"ownedCount": 1,
+			"totalCount": 9,
+			"ownedCards": []
+		},
+		{
+			"actId": "110873",
+			"lotteryId": "110874",
+			"name": "至爱不渝·冥冥",
+			"cover": "https://i0.hdslb.com/bfs/garb/e78264a69530ded25d8f5f4824f224d70d7299cc.jpg",
+			"description": "已售份数1万+",
+			"link": "https://www.bilibili.com/h5/mall/digital-card/home?-Abrowser=live&act_id=110873&hybrid_set_header=2&lottery_id=110874",
+			"ownedCount": 7,
+			"totalCount": 13,
+			"ownedCards": []
+		},
+		{
+			"actId": "107824",
+			"lotteryId": "107832",
+			"name": "栞栞Shiori·夏日海獭",
+			"cover": "https://i0.hdslb.com/bfs/garb/e08185655f101b7bd9ea8273228b2f8ebe484f1d.jpg",
+			"description": "已售份数3万+",
+			"link": "https://www.bilibili.com/h5/mall/digital-card/home?-Abrowser=live&act_id=107824&hybrid_set_header=2&lottery_id=107832",
+			"ownedCount": 2,
+			"totalCount": 12,
+			"ownedCards": []
+		},
+		{
+			"actId": "108344",
+			"lotteryId": "108345",
+			"name": "在RPG里寻求七海是否下略",
+			"cover": "https://i0.hdslb.com/bfs/garb/5608b858f5160c72addb8b515d4857fd7a6558b9.png",
+			"description": "已售份数5万+",
+			"link": "https://www.bilibili.com/h5/mall/digital-card/home?-Abrowser=live&act_id=108344&hybrid_set_header=2&lottery_id=108345",
+			"ownedCount": 2,
+			"totalCount": 17,
+			"ownedCards": []
+		},
+		{
+			"actId": "106945",
+			"lotteryId": "106946",
+			"name": "岁己SUI·飞鸟羽集",
+			"cover": "https://i0.hdslb.com/bfs/garb/8c06396d8ba30e4503b5f9a87b1b7cf459418b6f.png",
+			"description": "已售份数1万+",
+			"link": "https://www.bilibili.com/h5/mall/digital-card/home?-Abrowser=live&act_id=106945&hybrid_set_header=2&lottery_id=106946",
+			"ownedCount": 2,
+			"totalCount": 11,
+			"ownedCards": []
+		},
+		{
+			"actId": "106124",
+			"lotteryId": "106125",
+			"name": "阿梓从小就很可爱收藏集",
+			"cover": "https://i0.hdslb.com/bfs/garb/bf2efb9c2aa5517e5fd913b675397be3ed595e26.png",
+			"description": "已售份数16万+",
+			"link": "https://www.bilibili.com/h5/mall/digital-card/home?-Abrowser=live&act_id=106124&hybrid_set_header=2&lottery_id=106125",
+			"ownedCount": 7,
+			"totalCount": 17,
+			"ownedCards": []
+		},
+		{
+			"actId": "105543",
+			"lotteryId": "105544",
+			"name": "小只芋·电子萌猫",
+			"cover": "https://i0.hdslb.com/bfs/garb/e713af94b73a30ebc4fa9e402acbb29cb5d275aa.jpg",
+			"description": "已售份数2万+",
+			"link": "https://www.bilibili.com/h5/mall/digital-card/home?-Abrowser=live&act_id=105543&hybrid_set_header=2&lottery_id=105544",
+			"ownedCount": 3,
+			"totalCount": 10,
+			"ownedCards": []
+		},
+		{
+			"actId": "100387",
+			"lotteryId": "100390",
+			"name": "A-SOUL 绽放收藏集",
+			"cover": "https://i0.hdslb.com/bfs/garb/5fb2920f1a6a2e129b340cb913bcebee0d7821d7.jpg",
+			"description": "已售份数38万+",
+			"link": "https://www.bilibili.com/h5/mall/digital-card/home?-Abrowser=live&act_id=100387&hybrid_set_header=2&lottery_id=100390",
+			"ownedCount": 3,
+			"totalCount": 32,
+			"ownedCards": []
+		},
+		{
+			"actId": "101221",
+			"lotteryId": "101222",
+			"name": "主播女孩重度依赖收藏集",
+			"cover": "https://i0.hdslb.com/bfs/garb/3a90d7e9e0fa3ca19c405dd5ada3693b0a2669aa.jpg",
+			"description": "已售份数77万+",
+			"link": "https://www.bilibili.com/h5/mall/digital-card/home?-Abrowser=live&act_id=101221&hybrid_set_header=2&lottery_id=101222",
+			"ownedCount": 1,
+			"totalCount": 8,
+			"ownedCards": []
+		},
+		{
+			"actId": "101105",
+			"lotteryId": "101106",
+			"name": "大D特D第二弹",
+			"cover": "https://i0.hdslb.com/bfs/garb/c1b35833f65abec1cc44e857a1fafe525e2aad47.png",
+			"description": "已售份数24万+",
+			"link": "https://www.bilibili.com/h5/mall/digital-card/home?-Abrowser=live&act_id=101105&hybrid_set_header=2&lottery_id=101106",
+			"ownedCount": 2,
+			"totalCount": 26,
+			"ownedCards": []
+		}
+	]
+}

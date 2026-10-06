@@ -136,16 +136,28 @@ const jsonLd = {
             {/*
                 加密文章走 EncryptedContent：<Content /> 会被它拿去在构建时
                 渲染成 HTML 再加密，产物里只有密文。解锁后由浏览器把明文注入页面。
-                两边的外层类名保持一致，解锁后的正文才能套上同一套排版样式。
+
+                正文照样交给 Markdown 包一层 —— 这一层会被一起加密，解锁后
+                原样注入。排版其实全靠它：`.custom-md`（src/styles/markdown.css）
+                和 Tailwind 的 prose 都在这个 div 上，少了它标题、段距、表格
+                边框就全没了。让两条路径共用同一个组件，是为了让以后改
+                Markdown.astro 的人不用记得同步另一个地方。
+
+                mb-6 / onload-animation 放在外面的 EncryptedContent 上而不是
+                这里：那个外层同时包着密码框，间距和对齐要一起算；而且解锁后
+                正文是自己淡入的（见 EncryptedContent 里的 protected-reveal），
+                再套一个 onload-animation 会打架。
             */}
             {isLocked ? (
                 <EncryptedContent
                     password={postPassword}
                     scope={`post:${entry.id}`}
                     hint={entry.data.passwordHint}
-                    class="mb-6 markdown-content onload-animation"
+                    class="mb-6 onload-animation"
                 >
-                    <Content />
+                    <Markdown class="markdown-content">
+                        <Content />
+                    </Markdown>
                 </EncryptedContent>
             ) : (
                 <Markdown class="mb-6 markdown-content onload-animation">

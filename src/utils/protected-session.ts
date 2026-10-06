@@ -74,7 +74,7 @@ export function readCachedKey(scope: string, payloadId: string): string | null {
 	}
 	if (!entry) entry = memoryFallback.get(key) ?? null;
 
-	if (!entry || entry.v !== 1) return null;
+	if (entry?.v !== 1) return null;
 	if (entry.scope !== scope || entry.payloadId !== payloadId) return null;
 	if (typeof entry.rawKey !== "string" || entry.rawKey.length === 0)
 		return null;

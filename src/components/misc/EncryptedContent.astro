@@ -8,8 +8,11 @@ import { encryptProtectedContent } from "@utils/password-protection";
  * 用法（见 src/pages/posts/[...slug].astro）：
  *
  *   <EncryptedContent password={entry.data.password} scope={`post:${entry.id}`} hint={entry.data.passwordHint}>
- *       <Content />
+ *       <Markdown class="markdown-content"><Content /></Markdown>
  *   </EncryptedContent>
+ *
+ * 插槽里写什么就加密什么，所以正文要连着它的排版容器一起放进来
+ * （上面那个 Markdown）。见 [...slug].astro 里的说明。
  *
  * 关键在下面这一句 `Astro.slots.render("default")`：
  * 它会在这时（构建期）就把插槽里的 `<Content />` 渲染成 HTML 字符串。
@@ -35,15 +38,23 @@ const { password, scope, hint = "", class: className } = Astro.props;
 let rawHtml = await Astro.slots.render("default");
 
 /*
- * astro-expressive-code 会在「有代码块」的正文里注入一对样式/脚本标签。
- * 平时它们会被提升到页面 <head>；但正文是在插槽里渲染的，
- * 这对标签就会落在我们这份字符串里 —— 如果直接加密掉，
- * 文章解锁后代码块就没有高亮样式了。
+ * 正文里会混进来两类「不该跟着一起加密」的标签：
  *
- * 所以先把它们摘出来，留在页面上正常加载，再加密剩下的正文。
+ *  1. astro-expressive-code 给代码块注入的样式 / 脚本（/_astro/ec.*）。
+ *     普通文章里它们会被提升到页面里；正文是在插槽里渲染的，
+ *     这对标签就落在了这份字符串里 —— 加密掉的话，解锁后代码块没高亮。
+ *
+ *  2. 组件自己的 <script>，比如 Markdown.astro 里那个代码块「复制」按钮的
+ *     点击委托。普通文章里它是内联在正文后面的。
+ *
+ * 所以先把它们摘出来留在页面上，再加密剩下的正文。
+ *
+ * 顺带记一笔：用 innerHTML 注入的 <script> 浏览器根本不会执行，
+ * 所以把它们留在密文里是「又没用又占地方」—— 摘出来正好也让
+ * 加密文章的产物结构和普通文章一致。
  */
 const assetPattern =
-	/<link\b[^>]*href="[^"]*\/_astro\/ec\.[^"]*"[^>]*>|<script\b[^>]*src="[^"]*\/_astro\/ec\.[^"]*"[^>]*>\s*<\/script>/g;
+	/<script\b[^>]*>[\s\S]*?<\/script>|<link\b[^>]*href="[^"]*\/_astro\/ec\.[^"]*"[^>]*>/g;
 const contentAssets = rawHtml.match(assetPattern) ?? [];
 rawHtml = rawHtml.replace(assetPattern, "");
 
@@ -82,8 +93,12 @@ const toJsonScript = (value: unknown) =>
 ---
 
 <div class:list={["protected-post", className]} data-protected-root>
-    {/* 解锁后正文注入这里。构建时是空的 —— 里面没有任何明文 */}
-    <div class="protected-content markdown-content" data-protected-content hidden></div>
+    {/*
+        解锁后正文注入这里。构建时是空的 —— 里面没有任何明文。
+        排版类名不写在这上面：注入进来的那段 HTML 自带 Markdown 的外层
+        （.custom-md / prose），重复一次反而会多出一层。
+    */}
+    <div class="protected-content" data-protected-content hidden></div>
 
     {/* 解锁前的密码框 */}
     <div class="protected-gate" data-protected-gate>

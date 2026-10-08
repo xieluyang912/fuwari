@@ -1,0 +1,13 @@
+{
+  "name": "@local/windows-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dsh": {
+    "bundle": {
+      "displayName": "Windows-MCP",
+      "description": "Registers the Windows-MCP server (CursorTouch/Windows-MCP) so its Windows automation tools are available as mcp__windows__* tools.",
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

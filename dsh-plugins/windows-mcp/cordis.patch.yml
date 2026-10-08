@@ -1,0 +1,15 @@
+# Configuration-only bundle: connect the Windows-MCP server over stdio.
+# Installed executable comes from `uv tool install windows-mcp`
+# (C:\Users\<user>\.local\bin\windows-mcp.exe).
+- insert:
+    - id: mcp-windows
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: windows
+        transport: stdio
+        command: 'C:\Users\Xieluyang\.local\bin\windows-mcp.exe'
+        args: ['serve']
+        env:
+          # Keep anonymous usage telemetry off for this local bridge.
+          ANONYMIZED_TELEMETRY: 'false'
+        failOnStartupError: true

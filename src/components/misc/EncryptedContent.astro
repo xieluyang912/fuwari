@@ -44,12 +44,12 @@ let rawHtml = await Astro.slots.render("default");
  *     普通文章里它们会被提升到页面里；正文是在插槽里渲染的，
  *     这对标签就落在了这份字符串里 —— 加密掉的话，解锁后代码块没高亮。
  *
- *  2. 组件自己的 <script>，比如 Markdown.astro 里那个代码块「复制」按钮的
+ *  2. 组件自己的 script 标签，比如 Markdown.astro 里那个代码块「复制」按钮的
  *     点击委托。普通文章里它是内联在正文后面的。
  *
  * 所以先把它们摘出来留在页面上，再加密剩下的正文。
  *
- * 顺带记一笔：用 innerHTML 注入的 <script> 浏览器根本不会执行，
+ * 顺带记一笔：用 innerHTML 注入的 script 标签浏览器根本不会执行，
  * 所以把它们留在密文里是「又没用又占地方」—— 摘出来正好也让
  * 加密文章的产物结构和普通文章一致。
  */
@@ -68,7 +68,7 @@ const payload: ProtectedPayload = await encryptProtectedContent(
 /*
  * 交给浏览器脚本的文案。
  *
- * 不把字符串硬编码进 <script> 里，是因为这份脚本是打包提交的、
+ * 不把字符串硬编码进 script 标签里，是因为这份脚本是打包提交的、
  * 整站共用一份；而文案要跟着 siteConfig.lang 走，只能在构建时决定。
  * 顺带也避免了往脚本里拼字符串带来的转义问题。
  */
@@ -83,7 +83,7 @@ const clientStrings = {
 };
 
 /*
- * 两个 <script type="application/json">：一个是密文，一个是文案。
+ * 两个 type="application/json" 的 script 标签：一个是密文，一个是文案。
  * 都加了 is:inline，Astro 才会原样输出、不做打包处理。
  * 把 "<" 转义掉，避免内容里万一出现 "</script" 提前结束标签
  * —— 虽然 base64url 不会有 "<"，但这是免费的保险。

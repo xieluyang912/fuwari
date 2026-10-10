@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400"
+     role="img" aria-labelledby="heroTitle heroDesc">
+  <title id="heroTitle">Xieluyang's Blog</title>
+  <desc id="heroDesc">A personal blog built on the Fuwari Astro theme. It has a Live2D mascot pinned to the
+  bottom-left corner and a three-column layout: a profile card, a post list, and a sidebar with site
+  statistics.</desc>
+
+  <defs>
+    <clipPath id="avatarClip">
+      <circle cx="779" cy="142" r="26"/>
+    </clipPath>
+  </defs>
+
+  <!-- board -->
+  <rect width="1200" height="400" rx="26" fill="#090E13"/>
+
+  <!-- ================= title block ================= -->
+  <g id="title-block">
+    <!-- Fuwari's section-heading spine, reused as the page motif -->
+    <rect x="64" y="110" width="5" height="20" rx="2.5" fill="#63B3FF"/>
+    <text x="81" y="126" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="18" font-weight="600" letter-spacing="2.6" fill="#7CB3EB">ASTRO 5 &#183; FUWARI THEME</text>
+
+    <text x="64" y="214" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+          font-size="60" font-weight="700" fill="#E8EEF5">Xieluyang&#39;s Blog</text>
+
+    <g id="pills" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+       font-size="19" fill="#B9C7D6">
+      <rect x="64" y="250" width="159" height="40" rx="20" fill="#181E24" stroke="#2F343A" stroke-width="1.5"/>
+      <text x="143" y="276" text-anchor="middle">Live2D mascot</text>
+
+      <rect x="235" y="250" width="179" height="40" rx="20" fill="#181E24" stroke="#2F343A" stroke-width="1.5"/>
+      <text x="324" y="276" text-anchor="middle">3-column layout</text>
+
+      <rect x="426" y="250" width="139" height="40" rx="20" fill="#181E24" stroke="#2F343A" stroke-width="1.5"/>
+      <text x="495" y="276" text-anchor="middle">Extra pages</text>
+    </g>
+  </g>
+
+  <!-- ================= layout diagram ================= -->
+  <g id="layout-diagram">
+    <rect x="700" y="78" width="436" height="240" rx="16" fill="#181E24" stroke="#2F343A" stroke-width="1.5"/>
+
+    <!-- the site's own address, used as the frame label (drawn over the frame) -->
+    <rect x="716" y="62" width="150" height="30" rx="15" fill="#63B3FF"/>
+    <text x="791" y="83" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="19" font-weight="600" fill="#05121F">007912.xyz</text>
+
+    <!-- column 1 — profile card -->
+    <rect x="716" y="94" width="126" height="208" rx="12" fill="#10161D"/>
+    <g clip-path="url(#avatarClip)">
+      <circle cx="779" cy="142" r="26" fill="#224A71"/>
+      <circle cx="779" cy="133" r="9" fill="#63B3FF"/>
+      <path d="M764 168c0-9.4 6.7-17 15-17s15 7.6 15 17z" fill="#63B3FF"/>
+    </g>
+    <text x="779" y="200" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+          font-size="20" font-weight="700" fill="#E8EEF5">Xieluyang</text>
+    <g fill="#224A71">
+      <circle cx="752" cy="234" r="7"/>
+      <circle cx="779" cy="234" r="7"/>
+      <circle cx="806" cy="234" r="7"/>
+    </g>
+
+    <!-- column 2 — post list -->
+    <g>
+      <rect x="854" y="94" width="127" height="96" rx="12" fill="#1E262F" stroke="#2F343A" stroke-width="1.5"/>
+      <rect x="866" y="112" width="4" height="26" rx="2" fill="#63B3FF"/>
+      <rect x="880" y="112" width="80" height="8" rx="4" fill="#4A5A6B"/>
+      <rect x="880" y="126" width="56" height="8" rx="4" fill="#2A3542"/>
+      <g fill="#2A3542">
+        <rect x="866" y="160" width="34" height="7" rx="3.5"/>
+        <rect x="906" y="160" width="30" height="7" rx="3.5"/>
+        <rect x="942" y="160" width="26" height="7" rx="3.5"/>
+      </g>
+
+      <rect x="854" y="202" width="127" height="96" rx="12" fill="#1E262F" stroke="#2F343A" stroke-width="1.5"/>
+      <rect x="866" y="220" width="4" height="26" rx="2" fill="#63B3FF"/>
+      <rect x="880" y="220" width="68" height="8" rx="4" fill="#4A5A6B"/>
+      <rect x="880" y="234" width="88" height="8" rx="4" fill="#2A3542"/>
+      <g fill="#2A3542">
+        <rect x="866" y="268" width="30" height="7" rx="3.5"/>
+        <rect x="902" y="268" width="34" height="7" rx="3.5"/>
+      </g>
+    </g>
+
+    <!-- column 3 — statistics sidebar -->
+    <rect x="993" y="94" width="127" height="208" rx="12" fill="#10161D"/>
+    <rect x="1007" y="112" width="4" height="18" rx="2" fill="#63B3FF"/>
+    <text x="1019" y="128" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+          font-size="20" font-weight="700" fill="#E8EEF5">Stats</text>
+    <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="20">
+      <text x="1007" y="172" fill="#93A3B4">Posts</text>
+      <text x="1106" y="172" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-weight="700" fill="#63B3FF">11</text>
+      <text x="1007" y="212" fill="#93A3B4">Tags</text>
+      <text x="1106" y="212" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-weight="700" fill="#63B3FF">14</text>
+      <text x="1007" y="252" fill="#93A3B4">Days</text>
+      <text x="1106" y="252" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-weight="700" fill="#63B3FF">11</text>
+    </g>
+
+    <!-- the mascot, pinned to the bottom-left corner as it is on the live site -->
+    <rect x="690" y="296" width="112" height="32" rx="16" fill="#63B3FF" stroke="#090E13" stroke-width="4"/>
+    <text x="746" y="317" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="19" font-weight="600" fill="#05121F">Live2D</text>
+  </g>
+</svg>

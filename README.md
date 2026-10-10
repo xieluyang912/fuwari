@@ -1,59 +1,65 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/readme/hero-dark.svg">
+    <img src="./assets/readme/hero.svg" width="100%" alt="Xieluyang's Blog — a personal blog built on the Fuwari Astro theme, with a Live2D mascot pinned to the bottom-left corner and a three-column layout: a profile card, a post list and a statistics sidebar.">
+  </picture>
+</p>
+
 # 🍥 Xieluyang's Blog
 
 ![Node.js >= 20](https://img.shields.io/badge/node.js-%3E%3D20-brightgreen)
 ![pnpm >= 9](https://img.shields.io/badge/pnpm-%3E%3D9-blue)
 ![Astro 5](https://img.shields.io/badge/Astro-5-BC52EE?logo=astro&logoColor=white)
 
-My personal blog — notes from studying, things I tinker with, and anything else worth writing down. Built with [Astro](https://astro.build) on top of the [Fuwari](https://github.com/saicaca/fuwari) theme, with a Live2D mascot, a three-column layout and a few extra pages ported from the [Mizuki](https://github.com/LyraVoid/Mizuki) theme.
+My personal blog — notes from studying, things I tinker with, and anything else worth writing down.
 
-[**🖥️ Live Site**](https://007912.xyz)
+It is built with [Astro](https://astro.build) on top of the [Fuwari](https://github.com/saicaca/fuwari) theme, with a Live2D mascot, a three-column layout, and a few extra pages ported from the [Mizuki](https://github.com/LyraVoid/Mizuki) theme.
 
-![Homepage](docs/images/home-light.png)
+**🖥️ Read it at [007912.xyz](https://007912.xyz)**
 
-🌏 README in
-[**中文**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.zh-CN.md) /
-[**日本語**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.ja.md) /
-[**한국어**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.ko.md) /
-[**Español**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.es.md) /
-[**ไทย**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.th.md) /
-[**Tiếng Việt**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.vi.md) /
-[**Bahasa Indonesia**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.id.md)
+![The blog homepage in light mode — banner, profile card, post list and the statistics sidebar](docs/images/home-light.png)
+
+🌏 **README in:** [中文](docs/README.zh-CN.md) · [日本語](docs/README.ja.md) · [한국어](docs/README.ko.md) · [Español](docs/README.es.md) · [ไทย](docs/README.th.md) · [Tiếng Việt](docs/README.vi.md) · [Bahasa Indonesia](docs/README.id.md)
 
 ## ✨ Features
 
-- [x] Built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com)
-- [x] Smooth animations and page transitions, powered by [Swup](https://swup.js.org/)
-- [x] Light / dark mode
-- [x] Customizable theme color & banner
-- [x] Responsive design
-- [x] Full-text search with [Pagefind](https://pagefind.app/)
-- [x] [Markdown extended features](#-markdown-extended-syntax)
-- [x] Table of contents
-- [x] RSS feed
-- [x] Comments via [giscus](https://giscus.app/)
-- [x] Live2D mascot in the bottom-left corner, rendered with [oh-my-live2d](https://github.com/hacxy/oh-my-live2d)
-- [x] Right sidebar with site statistics, a post calendar and categories
-- [x] Extra pages: [Projects](https://007912.xyz/projects/), [Skills](https://007912.xyz/skills/), [AI Tools](https://007912.xyz/ai-tools/) and [Timeline](https://007912.xyz/timeline/)
+**Writing**
+
+- [Markdown extended syntax](#-markdown-extended-syntax) — admonitions, GitHub repository cards, and [Expressive Code](https://expressive-code.com/) blocks with line numbers and collapsible sections
+- Table of contents on every post
+- Full-text search with [Pagefind](https://pagefind.app/) and an RSS feed
+- Comments via [giscus](https://giscus.app/)
+
+**Look and feel**
+
+- Light / dark mode, with a customizable theme color and banner
+- Responsive layout and smooth page transitions, powered by [Swup](https://swup.js.org/)
+- Built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com)
+
+**Beyond the upstream Fuwari theme**
+
+- A Live2D mascot in the bottom-left corner, rendered with [oh-my-live2d](https://github.com/hacxy/oh-my-live2d)
+- A third column on the right — site statistics, a post calendar and categories
+- Extra pages: [Projects](https://007912.xyz/projects/), [Skills](https://007912.xyz/skills/), [AI Tools](https://007912.xyz/ai-tools/) and [Timeline](https://007912.xyz/timeline/)
 
 ## 🚀 Getting Started
 
-Want to build a blog like this one?
+1. **Get the code.** Fork this repository, or [generate a new one from the template](https://github.com/Xieluyang912/fuwari/generate).
 
-1. Start from this repository:
-    - [Generate a new repository](https://github.com/Xieluyang912/fuwari/generate) from this template, or fork this repository.
-    - Alternatively, scaffold the original Fuwari theme with one of these commands — note that this gives you the upstream theme **without** the customizations described above:
-       ```sh
-       npm create fuwari@latest
-       yarn create fuwari
-       pnpm create fuwari@latest
-       bun create fuwari@latest
-       deno run -A npm:create-fuwari@latest
-       ```
-2. Clone your repository and run `pnpm install` to install the dependencies.
-    - Install [pnpm](https://pnpm.io) with `npm install -g pnpm` if you haven't already.
-3. Edit the config file `src/config.ts` to customize your blog — site title, banner, profile card, navigation, comments, the Live2D mascot, the sidebar and the extra pages all live there.
-4. Run `pnpm new-post <filename>` to create a new post, then edit it in `src/content/posts/`.
-5. Before deploying, set `site` and `base` in `astro.config.mjs`, then deploy to Vercel, Netlify, GitHub Pages, etc. following [the Astro guides](https://docs.astro.build/en/guides/deploy/).
+    Prefer the original theme without the extras listed above? Scaffold it directly instead:
+
+    ```sh
+    npm create fuwari@latest
+    yarn create fuwari
+    pnpm create fuwari@latest
+    bun create fuwari@latest
+    deno run -A npm:create-fuwari@latest
+    ```
+
+2. **Install the dependencies** with `pnpm install`. If you don't have pnpm yet, run `npm install -g pnpm` first.
+3. **Configure your blog** in `src/config.ts` — the site title, banner, profile card, navigation, comments, the Live2D mascot, the right sidebar and the extra pages all live there.
+4. **Write your first post** with `pnpm new-post <filename>`, then edit the file in `src/content/posts/`.
+5. **Deploy.** Set `site` and `base` in `astro.config.mjs`, then follow the [Astro deployment guides](https://docs.astro.build/en/guides/deploy/) for Vercel, Netlify, GitHub Pages, or anywhere else.
 
 ## 📝 Frontmatter of Posts
 
@@ -98,17 +104,17 @@ In addition to Astro's default support for [GitHub Flavored Markdown](https://gi
 
 All commands are run from the root of the project, from a terminal:
 
-| Command                    | Action                                              |
-|:---------------------------|:----------------------------------------------------|
-| `pnpm install`             | Installs dependencies                               |
-| `pnpm dev`                 | Starts local dev server at `localhost:4321`         |
-| `pnpm build`               | Build your production site to `./dist/`             |
-| `pnpm preview`             | Preview your build locally, before deploying        |
-| `pnpm check`               | Run checks for errors in your code                  |
-| `pnpm format`              | Format your code using Biome                        |
-| `pnpm new-post <filename>` | Create a new post                                   |
-| `pnpm astro ...`           | Run CLI commands like `astro add`, `astro check`    |
-| `pnpm astro --help`        | Get help using the Astro CLI                        |
+| Command                    | Action                                           |
+|:---------------------------|:-------------------------------------------------|
+| `pnpm install`             | Installs dependencies                            |
+| `pnpm dev`                 | Starts local dev server at `localhost:4321`      |
+| `pnpm build`               | Build your production site to `./dist/`          |
+| `pnpm preview`             | Preview your build locally, before deploying     |
+| `pnpm check`               | Run checks for errors in your code               |
+| `pnpm format`              | Format your code using Biome                     |
+| `pnpm new-post <filename>` | Create a new post                                |
+| `pnpm astro ...`           | Run CLI commands like `astro add`, `astro check` |
+| `pnpm astro --help`        | Get help using the Astro CLI                     |
 
 ## 🙏 Credits
 

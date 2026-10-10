@@ -1,59 +1,65 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../assets/readme/hero-dark.svg">
+    <img src="../assets/readme/hero.svg" width="100%" alt="Xieluyang's Blog —— บล็อกส่วนตัวที่สร้างบนธีม Fuwari มีตัวละคร Live2D อยู่มุมล่างซ้าย และใช้เลย์เอาต์สามคอลัมน์: การ์ดโปรไฟล์ รายการบทความ และแถบสถิติด้านขวา">
+  </picture>
+</p>
+
 # 🍥 บ้านหลังเล็กของ Xieluyang
 
 ![Node.js >= 20](https://img.shields.io/badge/node.js-%3E%3D20-brightgreen)
 ![pnpm >= 9](https://img.shields.io/badge/pnpm-%3E%3D9-blue)
 ![Astro 5](https://img.shields.io/badge/Astro-5-BC52EE?logo=astro&logoColor=white)
 
-บล็อกส่วนตัวของผม ใช้จดบันทึกการเรียน สิ่งที่ลองผิดลองถูก และเรื่องอื่น ๆ ที่คิดว่าควรค่าแก่การเขียนเก็บไว้ สร้างด้วย [Astro](https://astro.build) บนธีม [Fuwari](https://github.com/saicaca/fuwari) พร้อมตัวละคร Live2D เลย์เอาต์สามคอลัมน์ และหน้าพิเศษอีกหลายหน้าที่พอร์ตมาจากธีม [Mizuki](https://github.com/LyraVoid/Mizuki)
+บล็อกส่วนตัวของผม ใช้จดบันทึกการเรียน สิ่งที่ลองผิดลองถูก และเรื่องอื่น ๆ ที่คิดว่าควรค่าแก่การเขียนเก็บไว้
 
-[**🖥️ ไปที่เว็บไซต์**](https://007912.xyz)
+สร้างด้วย [Astro](https://astro.build) บนธีม [Fuwari](https://github.com/saicaca/fuwari) พร้อมตัวละคร Live2D เลย์เอาต์สามคอลัมน์ และหน้าพิเศษอีกหลายหน้าที่พอร์ตมาจากธีม [Mizuki](https://github.com/LyraVoid/Mizuki)
 
-![หน้าแรก](images/home-light.png)
+**🖥️ อ่านได้ที่ [007912.xyz](https://007912.xyz)**
 
-🌏 README ภาษา
-[**English**](https://github.com/Xieluyang912/fuwari/blob/main/README.md) /
-[**中文**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.zh-CN.md) /
-[**日本語**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.ja.md) /
-[**한국어**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.ko.md) /
-[**Español**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.es.md) /
-[**Tiếng Việt**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.vi.md) /
-[**Bahasa Indonesia**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.id.md)
+![หน้าแรก——แบนเนอร์ การ์ดโปรไฟล์ รายการบทความ และแถบสถิติด้านขวา (โหมดสว่าง)](images/home-light.png)
+
+🌏 **README ภาษา:** [English](../README.md) · [中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Tiếng Việt](README.vi.md) · [Bahasa Indonesia](README.id.md)
 
 ## ✨ คุณสมบัติ
 
-- [x] สร้างด้วย [Astro](https://astro.build) และ [Tailwind CSS](https://tailwindcss.com)
-- [x] แอนิเมชันและการเปลี่ยนหน้านุ่มนวลด้วย [Swup](https://swup.js.org/)
-- [x] โหมดสว่าง / มืด
-- [x] ปรับแต่งสีธีมและภาพแบนเนอร์ได้
-- [x] ดีไซน์ตอบสนองทุกขนาดหน้าจอ
-- [x] ค้นหาทั้งเว็บไซต์ด้วย [Pagefind](https://pagefind.app/)
-- [x] [ไวยากรณ์ Markdown ส่วนขยาย](#-ไวยากรณ์-markdown-ส่วนขยาย)
-- [x] สารบัญในบทความ (TOC)
-- [x] ฟีด RSS
-- [x] ระบบคอมเมนต์ด้วย [giscus](https://giscus.app/)
-- [x] ตัวละคร Live2D ที่มุมล่างซ้าย เรนเดอร์ด้วย [oh-my-live2d](https://github.com/hacxy/oh-my-live2d)
-- [x] แถบด้านขวา: สถิติเว็บไซต์ ปฏิทินบทความ และหมวดหมู่
-- [x] หน้าพิเศษ: [โปรเจกต์](https://007912.xyz/projects/), [ทักษะ](https://007912.xyz/skills/), [เครื่องมือ AI](https://007912.xyz/ai-tools/) และ [ไทม์ไลน์](https://007912.xyz/timeline/)
+**การเขียน**
+
+- [ไวยากรณ์ Markdown ส่วนขยาย](#-ไวยากรณ์-markdown-ส่วนขยาย) —— กล่องข้อความเน้น การ์ดที่เก็บโค้ด GitHub และบล็อกโค้ด [Expressive Code](https://expressive-code.com/) ที่มีเลขบรรทัดและส่วนที่พับเก็บได้
+- สารบัญ (TOC) ในทุกบทความ
+- ค้นหาทั้งเว็บไซต์ด้วย [Pagefind](https://pagefind.app/) พร้อมฟีด RSS
+- ระบบคอมเมนต์ด้วย [giscus](https://giscus.app/)
+
+**รูปลักษณ์**
+
+- โหมดสว่าง / มืด ปรับแต่งสีธีมและภาพแบนเนอร์ได้
+- ดีไซน์ตอบสนองทุกขนาดหน้าจอ พร้อมการเปลี่ยนหน้านุ่มนวลด้วย [Swup](https://swup.js.org/)
+- สร้างด้วย [Astro](https://astro.build) และ [Tailwind CSS](https://tailwindcss.com)
+
+**เพิ่มเติมจากธีม Fuwari ต้นฉบับ**
+
+- ตัวละคร Live2D ที่มุมล่างซ้าย เรนเดอร์ด้วย [oh-my-live2d](https://github.com/hacxy/oh-my-live2d)
+- คอลัมน์ที่สามทางด้านขวา —— สถิติเว็บไซต์ ปฏิทินบทความ และหมวดหมู่
+- หน้าพิเศษ: [โปรเจกต์](https://007912.xyz/projects/), [ทักษะ](https://007912.xyz/skills/), [เครื่องมือ AI](https://007912.xyz/ai-tools/) และ [ไทม์ไลน์](https://007912.xyz/timeline/)
 
 ## 🚀 เริ่มต้นใช้งาน
 
-อยากสร้างบล็อกแบบนี้ใช่ไหม?
+1. **เอาโค้ดไปใช้** fork ที่เก็บโค้ดนี้ หรือ[สร้างที่เก็บโค้ดใหม่](https://github.com/Xieluyang912/fuwari/generate)จากเทมเพลตนี้
 
-1. เริ่มจากที่เก็บโค้ดนี้:
-    - [สร้างที่เก็บโค้ดใหม่](https://github.com/Xieluyang912/fuwari/generate) จากเทมเพลตนี้ หรือ fork ที่เก็บโค้ดนี้
-    - หรือจะใช้คำสั่งด้านล่างเพื่อเริ่มต้นธีม Fuwari ต้นฉบับก็ได้ แต่โปรดทราบว่าวิธีนี้จะ**ไม่ได้**การปรับแต่งที่กล่าวไว้ข้างต้น:
-       ```sh
-       npm create fuwari@latest
-       yarn create fuwari
-       pnpm create fuwari@latest
-       bun create fuwari@latest
-       deno run -A npm:create-fuwari@latest
-       ```
-2. โคลนที่เก็บโค้ดลงเครื่อง แล้วรัน `pnpm install` เพื่อติดตั้ง dependencies
-    - ถ้ายังไม่มี [pnpm](https://pnpm.io) ให้ติดตั้งด้วย `npm install -g pnpm`
-3. แก้ไขไฟล์ตั้งค่า `src/config.ts` เพื่อปรับแต่งบล็อกของคุณ ทั้งชื่อเว็บไซต์ แบนเนอร์ การ์ดโปรไฟล์ แถบนำทาง คอมเมนต์ ตัวละคร Live2D แถบด้านข้าง และหน้าพิเศษ ตั้งค่าได้ทั้งหมดที่นี่
-4. รัน `pnpm new-post <ชื่อไฟล์>` เพื่อสร้างบทความใหม่ แล้วแก้ไขได้ในโฟลเดอร์ `src/content/posts/`
-5. ก่อน deploy ให้ตั้งค่า `site` และ `base` ใน `astro.config.mjs` จากนั้น deploy ขึ้น Vercel, Netlify, GitHub Pages ฯลฯ ตาม[คู่มือของ Astro](https://docs.astro.build/en/guides/deploy/)
+    ถ้าอยากได้ธีม Fuwari ต้นฉบับที่**ไม่มี**การปรับแต่งข้างต้น ให้ใช้คำสั่งเหล่านี้แทน:
+
+    ```sh
+    npm create fuwari@latest
+    yarn create fuwari
+    pnpm create fuwari@latest
+    bun create fuwari@latest
+    deno run -A npm:create-fuwari@latest
+    ```
+
+2. **ติดตั้ง dependencies** ด้วย `pnpm install` ถ้ายังไม่มี [pnpm](https://pnpm.io) ให้รัน `npm install -g pnpm` ก่อน
+3. **ตั้งค่าบล็อกของคุณ** ใน `src/config.ts` ทั้งชื่อเว็บไซต์ แบนเนอร์ การ์ดโปรไฟล์ แถบนำทาง คอมเมนต์ ตัวละคร Live2D แถบด้านข้าง และหน้าพิเศษ ตั้งค่าได้ทั้งหมดที่นี่
+4. **เขียนบทความแรก** ด้วย `pnpm new-post <ชื่อไฟล์>` แล้วแก้ไขไฟล์ในโฟลเดอร์ `src/content/posts/`
+5. **Deploy** ตั้งค่า `site` และ `base` ใน `astro.config.mjs` จากนั้นทำตาม[คู่มือการ deploy ของ Astro](https://docs.astro.build/en/guides/deploy/) ขึ้น Vercel, Netlify, GitHub Pages ฯลฯ
 
 ## 📝 Frontmatter (ส่วนหัวไฟล์) ของโพสต์
 
@@ -120,4 +126,4 @@ lang: th      # ใส่เฉพาะเมื่อภาษาของโ�
 
 ## 📄 สัญญาอนุญาต
 
-ส่วนของธีมเผยแพร่ภายใต้ [MIT License](LICENSE) ส่วนเนื้อหาบทความใช้สัญญาอนุญาต [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+ส่วนของธีมเผยแพร่ภายใต้ [MIT License](../LICENSE) ส่วนเนื้อหาบทความใช้สัญญาอนุญาต [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)

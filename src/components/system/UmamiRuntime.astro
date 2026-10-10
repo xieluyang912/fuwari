@@ -12,7 +12,7 @@
  *     这里在浏览器里再拉一次覆盖，能拉到就是实时的，拉不到就保留构建期那份。
  *
  * ⚠️ 零额外负担：`umamiConfig.enable` 为 false（默认）或 shareUrl 为空时，
- *    整个组件渲染出空内容 —— 下面两个 <script> 都不会进入渲染树，
+ *    整个组件渲染出空内容 —— 下面两个 script 标签都不会进入渲染树，
  *    Astro 也就不会把它们打包/输出，连字节都不会产生。
  */
 import { resolveUmamiOptions, umamiConfig } from "../../config/umamiConfig";

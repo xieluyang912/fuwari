@@ -1,59 +1,65 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../assets/readme/hero-dark.svg">
+    <img src="../assets/readme/hero.svg" width="100%" alt="Xieluyang's Blog —— un blog personal construido sobre el tema Fuwari, con una mascota Live2D en la esquina inferior izquierda y un diseño de tres columnas: tarjeta de perfil, lista de entradas y barra lateral de estadísticas.">
+  </picture>
+</p>
+
 # 🍥 La casita de Xieluyang
 
 ![Node.js >= 20](https://img.shields.io/badge/node.js-%3E%3D20-brightgreen)
 ![pnpm >= 9](https://img.shields.io/badge/pnpm-%3E%3D9-blue)
 ![Astro 5](https://img.shields.io/badge/Astro-5-BC52EE?logo=astro&logoColor=white)
 
-Mi blog personal: apuntes de estudio, cosas que voy trasteando y cualquier otra cosa que merezca la pena dejar por escrito. Está construido con [Astro](https://astro.build) sobre el tema [Fuwari](https://github.com/saicaca/fuwari), con una mascota Live2D, un diseño de tres columnas y algunas páginas extra portadas del tema [Mizuki](https://github.com/LyraVoid/Mizuki).
+Mi blog personal: apuntes de estudio, cosas que voy trasteando y cualquier otra cosa que merezca la pena dejar por escrito.
 
-[**🖥️ Ver el sitio**](https://007912.xyz)
+Está construido con [Astro](https://astro.build) sobre el tema [Fuwari](https://github.com/saicaca/fuwari), con una mascota Live2D, un diseño de tres columnas y algunas páginas extra portadas del tema [Mizuki](https://github.com/LyraVoid/Mizuki).
 
-![Página de inicio](images/home-light.png)
+**🖥️ Visítalo en [007912.xyz](https://007912.xyz)**
 
-🌏 README en
-[**English**](https://github.com/Xieluyang912/fuwari/blob/main/README.md) /
-[**中文**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.zh-CN.md) /
-[**日本語**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.ja.md) /
-[**한국어**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.ko.md) /
-[**ไทย**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.th.md) /
-[**Tiếng Việt**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.vi.md) /
-[**Bahasa Indonesia**](https://github.com/Xieluyang912/fuwari/blob/main/docs/README.id.md)
+![Página de inicio: banner, tarjeta de perfil, lista de entradas y barra lateral de estadísticas (modo claro)](images/home-light.png)
+
+🌏 **README en:** [English](../README.md) · [中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [ไทย](README.th.md) · [Tiếng Việt](README.vi.md) · [Bahasa Indonesia](README.id.md)
 
 ## ✨ Características
 
-- [x] Construido con [Astro](https://astro.build) y [Tailwind CSS](https://tailwindcss.com)
-- [x] Animaciones y transiciones de página fluidas, gracias a [Swup](https://swup.js.org/)
-- [x] Modo claro / oscuro
-- [x] Color del tema y banner personalizables
-- [x] Diseño responsivo
-- [x] Búsqueda de texto completo con [Pagefind](https://pagefind.app/)
-- [x] [Sintaxis extendida de Markdown](#-sintaxis-extendida-de-markdown)
-- [x] Tabla de contenidos
-- [x] Feed RSS
-- [x] Comentarios con [giscus](https://giscus.app/)
-- [x] Mascota Live2D en la esquina inferior izquierda, renderizada con [oh-my-live2d](https://github.com/hacxy/oh-my-live2d)
-- [x] Barra lateral derecha con estadísticas del sitio, calendario de entradas y categorías
-- [x] Páginas extra: [Proyectos](https://007912.xyz/projects/), [Habilidades](https://007912.xyz/skills/), [Herramientas de IA](https://007912.xyz/ai-tools/) y [Cronología](https://007912.xyz/timeline/)
+**Escritura**
+
+- [Sintaxis extendida de Markdown](#-sintaxis-extendida-de-markdown): bloques de aviso, tarjetas de repositorios de GitHub y bloques de código de [Expressive Code](https://expressive-code.com/) con números de línea y secciones plegables
+- Tabla de contenidos en cada entrada
+- Búsqueda de texto completo con [Pagefind](https://pagefind.app/) y feed RSS
+- Comentarios con [giscus](https://giscus.app/)
+
+**Aspecto**
+
+- Modo claro / oscuro, con color del tema y banner personalizables
+- Diseño responsivo y transiciones de página fluidas gracias a [Swup](https://swup.js.org/)
+- Construido con [Astro](https://astro.build) y [Tailwind CSS](https://tailwindcss.com)
+
+**Más allá del tema Fuwari original**
+
+- Una mascota Live2D en la esquina inferior izquierda, renderizada con [oh-my-live2d](https://github.com/hacxy/oh-my-live2d)
+- Una tercera columna a la derecha: estadísticas del sitio, calendario de entradas y categorías
+- Páginas extra: [Proyectos](https://007912.xyz/projects/), [Habilidades](https://007912.xyz/skills/), [Herramientas de IA](https://007912.xyz/ai-tools/) y [Cronología](https://007912.xyz/timeline/)
 
 ## 🚀 Cómo empezar
 
-¿Quieres montar un blog como este?
+1. **Consigue el código.** Haz un fork de este repositorio o [genera uno nuevo a partir de la plantilla](https://github.com/Xieluyang912/fuwari/generate).
 
-1. Empieza desde este repositorio:
-    - [Genera un nuevo repositorio](https://github.com/Xieluyang912/fuwari/generate) a partir de esta plantilla, o haz un fork de este repositorio.
-    - También puedes inicializar el tema Fuwari original con estos comandos, pero ten en cuenta que así obtienes el tema original **sin** las personalizaciones descritas arriba:
-       ```sh
-       npm create fuwari@latest
-       yarn create fuwari
-       pnpm create fuwari@latest
-       bun create fuwari@latest
-       deno run -A npm:create-fuwari@latest
-       ```
-2. Clona tu repositorio y ejecuta `pnpm install` para instalar las dependencias.
-    - Si aún no tienes [pnpm](https://pnpm.io), instálalo con `npm install -g pnpm`.
-3. Edita el archivo de configuración `src/config.ts` para personalizar tu blog: el título del sitio, el banner, la tarjeta de perfil, la navegación, los comentarios, la mascota Live2D, la barra lateral y las páginas extra están todos ahí.
-4. Ejecuta `pnpm new-post <nombre-de-archivo>` para crear una entrada nueva y edítala en `src/content/posts/`.
-5. Antes de desplegar, configura `site` y `base` en `astro.config.mjs` y despliega en Vercel, Netlify, GitHub Pages, etc. siguiendo las [guías de Astro](https://docs.astro.build/es/guides/deploy/).
+    ¿Prefieres el tema Fuwari original **sin** las personalizaciones de arriba? Inicialízalo directamente:
+
+    ```sh
+    npm create fuwari@latest
+    yarn create fuwari
+    pnpm create fuwari@latest
+    bun create fuwari@latest
+    deno run -A npm:create-fuwari@latest
+    ```
+
+2. **Instala las dependencias** con `pnpm install`. Si aún no tienes [pnpm](https://pnpm.io), ejecuta antes `npm install -g pnpm`.
+3. **Configura tu blog** en `src/config.ts`: el título del sitio, el banner, la tarjeta de perfil, la navegación, los comentarios, la mascota Live2D, la barra lateral y las páginas extra están todos ahí.
+4. **Escribe tu primera entrada** con `pnpm new-post <nombre-de-archivo>` y edítala en `src/content/posts/`.
+5. **Despliega.** Configura `site` y `base` en `astro.config.mjs` y sigue las [guías de despliegue de Astro](https://docs.astro.build/es/guides/deploy/) para Vercel, Netlify, GitHub Pages, etc.
 
 ## 📝 Cabecera de las entradas
 
@@ -120,4 +126,4 @@ Todos los comandos se ejecutan desde la raíz del proyecto, en una terminal:
 
 ## 📄 Licencia
 
-El tema se distribuye bajo la [Licencia MIT](LICENSE). Las entradas del blog se publican bajo [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+El tema se distribuye bajo la [Licencia MIT](../LICENSE). Las entradas del blog se publican bajo [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).

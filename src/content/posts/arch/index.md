@@ -11,13 +11,12 @@ lang: ''
 
 <div class="badge-row">
 
-![Static Badge](https://img.shields.io/badge/%E9%A1%B9%E7%9B%AE-%E5%A4%A7%E5%88%9B-blue)
-![Static Badge](https://img.shields.io/badge/%E5%AD%A6%E7%A7%91-%E4%B8%B4%E5%BA%8A%E5%8C%BB%E5%AD%A6-red)
-![Static Badge](https://img.shields.io/badge/%E4%BA%BA%E7%BE%A4-%E5%B0%8F%E5%84%BF%E5%A4%96%E7%A7%91-orange)
-![Static Badge](https://img.shields.io/badge/%E6%8A%80%E6%9C%AF-%E5%BA%8A%E6%97%81%E8%83%83%E8%B6%85%E5%A3%B0-green)
-![Static Badge](https://img.shields.io/badge/pubmed-%E6%96%87%E7%8C%AE%E8%B0%83%E7%A0%94-blue?logo=pubmed)
-![Static Badge](https://img.shields.io/badge/zotero-xxllyy-blue?logo=zotero)
-![Static Badge](https://img.shields.io/badge/%E7%8A%B6%E6%80%81-%E8%8D%89%E7%A8%BF-lightgrey)
+![Static Badge](https://img.shields.io/badge/%E7%B1%BB%E5%9E%8B-%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B-blue)
+![Static Badge](https://img.shields.io/badge/%E7%B3%BB%E7%BB%9F-Arch%20Linux-1793d1?logo=archlinux&logoColor=white)
+![Static Badge](https://img.shields.io/badge/%E5%B7%A5%E5%85%B7-archinstall-1793d1?logo=linux&logoColor=white)
+![Static Badge](https://img.shields.io/badge/%E5%BC%95%E5%AF%BC-UEFI%20%2F%20BIOS-orange)
+![Static Badge](https://img.shields.io/badge/%E6%A1%8C%E9%9D%A2-KDE%20%2F%20GNOME%20%2F%20Hyprland-green)
+![Static Badge](https://img.shields.io/badge/%E7%8A%B6%E6%80%81-%E5%B7%B2%E6%95%B4%E7%90%86-lightgrey)
 
 </div>
 

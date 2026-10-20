@@ -254,20 +254,36 @@ archinstall --config-url https://x/config.json   # 远程配置
 > 想快速生成一份配置模板，可运行 `archinstall --dry-run`：它在**安全模式**下模拟安装并把配置存到磁盘，不真正写盘。
 ---
 ## 11. 常见问题与排错
-**Q：运行 `archinstall` 提示找不到命令 / 依赖缺失？**
+
+> 以下按「现象 → 原因 → 处理」整理，先对照现象，再按提示排查。
+
+**Q1：运行 `archinstall` 提示找不到命令 / 依赖缺失？**
+
 A：确认是从**官方 Arch ISO** 启动，而不是其他发行版的 Live 盘。官方 ISO 自带 `archinstall`。
-**Q：Wi‑Fi 连不上？**
+
+**Q2：Wi‑Fi 连不上？**
+
 A：安装器不代连网络。先用 `iwctl` 连好（见第 4 节），再启动 `archinstall`。
-**Q：时间不对导致签名校验失败（"invalid or corrupted package"）？**
+
+**Q3：时间不对导致签名校验失败（`invalid or corrupted package`）？**
+
 A：`timedatectl set-ntp true` 后重试，确保时间已同步。
-**Q：装完开机直接进入命令行，没有桌面？**
+
+**Q4：装完开机直接进入命令行，没有桌面？**
+
 A：说明第 6.11 步没选桌面 Profile。可重启进系统后用 `sudo pacman -S plasma` 等手动安装，或重装时选 Desktop。
-**Q：UEFI 启动但只看到 BIOS 选项 / 反过来？**
-A：检查第 4 节「启动模式」结果。UEFI 需要 EFI 系统分区（FAT32，挂载 `/efi` 或 `/boot`），引导器选 systemd-boot/GRUB；BIOS 只能选 GRUB/Limine。
-**Q：磁盘被整盘清空了？**
-A：第 6.4 步若选了 "Wipe all"，会抹掉整盘。重要数据请提前备份，或改用 Manual partitioning 仅动目标分区。
-**Q：开机卡在解密 / 引导失败？**
-A：确认 BIOS 中关闭了「Secure Boot」（或改用支持 Secure Boot 的 GRUB/UKI 方案）；加密盘需输入正确 LUKS 密码。
+
+**Q5：UEFI 启动但只看到 BIOS 选项 / 反过来？**
+
+A：检查第 4 节「启动模式」结果。UEFI 需要 EFI 系统分区（FAT32，挂载 `/efi` 或 `/boot`），引导器选 systemd-boot / GRUB；BIOS 只能选 GRUB / Limine。
+
+**Q6：磁盘被整盘清空了？**
+
+A：第 6.4 步若选了 `Wipe all`，会抹掉整盘。重要数据请提前备份，或改用 `Manual partitioning` 仅动目标分区。
+
+**Q7：开机卡在解密 / 引导失败？**
+
+A：确认 BIOS 中关闭了「Secure Boot」（或改用支持 Secure Boot 的 GRUB / UKI 方案）；加密盘需输入正确 LUKS 密码。
 ---
 ## 参考与延伸阅读
 - 官方引导安装文档：<https://archinstall.archlinux.page/installing/guided.html>

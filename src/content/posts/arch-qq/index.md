@@ -11,10 +11,12 @@ lang: ''
 
 <div class="badge-row">
 
-![Static Badge](https://img.shields.io/badge/%E7%B1%BB%E5%9E%8B-%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0-blue)
-![Static Badge](https://img.shields.io/badge/%E5%BD%92%E5%B1%9E-%E7%BD%91%E7%AB%99%E7%BB%B4%E6%8A%A4-orange)
-![Static Badge](https://img.shields.io/badge/%E5%B9%B3%E5%8F%B0-bilibili-fb7299)
-![Static Badge](https://img.shields.io/badge/%E6%95%B0%E6%8D%AE%E6%9D%A5%E6%BA%90-%E6%9E%84%E5%BB%BA%E6%9C%9F%E5%BF%AB%E7%85%A7-16a34a)
+![Static Badge](https://img.shields.io/badge/%E7%B1%BB%E5%9E%8B-%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5-blue)
+![Static Badge](https://img.shields.io/badge/%E5%B9%B3%E5%8F%B0-Arch%20Linux-1793d1?logo=archlinux&logoColor=white)
+![Static Badge](https://img.shields.io/badge/%E6%A1%8C%E9%9D%A2-niri-7da1de)
+![Static Badge](https://img.shields.io/badge/%E5%BA%94%E7%94%A8-Linux%20QQ-12B7F5?logo=qq&logoColor=white)
+![Static Badge](https://img.shields.io/badge/%E6%96%B9%E6%A1%88-XWayland-orange)
+![Static Badge](https://img.shields.io/badge/%E7%8A%B6%E6%80%81-%E5%B7%B2%E4%BF%AE%E5%A4%8D-green)
 
 </div>
 

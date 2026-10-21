@@ -28,13 +28,13 @@ lang: ''
 
 ---
 
-## 第一步：安装并配置 XWayland 环境
+## 第一步：安装并配置 XWaylad 环境
 
 > niri 从 **25.08** 版本开始原生集成 `xwayland-satellite`，只要安装它，niri 就会自动设置 `DISPLAY` 并按需启动。
 
 ### 1. 安装 xwayland-satellite
 
-```bash
+```
 sudo pacman -S xwayland-satellite
 ```
 

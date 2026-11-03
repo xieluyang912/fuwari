@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="[https://count.getloli.com/get/@qqnt-liuli-theme?theme=gelbooru](https://count.getloli.com/@zzzz?theme=booru-lewd&padding=7&offset=0&align=top&scale=1&pixelated=1&darkmode=auto)" alt="访问计数" />
+<img src="[https://count.getloli.com/@:name](https://count.getloli.com/@xieluyang?theme=booru-lewd&padding=7&offset=0&align=top&scale=1&pixelated=1&darkmode=auto)" alt=":xieluyang" />
 
 </div>
 

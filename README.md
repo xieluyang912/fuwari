@@ -1,4 +1,4 @@
-<img src="<img src="https://count.getloli.com/get/@qqnt-liuli-theme?theme=gelbooru" alt="访问计数" />" alt="访问计数" />
+<img src="https://count.getloli.com/get/@qqnt-liuli-theme?theme=gelbooru" alt="访问计数" />
 
 # 🍥 Xieluyang's Blog
 

@@ -1,9 +1,4 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/readme/hero-dark.svg">
-    <img src="./assets/readme/hero.svg" width="100%" alt="Xieluyang's Blog — a personal blog built on the Fuwari Astro theme, with a Live2D mascot pinned to the bottom-left corner and a three-column layout: a profile card, a post list and a statistics sidebar.">
-  </picture>
-</p>
+<img src="<img src="https://count.getloli.com/get/@qqnt-liuli-theme?theme=gelbooru" alt="访问计数" />" alt="访问计数" />
 
 # 🍥 Xieluyang's Blog
 

@@ -1,4 +1,9 @@
+<div align="center">
+
 <img src="https://count.getloli.com/get/@qqnt-liuli-theme?theme=gelbooru" alt="访问计数" />
+
+</div>
+
 
 # 🍥 Xieluyang's Blog
 

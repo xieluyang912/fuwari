@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="[https://count.getloli.com/@:xieluyang](https://count.getloli.com/@xieluyang?theme=booru-lewd&padding=7&offset=0&align=top&scale=1&pixelated=1&darkmode=auto)" alt=":xieluyang" />
+![:xieluyang]([https://count.getloli.com/@:name](https://count.getloli.com/@xieluyang?theme=booru-lewd&padding=7&offset=0&align=top&scale=1&pixelated=1&darkmode=auto))
 
 </div>
 
